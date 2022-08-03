@@ -15,7 +15,7 @@ nSitesRun <- 20000 #20000
 sampleID <- 1
 
 #
-
+library(sp)
 library(raster)
 library(rgdal)
 library(data.table)
