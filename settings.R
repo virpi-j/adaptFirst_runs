@@ -97,7 +97,8 @@ funX[match(varNames[c(7,11:12,14)],varNames[varSel])] <- "baWmean"
 ####paths
 pathtoken = "/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/"
 climatepath = "/scratch/project_2000994/PREBASruns/adaptFirst/tempData/"
-
+climatepath_orig = "/scratch/project_2000994/RCP/"
+  
 crsX <- ("+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m
   +no_defs")
 
@@ -113,7 +114,7 @@ startingYear = 2015
 endingYear = 2100
 if(!exists("nYears")) nYears = endingYear-startingYear
 
-rcps = "CurrClim" #c("CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")#c("CurrClim","CanESM2.rcp26.rdata")#,"CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")
+#rcps = "CurrClim" #c("CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")#c("CurrClim","CanESM2.rcp26.rdata")#,"CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")
 
 if(!exists("nSitesRun")) nSitesRun = 20000  ###aproximative number of samples for set runs
 # nSetRuns = 10 #number of set runs

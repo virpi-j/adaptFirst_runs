@@ -1,5 +1,7 @@
 station_id <- 1 # This to localsettings! Station id 1 to 6
-stations <- data.frame(name=c("Helsinki_Vantaa_lentoasema",
+stations <- data.frame(name=c("Helsinki","Jokioinen","Jyväskylä","Kajaani",
+                              "Sodankylä","Utsjoki"),
+              location=c("Helsinki_Vantaa_lentoasema",
                               "Jokioinen_Ilmala",
                               "Jyvaskyla_lentoasema",
                               "Kajaani_lentoasema",
@@ -12,6 +14,7 @@ r_nos_stations <- c(1,5,3,6,5,4) # check these! the region of the weather statio
 
 r_no = region = r_nos_stations[station_id] # region ID
 xy <- stations[station_id,c("ID","x","y")]
+stat_name <- stations[station_id,"name"]
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 
@@ -32,6 +35,9 @@ print(paste("Forest data: maximum distance from weather station",
             round(max(d[nn.d])/1000,2),"km"))
 print(paste("Area of forest within the closest",nSitesRun,"segments is", round(sum(sum(ops[[1]]$area)),2),"hectares"))
 
+
+#rcps = "CurrClim" 
+rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
 #setX=1
 #nSamples <- ceiling(dim(data.all)[1]/nSitesRun)
 #sampleIDs <- split(1:nSamples,             # Applying split() function
@@ -48,7 +54,8 @@ toMem <- ls()
 # sampleIDs <- which(!1:nSamples %in%  as.numeric(stri_extract_last(fileX, regex = "(\\d+)")))
 # print(sampleIDs)
 # sampleIDs <- c(66,342,395)
-sampleXs <- lapply(sampleIDs, function(jx) { 
+sampleID <- 1
+sampleXs <- lapply(sampleID, function(jx) { 
   runModel(jx, outType="testRun", harvScen="Base",
            harvInten="Base")})
 

@@ -106,14 +106,16 @@ runModel <- function(sampleID, outType="dTabs",
   rcpfile = rcps
   #if(outType != "uncRun"){
   #if(!outType %in% c("uncRun","uncSeg")){
-  load(paste(climatepath, rcpfile,".rdata", sep=""))  
   if(rcpfile=="CurrClim"){
+    load(paste(climatepath_orig, rcpfile,".rdata", sep=""))
     #####process data considering only current climate###
     # dat <- dat[rday %in% 1:10958] #uncomment to select some years (10958 needs to be modified)
     maxRday <- max(dat$rday)
     xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2))
     dat = rbind(dat,dat,dat)
     dat[,rday:=xday]
+  } else {
+    dat <- read.csv(paste0(climatepath, rcpfile))  
   }
   #}
   ## Loop regions -------------------------------------------------------
