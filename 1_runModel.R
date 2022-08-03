@@ -1,5 +1,26 @@
-devtools::source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/finRuns/Rsrc/settings.r")
-source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+station_id <- 1 # This to localsettings! Station id 1 to 6
+stations <- data.frame(name=c("Helsinki_Vantaa_lentoasema",
+                              "Jokioinen_Ilmala",
+                              "Jyvaskyla_lentoasema",
+                              "Kajaani_lentoasema",
+                              "Sodankyla_Tahtela",
+                              "Utsjoki_Kevo"))
+r_nos_stations <- c(1,5,3,6,5,4) # check these! the region of the weather station
+r_no = region = r_nos_stations[station_id] # region ID
+
+devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
+source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+
+load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_no,"_IDsTab.rdata"))
+data.all <- cbind(data.all,data.IDs[match(data.all$segID, data.IDs$maakuntaID),4:5])
+
+## Weather station coordinates:
+xy <- data.frame(ID = c(1:6), x = c(24.96, 23.5, 25.67, 27.67, 26.63, 27.01),
+                 y = c(60.33, 60.81, 62.4, 64.28, 67.37, 69.76))
+
+LongLatToUTM(xy[1,c("x","y")])
+
+
 
 setX=1
 nSamples <- ceiling(dim(data.all)[1]/nSitesRun)

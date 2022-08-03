@@ -1,5 +1,21 @@
 CSCrun=T
 
+# local settings
+
+
+# extrLandclass <- c(3) # which landclasses are left out from PREBAS modelling
+# ExcludeUndrPeatlands <- TRUE # TRUE if undrained peatlands left out from runs
+
+setX <- 1
+harvscen<- "Base" #"Base", adapt","protect","protectNoAdH","adaptNoAdH","adaptTapio"
+harvinten<- "Base" # "Base", "Low", "MaxSust", "NoHarv" 
+
+regSets <- "maakunta" ### "forCent", "maakunta"
+nSitesRun <- 20000 #20000
+sampleID <- 1
+
+#
+
 library(raster)
 library(rgdal)
 library(data.table)
@@ -58,17 +74,14 @@ if(!exists("nYearsFert")) nYearsFert=20 ###number of years for which the fertili
 pCrobasX <- pCROB
 pCrobasX[17,1:3] <- pCROB[17,1:3]*0.7
 
+# adapt-First: Volume, growth, Deadwood; C- sequestration (NEP & NPP) 
 varOuts <- c("NEP","GPPtrees", "npp", "grossGrowth", 
              "soilC", "V", "age", "WroundWood","VroundWood",
-             "Litter_fol", "Litter_fr", 
-             "Litter_fWoody", "Litter_cWoody",
              "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
              "Hc_base","wf_STKG","Rh")
 varSel <- match(varOuts,varNames)
 specialVars <- c("domSpecies","domAge","Vdec","VenergyWood",
                  "WenergyWood","Wtot","GVgpp","GVw")
-
-#varSel <- c(7,8,9,11:13,17:18,22,24:33,37:39,41:46)   #### variables IDs to be stored
 
 ###set if you want to use Layers sum of BA average of stored variables
 funX <- rep("sum",length(varSel))
@@ -82,8 +95,8 @@ funX[match(varNames[c(7,11:12,14)],varNames[varSel])] <- "baWmean"
 
 
 ####paths
-pathtoken = "/scratch/project_2000994/PREBASruns/finRuns/"
-climatepath = "/scratch/project_2000994/RCP/"
+pathtoken = "/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/"
+climatepath = "/scratch/project_2000994/PREBASruns/adaptFirst/tempData/"
 
 crsX <- ("+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m
   +no_defs")
@@ -97,7 +110,7 @@ harvestLims <- c(9775000,1466000)
 year1harv=0 ###if 1 set harvLim for Low and MaxSust as 0.6 and 1.2 of HarvLim (Base)
 domSPrun = 0   ### 1 -> run only dominant layer
 startingYear = 2015
-endingYear = 2051
+endingYear = 2100
 if(!exists("nYears")) nYears = endingYear-startingYear
 
 rcps = "CurrClim" #c("CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")#c("CurrClim","CanESM2.rcp26.rdata")#,"CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")
@@ -106,21 +119,34 @@ if(!exists("nSitesRun")) nSitesRun = 20000  ###aproximative number of samples fo
 # nSetRuns = 10 #number of set runs
 
 ####period for model output calculations
-per1=2017:2025
-per2=2026:2033
-per3=2034:2050
+per1=2015:2040
+per2=2021:2050
+per3=2031:2060
+per4=2041:2070
+per5=2051:2080
+per6=2061:2090
+per7=2071:2099
+
 simYear1 = per1 - startingYear
 simYear2 = per2 - startingYear
 simYear3 = per3 - startingYear
+simYear4 = per4 - startingYear
+simYear5 = per5 - startingYear
+simYear6 = per6 - startingYear
+simYear7 = per7 - startingYear
 colsOut1 = c(paste("V", simYear1, sep=""))
 colsOut2 = c(paste("V", simYear2, sep=""))
 colsOut3 = c(paste("V", simYear3, sep=""))
+colsOut4 = c(paste("V", simYear4, sep=""))
+colsOut5 = c(paste("V", simYear5, sep=""))
+colsOut6 = c(paste("V", simYear6, sep=""))
+colsOut7 = c(paste("V", simYear7, sep=""))
 
 
 if(regSets=="forCent"){
-  load(paste0("input/forCent/data.all_forCent_",r_no,".rdata"))
+  load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/forCent/data.all_forCent_",r_no,".rdata"))
 }else{
-  load(paste0("input/maakunta/data.all_maakunta_",r_no,".rdata"))
+  load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/data.all_maakunta_",r_no,".rdata"))
   data.all$segID <- data.all$maakuntaID
 }
 ####procData
@@ -180,37 +206,21 @@ if(regSets=="maakunta"){
     path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
     sheet="roundWood"))
   roundWood <- as.numeric(c(unlist(roundWoodTab[id==r_no,3:9]),
-                            <<<<<<< HEAD
                             rep(unlist(roundWoodTab[id==r_no,10]),3),
                             rep(unlist(roundWoodTab[id==r_no,11]),10),
                             rep(unlist(roundWoodTab[id==r_no,12]),10),
                             rep(unlist(roundWoodTab[id==r_no,13]),10),
                             rep(unlist(roundWoodTab[id==r_no,14]),10)
-                            =======
-                              rep(unlist(roundWoodTab[id==r_no,10]),3),
-                            rep(unlist(roundWoodTab[id==r_no,11]),10),
-                            rep(unlist(roundWoodTab[id==r_no,12]),10),
-                            rep(unlist(roundWoodTab[id==r_no,13]),10),
-                            rep(unlist(roundWoodTab[id==r_no,14]),10)
-                            >>>>>>> 224820b822039e6542a4174cb30bce076d20f90c
   ))
   energyWoodTab <- data.table(read_excel(
     path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
     sheet="energyWood"))
   energyWood <- as.numeric(c(unlist(energyWoodTab[id==r_no,3:9]),
-                             <<<<<<< HEAD
                              rep(unlist(energyWoodTab[id==r_no,10]),3),
                              rep(unlist(energyWoodTab[id==r_no,11]),10),
                              rep(unlist(energyWoodTab[id==r_no,12]),10),
                              rep(unlist(energyWoodTab[id==r_no,13]),10),
                              rep(unlist(energyWoodTab[id==r_no,14]),10)
-                             =======
-                               rep(unlist(energyWoodTab[id==r_no,10]),3),
-                             rep(unlist(energyWoodTab[id==r_no,11]),10),
-                             rep(unlist(energyWoodTab[id==r_no,12]),10),
-                             rep(unlist(energyWoodTab[id==r_no,13]),10),
-                             rep(unlist(energyWoodTab[id==r_no,14]),10)
-                             >>>>>>> 224820b822039e6542a4174cb30bce076d20f90c
   ))
   clcutArTab <- data.table(read_excel(
     path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
@@ -228,13 +238,8 @@ if(regSets=="maakunta"){
     path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
     sheet="thinningAreas"))
   thinAr <- as.numeric(c(unlist(thinArTab[id==r_no,3:9]),
-                         <<<<<<< HEAD
                          rep(unlist(thinArTab[id==r_no,10]),3),
                          rep(unlist(thinArTab[id==r_no,11]),10),
-                         =======
-                           rep(unlist(thinArTab[id==r_no,10]),3),
-                         rep(unlist(thinArTab[id==r_no,11]),10),
-                         >>>>>>> 224820b822039e6542a4174cb30bce076d20f90c
                          rep(unlist(thinArTab[id==r_no,12]),10),
                          rep(unlist(thinArTab[id==r_no,13]),10),
                          rep(unlist(thinArTab[id==r_no,14]),10)
@@ -243,70 +248,74 @@ if(regSets=="maakunta"){
     path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
     sheet="NoClearCutArea"))
   noClcutAr <- as.numeric(c(unlist(noClcutArTab[id==r_no,3:9]),
-                            <<<<<<< HEAD
                             rep(unlist(noClcutArTab[id==r_no,10]),3),
-                            =======
-                              rep(unlist(noClcutArTab[id==r_no,10]),3),
-                            >>>>>>> 224820b822039e6542a4174cb30bce076d20f90c
                             rep(unlist(noClcutArTab[id==r_no,11]),10),
                             rep(unlist(noClcutArTab[id==r_no,12]),10),
                             rep(unlist(noClcutArTab[id==r_no,13]),10),
                             rep(unlist(noClcutArTab[id==r_no,14]),10)
-                            <<<<<<< HEAD
   ))
-  =======
-    ))
->>>>>>> 224820b822039e6542a4174cb30bce076d20f90c
-
-firstThinAreaTab <- data.table(read_excel(
-  path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
-  sheet="firstThinArea"))
-firstThinAr <- as.numeric(c(unlist(firstThinAreaTab[id==r_no,3:9]),
-                            <<<<<<< HEAD
-                            rep(unlist(firstThinAreaTab[id==r_no,10]),3),
-                            =======
+  
+  firstThinAreaTab <- data.table(read_excel(
+    path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
+    sheet="firstThinArea"))
+  firstThinAr <- as.numeric(c(unlist(firstThinAreaTab[id==r_no,3:9]),
                               rep(unlist(firstThinAreaTab[id==r_no,10]),3),
-                            >>>>>>> 224820b822039e6542a4174cb30bce076d20f90c
-                            rep(unlist(firstThinAreaTab[id==r_no,11]),10),
-                            rep(unlist(firstThinAreaTab[id==r_no,12]),10),
-                            rep(unlist(firstThinAreaTab[id==r_no,13]),10),
-                            rep(unlist(firstThinAreaTab[id==r_no,14]),10)
-                            <<<<<<< HEAD
-))
-=======
+                              rep(unlist(firstThinAreaTab[id==r_no,11]),10),
+                              rep(unlist(firstThinAreaTab[id==r_no,12]),10),
+                              rep(unlist(firstThinAreaTab[id==r_no,13]),10),
+                              rep(unlist(firstThinAreaTab[id==r_no,14]),10)
   ))
->>>>>>> 224820b822039e6542a4174cb30bce076d20f90c
-
-tendingAreaTab <- data.table(read_excel(
-  path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
-  sheet="tendingArea"))
-tendingAr <- as.numeric(c(unlist(tendingAreaTab[id==r_no,3:9]),
-                          <<<<<<< HEAD
-                          rep(unlist(tendingAreaTab[id==r_no,10]),3),
-                          rep(unlist(tendingAreaTab[id==r_no,11]),10),
-                          rep(unlist(tendingAreaTab[id==r_no,12]),10),
-                          rep(unlist(tendingAreaTab[id==r_no,13]),10),
-                          rep(unlist(tendingAreaTab[id==r_no,14]),10)
-                          =======
+  
+  tendingAreaTab <- data.table(read_excel(
+    path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
+    sheet="tendingArea"))
+  tendingAr <- as.numeric(c(unlist(tendingAreaTab[id==r_no,3:9]),
                             rep(unlist(tendingAreaTab[id==r_no,10]),3),
-                          rep(unlist(tendingAreaTab[id==r_no,11]),10),
-                          rep(unlist(tendingAreaTab[id==r_no,12]),10),
-                          rep(unlist(tendingAreaTab[id==r_no,13]),10),
-                          rep(unlist(tendingAreaTab[id==r_no,14]),10)
-                          >>>>>>> 224820b822039e6542a4174cb30bce076d20f90c
-))
-stats <- data.table(read_excel(
-  path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
-  sheet="stats",col_types=c("text","numeric","numeric","text",rep("numeric",40)),na="NA"))
-####converts data to model output units
-cFact <- 1e6 ####M m3 -> m3
-stats[,names(stats)[5:9]:=.SD*cFact,.SDcols=5:9]  ####converts volume from Mm3 to m3
-cFact <- 1e9/2 #### orginal units M t dryMatter -> kgC
-stats[,names(stats)[11:30]:= .SD*cFact,.SDcols=11:30] ####converts biomasses
-cFact <- 1e3 #### orginal units kha -> ha
-stats[,names(stats)[38:44]:= .SD*cFact,.SDcols=38:44] ####converts areas
-
+                            rep(unlist(tendingAreaTab[id==r_no,11]),10),
+                            rep(unlist(tendingAreaTab[id==r_no,12]),10),
+                            rep(unlist(tendingAreaTab[id==r_no,13]),10),
+                            rep(unlist(tendingAreaTab[id==r_no,14]),10)
+  ))
+  stats <- data.table(read_excel(
+    path = "/scratch/project_2000994/PREBASruns/metadata/maakunta/harvest.xlsx",
+    sheet="stats",col_types=c("text","numeric","numeric","text",rep("numeric",40)),na="NA"))
+  ####converts data to model output units
+  cFact <- 1e6 ####M m3 -> m3
+  stats[,names(stats)[5:9]:=.SD*cFact,.SDcols=5:9]  ####converts volume from Mm3 to m3
+  cFact <- 1e9/2 #### orginal units M t dryMatter -> kgC
+  stats[,names(stats)[11:30]:= .SD*cFact,.SDcols=11:30] ####converts biomasses
+  cFact <- 1e3 #### orginal units kha -> ha
+  stats[,names(stats)[38:44]:= .SD*cFact,.SDcols=38:44] ####converts areas
+  
 }
 
 regIDs <- stats[4:22,3:4]
 setkey(regIDs,regID)
+
+
+
+long2UTM <- function(long) {
+  ## Function to get the UTM zone for a given longitude
+  (floor((long + 180)/6) %% 60) + 1
+}
+
+
+LongLatToUTM <- function(df){
+  ## Args: df, data frame must have x and y columns. Should be from same UTM zone.
+  ## Create a spatial dataframe
+  coordinates(df) <- ~x+y
+  proj4string(df) <- CRS("+proj=longlat +datum=WGS84")  
+  
+  ## Get zones for all the points in the data frame. 
+  ## Stop if more than one zone is present. 
+  ## You can write your own code for handling cases where your 
+  ## data comes from different UTM zones.
+  
+  zone <- long2UTM(df$x)
+  if (length(unique(zone)) > 1) stop("values from different UTM zones")
+  zone <- unique(zone)
+  
+  ## Change CRS of the spatial data frame and convert to data frame
+  res <- spTransform(df, CRS(paste0("+proj=utm +zone=", zone, "+datum=WGS84")))
+  return(as.data.frame(res))
+}
