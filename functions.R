@@ -21,6 +21,7 @@ runModel <- function(sampleID, outType="dTabs",
   # cons10run -> flag for conservation areas 10% run
   
   # print(date())
+  path_to_inputs <- "/scratch/project_2000994/PREBASruns/finRuns/"
   print(paste("start sample ID",sampleID))
   
   initilizeSoil=T ###flag for soil initialization 
@@ -29,21 +30,21 @@ runModel <- function(sampleID, outType="dTabs",
   ####if cons10run == TRUE run the model considering 10% area is conservation area according to zonation results
   if(harvScen %in% c("protect","protectNoAdH","protectTapio") & cons10run==FALSE ){
     # sampleX$cons[sampleX$Wbuffer==1] <- 1
-    load(paste0("input/maakunta/maakunta_",r_no,"_IDsBuffer.rdata"))
+    load(paste0(path_to_inputs,"input/maakunta/maakunta_",r_no,"_IDsBuffer.rdata"))
     xDat <- buffDat
     procInSample = T
     initilizeSoil = F
   }
   if(cons10run){
-    load(paste0("input/maakunta/maakunta_",r_no,"_IDsCons10.rdata"))
+    load(paste0("path_to_inputs,input/maakunta/maakunta_",r_no,"_IDsCons10.rdata"))
     xDat <- cons10Dat
     procInSample = T
     initilizeSoil = F
   }
   if(procInSample){  
-    if(identical(landClassX,1:3)) load(paste0("initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to3.rdata"))
-    if(identical(landClassX,1:2)) load(paste0("initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to2.rdata"))
-    if(identical(landClassX,1)) load(paste0("initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1.rdata"))
+    if(identical(landClassX,1:3)) load(paste0(path_to_inputs,"initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to3.rdata"))
+    if(identical(landClassX,1:2)) load(paste0(path_to_inputs,"initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to2.rdata"))
+    if(identical(landClassX,1)) load(paste0(path_to_inputs,"initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1.rdata"))
     setnames(xDat,"nPix","N")
     xDat[,area:=N*16^2/10000]
     setkey(ops[[sampleID]],maakuntaID)
@@ -321,7 +322,7 @@ runModel <- function(sampleID, outType="dTabs",
       compHarvX=0.
     }
     ###set parameters to decrease rotation length of 25% (start)
-    load(paste0("input/",regSets,"/pClCut_adapt/ClCutplots_maak",r_no,".rdata"))
+    load(paste0(path_to_inputs,"input/",regSets,"/pClCut_adapt/ClCutplots_maak",r_no,".rdata"))
     ClcutX <- updatePclcut(initPrebas,pClCut)
     initPrebas$inDclct <- ClcutX$inDclct
     initPrebas$inAclct <- ClcutX$inAclct
@@ -342,7 +343,7 @@ runModel <- function(sampleID, outType="dTabs",
     HarvLimX[,2]=0.
     initPrebas$energyCut <- rep(0,length(initPrebas$energyCut))
     ###set parameters to increase rotation length of 25% (start)
-    load(paste0("input/",regSets,"/pClCut_mitigation/ClCutplots_maak",r_no,".rdata"))
+    load(paste0("path_to_inputs,input/",regSets,"/pClCut_mitigation/ClCutplots_maak",r_no,".rdata"))
     ClcutX <- updatePclcut(initPrebas,pClCut)
     initPrebas$inDclct <- ClcutX$inDclct
     initPrebas$inAclct <- ClcutX$inAclct
@@ -364,7 +365,7 @@ runModel <- function(sampleID, outType="dTabs",
     initPrebas$energyCut <- rep(0,length(initPrebas$energyCut))
     
     ###set parameters to increase rotation length of 25% (start)
-    load(paste0("input/",regSets,"/pClCut_mitigation/ClCutplots_maak",r_no,".rdata"))
+    load(paste0(path_to_inputs,"input/",regSets,"/pClCut_mitigation/ClCutplots_maak",r_no,".rdata"))
     ClcutX <- updatePclcut(initPrebas,pClCut)
     initPrebas$inDclct <- ClcutX$inDclct
     initPrebas$inAclct <- ClcutX$inAclct
@@ -539,13 +540,6 @@ runModel <- function(sampleID, outType="dTabs",
 runModOut <- function(sampleID, sampleX,modOut,r_no,harvScen,harvInten,rcpfile,areas,
                       colsOut1,colsOut2,colsOut3,varSel,sampleForPlots){
   ####create pdf for test plots 
-  if(sampleID==sampleForPlots){
-    pdf(paste0("plots/testPlots_",r_no,"_",
-               harvScen,"_",rcpfile,".pdf"))
-    out <- modOut$multiOut
-    save(out,file = paste0("outputDT/forCent",r_no,"/testData.rdata"))
-    rm(out);gc()
-  } 
   marginX= 1:2#(length(dim(out$annual[,,varSel,]))-1)
   nas <- data.table()
   
@@ -578,7 +572,7 @@ runModOut <- function(sampleID, sampleX,modOut,r_no,harvScen,harvInten,rcpfile,a
     assign(varNames[varSel[ij]],pX)
     
     save(list=varNames[varSel[ij]],
-         file=paste0("outputDT/forCent",r_no,"/",
+         file=paste0("outputDT/forCent_",r_no,"_",
                      varNames[varSel[ij]],
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
@@ -586,7 +580,7 @@ runModOut <- function(sampleID, sampleX,modOut,r_no,harvScen,harvInten,rcpfile,a
     rm(list=varNames[varSel[ij]]); gc()
     # save NAs
     if(nrow(nas)>0){
-      save(nas,file=paste0("NAs/NAs_forCent",r_no,
+      save(nas,file=paste0("NAs/NAs_forCent_",r_no,
                            "_","sampleID",sampleID,
                            "_harscen",harvScen,
                            "_harInten",harvInten,"_",
