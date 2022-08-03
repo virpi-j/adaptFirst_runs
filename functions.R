@@ -248,6 +248,10 @@ runModel <- function(sampleID, outType="dTabs",
     }
   }else{
     HarvLim1 <- HarvLimMaak*1000*sum(areas)/sum(data.all$area)
+    
+    # If simulation time period is longer than harvest limit data, add lines
+    if(nrow(HarvLimMaak)<nYears) HarvLim1<-rbind(HarvLim1,HarvLim1[rep(nrow(HarvLim1),nYears-nrow(HarvLim1)),])
+  
     if(harvInten == "Low"){ HarvLim1 <- HarvLim1 * 0.6}
     if(harvInten == "MaxSust"){HarvLim1 <- HarvLim1 * 1.2}
     if(harvScen == "NoHarv"){
