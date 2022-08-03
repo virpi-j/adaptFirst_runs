@@ -118,20 +118,6 @@ runModel <- function(sampleID, outType="dTabs",
     dat <- read.csv(paste0(climatepath, rcpfile))  
   }
   #}
-  ## Loop regions -------------------------------------------------------
-  # for (r_no in regions) {
-  # print(date())
-  # print(paste("Region", r_no) )
-  # r_no=7
-  ## Load samples from regions; region-files include every 1000th pixel
-  ## Pixel data are from 16 m x 16 m cells, but all numbers are per unit area.
-  ## Model also produces per values  per hectar or m2.
-  ## Note also that some of the pixels are non-forest (not metsamaa, kitumaa, joutomaa)
-  ## or not inside Finland (32767) or may be cloudcovered (32766).
-  
-  # data.all = fread(paste(regiondatapath, "data.proc.", r_no, ".txt", sep=""))
-  # data.all = fread(paste("data.proc.", r_no, ".txt",sep=""))
-  # dat = dat[id %in% data.all[, unique(id)]]
   gc()
   ## Prepare the same initial state for all harvest scenarios that are simulated in a loop below
   data.sample = sample_data.f(sampleX, nSample)
@@ -158,11 +144,7 @@ runModel <- function(sampleID, outType="dTabs",
                                      startingYear = startingYear,domSPrun=domSPrun,
                                      harv=harvScen, HcFactorX=HcFactor)
   
-  if(outType %in% c("uncRun","uncSeg")){
-    initPrebas$pPRELES <- pPRELES
-    initPrebas$pYASSO <- pYAS
-  }
-  
+
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
@@ -302,13 +284,10 @@ runModel <- function(sampleID, outType="dTabs",
     if(!(harvScen =="Base" & harvInten == "Base")){
       if(!outType %in% c("uncRun","uncSeg")){
         if(!harvScen %in% c("protect","protectNoAdH","protectTapio")){
-          if(identical(landClassX,1:3)) load(paste0("initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to3.rdata"))
-          if(identical(landClassX,1:2)) load(paste0("initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to2.rdata"))
-          if(identical(landClassX,1)) load(paste0("initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1.rdata"))
+          if(identical(landClassX,1:3)) load(paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to3.rdata"))
+          if(identical(landClassX,1:2)) load(paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to2.rdata"))
+          if(identical(landClassX,1)) load(paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1.rdata"))
         }
-      }else{ # if UncRun or uncSeg
-        load(paste0("initSoilCunc/forCent",r_no,"/initSoilC_",outType,"_",sampleID,".rdata"))
-        print(paste0("initsoilID",sampleID,"loaded"))
       }
     }
   }
@@ -407,12 +386,9 @@ runModel <- function(sampleID, outType="dTabs",
     print(paste("initSoilC",sampleID))
     if(outType!="testRun" | forceSaveInitSoil){
       if(!outType %in% c("uncRun","uncSeg")){
-        if(identical(landClassX,1:3)) save(initSoilC,file=paste0("initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to3.rdata"))
-        if(identical(landClassX,1:2)) save(initSoilC,file=paste0("initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to2.rdata"))
-        if(identical(landClassX,1)) save(initSoilC,file=paste0("initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1.rdata"))
-      } else {
-        save(initSoilC,file=paste0("initSoilCunc/forCent",r_no,"/initSoilC_",outType,"_",sampleID,".rdata"))
-        print(paste0("initsoilID",sampleID," saved"))
+        if(identical(landClassX,1:3)) save(initSoilC,file=paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to3.rdata"))
+        if(identical(landClassX,1:2)) save(initSoilC,file=paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to2.rdata"))
+        if(identical(landClassX,1)) save(initSoilC,file=paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1.rdata"))
       }
     }
     ###run yasso (starting from steady state) using PREBAS litter

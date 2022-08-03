@@ -1,3 +1,6 @@
+rm(list=ls())
+gc()
+
 station_id <- 1 # This to localsettings! Station id 1 to 6
 stations <- data.frame(name=c("Helsinki","Jokioinen","Jyväskylä","Kajaani",
                               "Sodankylä","Utsjoki"),
@@ -40,9 +43,11 @@ rcps = "CurrClim"
 #rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
 toMem <- ls()
 
+outType="testRun"
+
 sampleID <- 1
 sampleXs <- lapply(sampleID, function(jx) { 
-  runModel(jx, outType="testRun", harvScen="Base",
+  runModel(jx, outType=outType, harvScen="Base",
            harvInten="Base")})
 
 #mclapply(sampleIDs, function(jx) {
