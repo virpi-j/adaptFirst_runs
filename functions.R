@@ -117,6 +117,7 @@ runModel <- function(sampleID, outType="dTabs",
     dat = rbind(dat,dat,dat,dat)
     #dat <- dat[rep(1:nrow(dat),4),]
     dat[,rday:=xday]
+    rm(list = "xday")
   } else {
     dat <- read.csv(paste0(climatepath, rcpfile))  
   }
@@ -258,10 +259,13 @@ runModel <- function(sampleID, outType="dTabs",
   #if(!is.na(cutArX)){
   print("calculating clearcutting areas")
   clcutArX <- clcutAr * sum(areas)/sum(data.all$area)
+  if(length(clcutArX)<nYears) clcutArX<-c(clcutArX,clcutArX[rep(length(clcutArX),nYears-length(clcutArX))])
   clcutArX <- cbind(clcutArX[1:nYears],0.)
   tendX <- tendingAr * sum(areas)/sum(data.all$area)
+  if(length(tendX)<nYears) tendX<-c(tendX,tendX[rep(length(tendX),nYears-length(tendX))])
   tendX <- cbind(tendX[1:nYears],0.)
   fThinX <- firstThinAr * sum(areas)/sum(data.all$area)
+  if(length(fThinX)<nYears) fThinX<-c(fThinX,fThinX[rep(length(fThinX),nYears-length(fThinX))])
   fThinX <- cbind(fThinX[1:nYears],0.)
   cutArX <- cbind(clcutArX,tendX)
   cutArX <- cbind(cutArX,fThinX)
@@ -436,13 +440,14 @@ runModel <- function(sampleID, outType="dTabs",
   manFor <-  which(sampleX$cons==0)
   unmanFor <- which(sampleX$cons==1)
   if(outType=="ststDeadW"){
+    yearsDeadW <- 1:nYears
     unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
-    save(unmanDeadW,manDeadW,file=paste0("initDeadWVss/reg",
+    save(unmanDeadW,manDeadW,file=paste0("../initDeadWVss/reg",
                                          r_no,"_deadWV_mortMod",mortMod,".rdata"))
-    return("deadWood volume at steady state saved")
+    print("deadWood volume at steady state saved")
   }else{
-    load(paste0("initDeadWVss/reg",
+    load(paste0("../initDeadWVss/reg",
                 r_no,"_deadWV_mortMod",mortMod,".rdata"))
     region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
       aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
