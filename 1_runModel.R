@@ -46,6 +46,19 @@ toMem <- ls()
 outType="testRun"
 
 sampleID <- 1
+if(outType=="testRun"){
+easyInit=FALSE
+forceSaveInitSoil=F 
+cons10run = F
+procDrPeat=F
+coeffPeat1=-240 
+coeffPeat2=70
+coefCH4 = 0.34#g m-2 y-1
+coefN20_1 = 0.23
+coefN20_2 = 0.077#g m-2 y-1
+landClassUnman=NULL
+compHarvX = 0
+}
 sampleXs <- lapply(sampleID, function(jx) { 
   runModel(jx, outType=outType, harvScen="Base",
            harvInten="Base")})

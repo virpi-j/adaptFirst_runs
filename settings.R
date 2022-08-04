@@ -11,7 +11,7 @@ harvscen<- "Base" #"Base", adapt","protect","protectNoAdH","adaptNoAdH","adaptTa
 harvinten<- "Base" # "Base", "Low", "MaxSust", "NoHarv" 
 
 regSets <- "maakunta" ### "forCent", "maakunta"
-nSitesRun <- 20000 #20000
+nSitesRun <- 10000 #20000
 sampleID <- 1
 
 #

@@ -111,8 +111,11 @@ runModel <- function(sampleID, outType="dTabs",
     #####process data considering only current climate###
     # dat <- dat[rday %in% 1:10958] #uncomment to select some years (10958 needs to be modified)
     maxRday <- max(dat$rday)
-    xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*5))
-    dat = rbind(dat,dat,dat,dat,dat)
+    #xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2))
+    xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2),
+              (dat$rday+maxRday*3))
+    dat = rbind(dat,dat,dat,dat)
+    #dat <- dat[rep(1:nrow(dat),4),]
     dat[,rday:=xday]
   } else {
     dat <- read.csv(paste0(climatepath, rcpfile))  
@@ -129,16 +132,6 @@ runModel <- function(sampleID, outType="dTabs",
   
   Region = nfiareas[ID==r_no, Region]
   
-  ###set parameters
-  # if(outType %in% c("uncRun","uncSeg")){
-  HcFactor <- 1
-  if(outType %in% c("uncRun","uncSeg")){
-    pCrobasX <- pCROBASr[[sampleID]]
-    pPRELES <- pPRELr[sampleID,]
-    pYAS <- pYASr[sampleID,]
-    HcFactor <- HcFactorr[sampleID] 
-    print(paste("sampleID",sampleID,"HcFactor =",HcFactor))
-  }
   ## Second, continue now starting from soil SS
   initPrebas = create_prebas_input.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
@@ -177,13 +170,13 @@ runModel <- function(sampleID, outType="dTabs",
   ##here mix years for weather inputs for Curr Climate
   if(rcpfile=="CurrClim"){
     #if(outType=="uncRun"){
-    if(outType %in% c("uncRun","uncSeg")){
-      resampleYear <- resampleYears[sampleID,] 
-      #sample(1:nYears,nYears,replace=T)
-    }else{
+    #if(outType %in% c("uncRun","uncSeg")){
+    #  resampleYear <- resampleYears[sampleID,] 
+    #  #sample(1:nYears,nYears,replace=T)
+    #}else{
       set.seed(10)
       resampleYear <- sample(1:nYears,nYears)
-    } 
+    #} 
     initPrebas$ETSy <- initPrebas$ETSy[,resampleYear]
     initPrebas$P0y <- initPrebas$P0y[,resampleYear,]
     initPrebas$weather <- initPrebas$weather[,resampleYear,,]
@@ -286,13 +279,11 @@ runModel <- function(sampleID, outType="dTabs",
   ###run PREBAS
   if(initilizeSoil){
     if(!(harvScen =="Base" & harvInten == "Base")){
-      if(!outType %in% c("uncRun","uncSeg")){
         if(!harvScen %in% c("protect","protectNoAdH","protectTapio")){
           if(identical(landClassX,1:3)) load(paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to3.rdata"))
           if(identical(landClassX,1:2)) load(paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to2.rdata"))
           if(identical(landClassX,1)) load(paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1.rdata"))
         }
-      }
     }
   }
   initPrebas$yassoRun <- rep(1,initPrebas$nSites)
