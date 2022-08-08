@@ -107,7 +107,7 @@ runModel <- function(sampleID, outType="dTabs",
   #if(outType != "uncRun"){
   #if(!outType %in% c("uncRun","uncSeg")){
   if(rcpfile=="CurrClim"){
-    load(paste(climatepath_orig, rcpfile,".rdata", sep=""))
+    load(paste(climatepath_orig, "CurrClim",".rdata", sep=""))
     #####process data considering only current climate###
     # dat <- dat[rday %in% 1:10958] #uncomment to select some years (10958 needs to be modified)
     maxRday <- max(dat$rday)
@@ -119,7 +119,30 @@ runModel <- function(sampleID, outType="dTabs",
     dat[,rday:=xday]
     rm(list = "xday")
   } else {
-    dat <- read.csv(paste0(climatepath, rcpfile))  
+    dat2 <- read.csv(paste0(climatepath, rcpfile)) 
+    dat2 <- dat2[which(dat2$Year2>=startingYear & dat2$deltaT==0 & dat2$Pchange==0),]
+    climIDs <- unique(sampleX$climID)
+    dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
+                       #PAR=-0.894+1.8*dat2$GLOB,
+                       PAR=1.8*dat2$GLOB/1000,
+                       TAir=dat2$Tmean_detrended,
+                       VPD=dat2$VPdef_detrended,
+                       Precip=dat2$Pre,
+                       CO2=CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),3])
+    clim <- list(PAR = matrix(dat2$PAR,length(climIDs),nrow(dat2),byrow = TRUE),
+         TAir = matrix(dat2$TAir,length(climIDs),nrow(dat2),byrow = TRUE),
+         VPD = matrix(dat2$VPD,length(climIDs),nrow(dat2),byrow = TRUE),
+         Precip = matrix(dat2$Precip,length(climIDs),nrow(dat2),byrow = TRUE),
+         CO2 = matrix(dat2$CO2,length(climIDs),nrow(dat2),byrow = TRUE),
+         id = climIDs)
+    rownames(clim$PAR)<-climIDs     
+    colnames(clim$PAR)<-1:ncol(clim$PAR)     
+    #if(length(climIDs)>1){
+    #  for(ij in 2:length(climIDs)){
+    #  dat <- rbind(dat, dat[,id:=climIDs[ij]])
+    #  }
+    #}
+    #colnames(dat)[7] = "CO2"
   }
   #}
   gc()
@@ -129,7 +152,7 @@ runModel <- function(sampleID, outType="dTabs",
   areas <- data.sample$area
   totAreaSample <- sum(data.sample$area)
   
-  clim = prep.climate.f(dat, data.sample, startingYear, nYears)
+  if(rcpfile=="CurrClim") clim = prep.climate.f(dat, data.sample, startingYear, nYears)
   
   Region = nfiareas[ID==r_no, Region]
   
@@ -866,13 +889,14 @@ yasso.mean.climate.f = function(dat, data.sample, startingYear, nYears){
 
 
 prep.climate.f = function(dat, data.sample, startingYear, nYears){
-  dat = dat[id %in% data.sample[, unique(id)]]
-  # if(rcps== "CurrClim.rdata"){
-  #   dat[, Year:= as.numeric(floor(rday/366)+1971)]
-  #   dat = dat[Year >= startingYear]
-  #   
-  # }else{
-  dat[, pvm:= as.Date('1980-01-01') - 1 + rday ]
+  #if(rcps== "CurrClim.rdata"){
+    dat = dat[id %in% data.sample[, unique(id)]]
+  #}
+  ##   dat[, Year:= as.numeric(floor(rday/366)+1971)]
+  ##   dat = dat[Year >= startingYear]
+  ##   
+  ## }else{
+  dat[, pvm:= as.Date('1991-01-01') - 1 + rday ]
   dat[, DOY:= as.numeric(format(pvm, "%j"))]
   dat[, Year:= as.numeric(format(pvm, "%Y"))]
   dat = dat[Year >= startingYear]

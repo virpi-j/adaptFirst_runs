@@ -20,6 +20,7 @@ xy <- stations[station_id,c("ID","x","y")]
 stat_name <- stations[station_id,"name"]
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
 
 load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_no,"_IDsTab.rdata"))
 data.all <- cbind(data.all,data.IDs[match(data.all$segID, data.IDs$maakuntaID),4:5])
@@ -39,8 +40,9 @@ print(paste("Forest data: maximum distance from weather station",
 print(paste("Area of forest within the closest",nSitesRun,"segments is", round(sum(sum(ops[[1]]$area)),2),"hectares"))
 
 
+
 rcps = "CurrClim" 
-#rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
+rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
 toMem <- ls()
 
 outType="testRun"
