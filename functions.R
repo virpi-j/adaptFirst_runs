@@ -586,7 +586,7 @@ runModOut <- function(sampleID, sampleX,modOut,r_no,harvScen,harvInten,rcpfile,a
   #                         rcpfile,".rdata"))        
   #  }
   ####process and save special variales
-  print(paste("start special vars",sampleID))
+  print(paste("start special vars",deltaID))
   output <- specialVarProc(sampleX,modOut,r_no,harvScen,harvInten,rcpfile,sampleID,
                  areas,sampleForPlots,output)
   return(output)
