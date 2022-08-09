@@ -89,7 +89,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     }
     if(uncRCP>0) {rcps <- paste0(climMod[climModids[sampleID]],rcpx[uncRCP])}
     else {rcps <- "CurrClim"}
-    print(paste0("Climate model ",sampleID,": ",rcps))
+    print(paste0("Climate model deltaID=",deltaID,": ",rcps))
     #print(paste("sampleID",sampleID,"harvestLims ="))
     #print(HarvLimMaak[1,] * sum(sampleX$area)/sum(data.all$area))
   } else {
@@ -405,7 +405,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     }
   }
   
-  print(paste("runModel",sampleID,"completed"))
+  print(paste("runModel",deltaID,"completed"))
   ##calculate steady state carbon from prebas litter 
   if(harvScen=="Base" & harvInten =="Base" & initilizeSoil & deltaID==1){
     initSoilC <- stXX_GV(region, 1)
