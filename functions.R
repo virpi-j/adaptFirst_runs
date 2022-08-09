@@ -5,7 +5,7 @@
 ## ---------------------------------------------------------------------
 ## MAIN SCRIPT: uncRun for random segments, uncSeg for random values for segments
 ## ---------------------------------------------------------------------
-runModel <- function(sampleID, outType="dTabs",
+runModel <- function(deltaID,sampleID=1, outType="dTabs",
                      harvScen,harvInten,easyInit=FALSE,
                      forceSaveInitSoil=F, cons10run = F,
                      procDrPeat=F,coeffPeat1=-240,coeffPeat2=70,
@@ -23,6 +23,7 @@ runModel <- function(sampleID, outType="dTabs",
   # print(date())
   path_to_inputs <- "/scratch/project_2000994/PREBASruns/finRuns/"
   print(paste("start sample ID",sampleID))
+  print(paste("start delta ID",deltaID,": deltaT=", deltaTP[1,deltaID]," deltaP=", deltaTP[2,deltaID]))
   
   initilizeSoil=T ###flag for soil initialization 
   procInSample=F
@@ -120,7 +121,9 @@ runModel <- function(sampleID, outType="dTabs",
     rm(list = "xday")
   } else {
     dat2 <- read.csv(paste0(climatepath, rcpfile)) 
-    dat2 <- dat2[which(dat2$Year2>=startingYear & dat2$deltaT==0 & dat2$Pchange==0),]
+    dat2 <- dat2[which(dat2$Year2>=startingYear & 
+                         dat2$deltaT==deltaTP[1,deltaID] & 
+                         dat2$Pchange==deltaTP[2,deltaID]),]
     climIDs <- unique(sampleX$climID)
     dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
                        #PAR=-0.894+1.8*dat2$GLOB,
@@ -482,9 +485,11 @@ runModel <- function(sampleID, outType="dTabs",
   
   if(outType=="testRun") return(list(region = region,initPrebas=initPrebas))
   if(outType=="dTabs"){
-    runModOut(sampleID, sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
+    output <- runModOut(sampleID, sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
               colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)
-    return("all outs saved")  
+    print("all outs calculated")
+    print(output)
+    return(output)
   } 
   if(outType=="uncRun"){
     # results for all pixels
@@ -544,6 +549,7 @@ runModOut <- function(sampleID, sampleX,modOut,r_no,harvScen,harvInten,rcpfile,a
   ####create pdf for test plots 
   marginX= 1:2#(length(dim(out$annual[,,varSel,]))-1)
   nas <- data.table()
+  output <- data.frame()
   
   for (ij in 1:length(varSel)) {
     # print(varSel[ij])
@@ -554,15 +560,9 @@ runModOut <- function(sampleID, sampleX,modOut,r_no,harvScen,harvInten,rcpfile,a
       outX <- data.table(segID=sampleX$segID,apply(modOut$multiOut[,,varSel[ij],,1],marginX,sum))
     }
     ####test plot
-    # print(outX)
-    if(sampleID==sampleForPlots){testPlot(outX,varNames[varSel[ij]],areas)}
-    
-    p1 <- outX[, .(per1 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut1, by = segID] 
-    p2 <- outX[, .(per2 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut2, by = segID] 
-    p3 <- outX[, .(per3 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut3, by = segID] 
-    
-    pX <- data.table(p1,p2[,2],p3[,2]) # can be the same segment multiple times
-    
+    #print(outX)
+    #if(sampleID==sampleForPlots){testPlot(outX,varNames[varSel[ij]],areas)}
+    pX <- calculatePerCols(outX = outX)
     ##check for NAs
     nax <- data.table(segID=unique(which(is.na(pX),arr.ind=T)[,1]))
     if(nrow(nax)>0){
@@ -570,29 +570,26 @@ runModOut <- function(sampleID, sampleX,modOut,r_no,harvScen,harvInten,rcpfile,a
       nax$sampleID <- sampleID
       nas <- rbind(nas,nax)
     } 
-    
-    assign(varNames[varSel[ij]],pX)
-    
-    save(list=varNames[varSel[ij]],
-         file=paste0("outputDT/forCent_",r_no,"_",
-                     varNames[varSel[ij]],
-                     "_harscen",harvScen,
-                     "_harInten",harvInten,"_",
-                     rcpfile,"_","sampleID",sampleID,".rdata"))
-    rm(list=varNames[varSel[ij]]); gc()
-    # save NAs
-    if(nrow(nas)>0){
-      save(nas,file=paste0("NAs/NAs_forCent_",r_no,
-                           "_","sampleID",sampleID,
-                           "_harscen",harvScen,
-                           "_harInten",harvInten,"_",
-                           rcpfile,".rdata"))        
-    }
+    pX <- colMeans(pX)
+    pX[1] <- varNames[varSel[ij]]
+    names(pX)[1] <- "var"
+    output <- rbind(output, pX)
+    colnames(output) <- names(pX)
+    #print(output)
   }
+  # save NAs
+  #  if(nrow(nas)>0){
+  #    save(nas,file=paste0("NAs/NAs_forCent_",r_no,
+  #                         "_","sampleID",sampleID,
+  #                         "_harscen",harvScen,
+  #                         "_harInten",harvInten,"_",
+  #                         rcpfile,".rdata"))        
+  #  }
   ####process and save special variales
   print(paste("start special vars",sampleID))
-  specialVarProc(sampleX,modOut,r_no,harvScen,harvInten,rcpfile,sampleID,
-                 colsOut1,colsOut2,colsOut3,areas,sampleForPlots)
+  output <- specialVarProc(sampleX,modOut,r_no,harvScen,harvInten,rcpfile,sampleID,
+                 areas,sampleForPlots,output)
+  return(output)
 }
 
 
@@ -1258,128 +1255,104 @@ calMean <- function(varX,hscenX,areas){
   return(meanX)
 }
 
-
+calculatePerCols <- function(outX){ #perStarts,perEnds,startingYear,
+  for(iper in 1:length(perStarts)){      
+    per <- perStarts[iper]:perEnds[iper]
+    simYear = per - startingYear + 1
+    colsOut = c(paste("V", simYear, sep=""))
+    p <- outX[, .(per = rowMeans(.SD,na.rm=T)), .SDcols = colsOut, by = segID] 
+    colnames(p)[2] <- paste0("per",iper)
+    if(iper==1) {
+      pX <- data.table(p)
+      colnames(pX)[1] <- "var"
+    } else {
+      pX <- cbind(pX, p[,2])
+    }
+  }
+  return(pX)
+}
 
 specialVarProc <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,sampleID,
-                           colsOut1,colsOut2,colsOut3,areas,sampleForPlots){
+                           areas,sampleForPlots,output){
   nYears <-  max(region$nYears)
   nSites <-  max(region$nSites)
   ####process and save special variables: 
   ###dominant Species
   outX <- domFun(region,varX="species")  
   ####test plot
-  if(sampleID==sampleForPlots){testPlot(outX,"domSpecies",areas)}
+  #if(sampleID==sampleForPlots){testPlot(outX,"domSpecies",areas)}
   ###take the most frequent species in the periods
-  p1 <- outX[,.(per1 = Mode(as.numeric(.SD))[1]),.SDcols=colsOut1,by=segID]
-  p2 <- outX[,.(per2 = Mode(as.numeric(.SD))[1]),.SDcols=colsOut2,by=segID]
-  p3 <- outX[,.(per3 = Mode(as.numeric(.SD))[1]),.SDcols=colsOut3,by=segID]
-  pX <- merge(p1,p2)
-  pX <- merge(pX,p3)
-  domSpecies <- pX
-  save(domSpecies,file=paste0("outputDT/forCent",r_no,"/domSpecies",
-                              "_harscen",harvScen,
-                              "_harInten",harvInten,"_",
-                              rcpfile,"_",
-                              "sampleID",sampleID,".rdata"))
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "domSpecies"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
+  
   # rm(domSpecies); gc()
   ###age dominant species
   outX <- domFun(region,varX="age")
-  p1 <- outX[, .(per1 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut1, by = segID] 
-  p2 <- outX[, .(per2 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut2, by = segID] 
-  p3 <- outX[, .(per3 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut3, by = segID] 
-  pX <- merge(p1,p2)
-  pX <- merge(pX,p3)
-  domAge <- pX
-  
-  save(domAge,file=paste0("outputDT/forCent",r_no,"/domAge",
-                          "_harscen",harvScen,
-                          "_harInten",harvInten,"_",
-                          rcpfile,"_",
-                          "sampleID",sampleID,".rdata"))
-  ###deciduous Volume Vdec
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "domAge"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
+
+    ###deciduous Volume Vdec
   outX <- vDecFun(region)
-  if(sampleID==sampleForPlots){testPlot(outX,"Vdec",areas)}
-  p1 <- outX[, .(per1 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut1, by = segID] 
-  p2 <- outX[, .(per2 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut2, by = segID] 
-  p3 <- outX[, .(per3 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut3, by = segID] 
-  pX <- merge(p1,p2)
-  pX <- merge(pX,p3)
-  Vdec <- pX
-  save(Vdec,file=paste0("outputDT/forCent",r_no,"/Vdec",
-                        "_harscen",harvScen,
-                        "_harInten",harvInten,"_",
-                        rcpfile,"_",
-                        "sampleID",sampleID,".rdata"))
-  
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "Vdec"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
+
   ####WenergyWood
   outX <- data.table(segID=sampleX$segID,apply(region$multiEnergyWood[,,,2],1:2,sum))
-  if(sampleID==sampleForPlots){testPlot(outX,"WenergyWood",areas)}
-  p1 <- outX[, .(per1 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut1, by = segID] 
-  p2 <- outX[, .(per2 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut2, by = segID] 
-  p3 <- outX[, .(per3 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut3, by = segID] 
-  pX <- merge(p1,p2)
-  WenergyWood <- merge(pX,p3)
-  save(WenergyWood,file=paste0("outputDT/forCent",r_no,"/WenergyWood",
-                               "_harscen",harvScen,
-                               "_harInten",harvInten,"_",
-                               rcpfile,"_",
-                               "sampleID",sampleID,".rdata"))
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "Wenergywood"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
+
   ####VenergyWood
   outX <- data.table(segID=sampleX$segID,apply(region$multiEnergyWood[,,,1],1:2,sum))
   if(sampleID==sampleForPlots){testPlot(outX,"VenergyWood",areas)}
-  p1 <- outX[, .(per1 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut1, by = segID] 
-  p2 <- outX[, .(per2 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut2, by = segID] 
-  p3 <- outX[, .(per3 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut3, by = segID] 
-  pX <- merge(p1,p2)
-  VenergyWood <- merge(pX,p3)
-  save(VenergyWood,file=paste0("outputDT/forCent",r_no,
-                               "/VenergyWood","_harscen",harvScen,
-                               "_harInten",harvInten,"_",
-                               rcpfile,"_",
-                               "sampleID",sampleID,".rdata"))
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "Venergywood"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
+
   ####GVgpp
   outX <- data.table(segID=sampleX$segID,region$GVout[,,3])
-  if(sampleID==sampleForPlots){testPlot(outX,"GVgpp",areas)}
-  p1 <- outX[, .(per1 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut1, by = segID] 
-  p2 <- outX[, .(per2 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut2, by = segID] 
-  p3 <- outX[, .(per3 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut3, by = segID] 
-  pX <- merge(p1,p2)
-  GVgpp <- merge(pX,p3)
-  save(GVgpp,file=paste0("outputDT/forCent",r_no,
-                         "/GVgpp",
-                         "_harscen",harvScen,
-                         "_harInten",harvInten,"_",
-                         rcpfile,"_",
-                         "sampleID",sampleID,".rdata"))
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "GVgpp"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
   ####GVw
   outX <- data.table(segID=sampleX$segID,region$GVout[,,4])
-  if(sampleID==sampleForPlots){testPlot(outX,"GVw",areas)}
-  p1 <- outX[, .(per1 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut1, by = segID] 
-  p2 <- outX[, .(per2 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut2, by = segID] 
-  p3 <- outX[, .(per3 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut3, by = segID] 
-  pX <- merge(p1,p2)
-  GVw <- merge(pX,p3)
-  save(GVw,file=paste0("outputDT/forCent",r_no,
-                       "/GVw","_harscen",harvScen,
-                       "_harInten",harvInten,
-                       "_",rcpfile,"_",
-                       "sampleID",sampleID,".rdata"))
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "GVw"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
   ####Wtot
   outX <- data.table(segID=sampleX$segID,apply(region$multiOut[,,c(24,25,31,32,33),,1],1:2,sum))
-  if(sampleID==sampleForPlots){testPlot(outX,"Wtot",areas)}
-  p1 <- outX[, .(per1 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut1, by = segID] 
-  p2 <- outX[, .(per2 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut2, by = segID] 
-  p3 <- outX[, .(per3 = rowMeans(.SD,na.rm=T)), .SDcols = colsOut3, by = segID] 
-  pX <- merge(p1,p2)
-  Wtot <- merge(pX,p3)
-  save(Wtot,file=paste0("outputDT/forCent",r_no,"/Wtot",
-                        "_harscen",harvScen,
-                        "_harInten",harvInten,"_",
-                        rcpfile,"_",
-                        "sampleID",sampleID,".rdata"))
-  rm(domSpecies,domAge,Vdec,WenergyWood,Wtot,pX,p1,p2,p3); gc()
-  if(sampleID==sampleForPlots){dev.off()}
-  
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "Wtot"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
+  gc()
+  return(output)
 } 
 
 

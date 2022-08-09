@@ -111,7 +111,7 @@ harvestLims <- c(9775000,1466000)
 year1harv=0 ###if 1 set harvLim for Low and MaxSust as 0.6 and 1.2 of HarvLim (Base)
 domSPrun = 0   ### 1 -> run only dominant layer
 startingYear = 2015
-endingYear = 2100
+endingYear = 2101
 if(!exists("nYears")) nYears = endingYear-startingYear
 
 #rcps = "CurrClim" #c("CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")#c("CurrClim","CanESM2.rcp26.rdata")#,"CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")
@@ -120,30 +120,30 @@ if(!exists("nSitesRun")) nSitesRun = 20000  ###aproximative number of samples fo
 # nSetRuns = 10 #number of set runs
 
 ####period for model output calculations
-per1=2015:2040
-per2=2021:2050
-per3=2031:2060
-per4=2041:2070
-per5=2051:2080
-per6=2061:2090
-per7=2071:2099
+#per1=2015:2040
+#per2=2021:2050
+#per3=2031:2060
+#per4=2041:2070
+#per5=2051:2080
+#per6=2061:2090
+#per7=2071:2099
 perStarts <- c(2015,2021,2031,2041,2051,2061,2071)
 perEnds <- c(2040,2050,2060,2070,2080,2090,2100)
 
-simYear1 = per1 - startingYear
-simYear2 = per2 - startingYear
-simYear3 = per3 - startingYear
-simYear4 = per4 - startingYear
-simYear5 = per5 - startingYear
-simYear6 = per6 - startingYear
-simYear7 = per7 - startingYear
-colsOut1 = c(paste("V", simYear1, sep=""))
-colsOut2 = c(paste("V", simYear2, sep=""))
-colsOut3 = c(paste("V", simYear3, sep=""))
-colsOut4 = c(paste("V", simYear4, sep=""))
-colsOut5 = c(paste("V", simYear5, sep=""))
-colsOut6 = c(paste("V", simYear6, sep=""))
-colsOut7 = c(paste("V", simYear7, sep=""))
+#simYear1 = per1 - startingYear
+#simYear2 = per2 - startingYear
+##simYear3 = per3 - startingYear
+#simYear4 = per4 - startingYear
+#simYear5 = per5 - startingYear
+#simYear6 = per6 - startingYear
+#simYear7 = per7 - startingYear
+#colsOut1 = c(paste("V", simYear1, sep=""))
+#colsOut2 = c(paste("V", simYear2, sep=""))
+#colsOut3 = c(paste("V", simYear3, sep=""))
+#colsOut4 = c(paste("V", simYear4, sep=""))
+#colsOut5 = c(paste("V", simYear5, sep=""))
+#colsOut6 = c(paste("V", simYear6, sep=""))
+#colsOut7 = c(paste("V", simYear7, sep=""))#
 
 
 if(regSets=="forCent"){

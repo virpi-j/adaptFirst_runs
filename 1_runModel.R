@@ -19,7 +19,6 @@ r_no = region = r_nos_stations[station_id] # region ID
 xy <- stations[station_id,c("ID","x","y")]
 stat_name <- stations[station_id,"name"]
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
-source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
 
 load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_no,"_IDsTab.rdata"))
@@ -43,10 +42,23 @@ print(paste("Area of forest within the closest",nSitesRun,"segments is", round(s
 
 rcps = "CurrClim" 
 rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
+
+deltaT <- -3:9
+deltaP <- seq(from = -15, to = 50, by = 5)
+deltaTP <- matrix(0,2,length(deltaP)*length(deltaT))
+index <- 1
+for(iT in 1:length(deltaT)){
+  for(iP in 1:length(deltaP)){
+    deltaTP[1,index] <- deltaT[iT]
+    deltaTP[2,index] <- deltaP[iP]
+    index <- index+1
+  }
+}
 toMem <- ls()
 
 outType="testRun"
-
+outType<-"dTabs"
+deltaIDs <- 1:ncol(deltaTP)
 sampleID <- 1
 if(outType=="testRun"){
 easyInit=FALSE
@@ -61,7 +73,9 @@ coefN20_2 = 0.077#g m-2 y-1
 landClassUnman=NULL
 compHarvX = 0
 }
-sampleXs <- lapply(sampleID, function(jx) { 
+source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+
+sampleXs <- lapply(deltaIDs[1:3], function(jx) { 
   runModel(jx, 
            outType=outType, 
            harvScen="Base",
