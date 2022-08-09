@@ -60,7 +60,7 @@ toMem <- ls()
 
 outType="testRun"
 outType<-"dTabs"
-deltaIDs <- 1:ncol(deltaTP)
+deltaIDs <- 2:ncol(deltaTP)
 sampleID <- 1
 if(outType=="testRun"){
   deltaID<-deltaIDs[1]
@@ -86,11 +86,11 @@ if(outType=="testRun"){
            harvScen="Base",
            harvInten="Base")})
 } else {
-  sampleXs0 <- runModel(deltaIDs[1], 
+  sampleXs0 <- runModel(deltaID=1, 
              outType=outType, 
              harvScen="Base",
              harvInten="Base")
-  sampleXs <- mclapply(deltaIDs[2:], function(jx) {
+  sampleXs <- mclapply(deltaIDs, function(jx) {
     runModel(jx,
              outType=outType, 
              harvScen="Base",
