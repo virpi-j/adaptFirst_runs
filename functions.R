@@ -136,7 +136,8 @@ runModel <- function(sampleID, outType="dTabs",
          CO2 = matrix(dat2$CO2,length(climIDs),nrow(dat2),byrow = TRUE),
          id = climIDs)
     rownames(clim$PAR)<-climIDs     
-    colnames(clim$PAR)<-1:ncol(clim$PAR)     
+    colnames(clim$PAR)<-1:ncol(clim$PAR)    
+    rm(list="dat2")
     #if(length(climIDs)>1){
     #  for(ij in 2:length(climIDs)){
     #  dat <- rbind(dat, dat[,id:=climIDs[ij]])

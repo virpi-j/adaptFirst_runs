@@ -62,7 +62,9 @@ landClassUnman=NULL
 compHarvX = 0
 }
 sampleXs <- lapply(sampleID, function(jx) { 
-  runModel(jx, outType=outType, harvScen="Base",
+  runModel(jx, 
+           outType=outType, 
+           harvScen="Base",
            harvInten="Base")})
 
 #mclapply(sampleIDs, function(jx) {
