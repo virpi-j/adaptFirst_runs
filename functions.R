@@ -488,7 +488,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     output <- runModOut(sampleID, sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
               colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)
     print("all outs calculated")
-    print(output)
+    #print(output)
     return(output)
   } 
   if(outType=="uncRun"){
@@ -537,7 +537,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   # }###harvest loop
   # } ###region loop
   # }rcps loop
-  print(paste("end sample ID",sampleID))
+  print(paste("end deltaID",deltaID))
   rm(list=setdiff(ls(), c(toMem,"toMem"))); gc()
   
   #print(uncRun)

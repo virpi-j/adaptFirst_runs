@@ -55,6 +55,7 @@ for(iT in 1:length(deltaT)){
   }
 }
 deltaTP <- deltaTP[,c(which(deltaTP[1,]==0 & deltaTP[2,]==0),setdiff(1:ncol(deltaTP),which(deltaTP[1,]==0 & deltaTP[2,]==0)))]
+print(paste("Run",ncol(deltaTP),"iterations for RS"))
 toMem <- ls()
 
 outType="testRun"
@@ -77,29 +78,35 @@ if(outType=="testRun"){
   compHarvX = 0
 }
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-
-sampleXs <- lapply(deltaIDs[1:3], function(jx) { 
+if(outType=="testRun"){
+  outType<-"dTabs"
+  sampleXs <- lapply(deltaIDs[1:3], function(jx) { 
   runModel(jx, 
            outType=outType, 
            harvScen="Base",
            harvInten="Base")})
+} else {
+  sampleXs <- mclapply(deltaIDs, function(jx) {
+    runModel(jx,
+             outType=outType, 
+             harvScen="Base",
+             harvInten="Base")
+    }, mc.cores = nCores,mc.silent=FALSE)      
+}
 
-#mclapply(sampleIDs, function(jx) {
-#    runModel(jx,outType="testRun",harvScen=harvScen,harvInten=harvInten)
-#}, mc.cores = nCores,mc.silent=FALSE)      
-
+save(sampleXs,deltaTP,file = "outputs.rdata")
 # models outputs to NAs, outputDT, initSoilC and plots
-Sys.chmod(list.dirs("NAs"), "0777",use_umask=FALSE)
-f <- list.files("NAs", all.files = TRUE, full.names = TRUE, recursive = TRUE)
-Sys.chmod(f, (file.info(f)$mode | "0777"),use_umask=FALSE)
+#Sys.chmod(list.dirs("NAs"), "0777",use_umask=FALSE)
+#f <- list.files("NAs", all.files = TRUE, full.names = TRUE, recursive = TRUE)
+#Sys.chmod(f, (file.info(f)$mode | "0777"),use_umask=FALSE)
 
-Sys.chmod(list.dirs("outputDT"), "0777",use_umask=FALSE)
-f <- list.files("outputDT", all.files = TRUE, full.names = TRUE, recursive = TRUE)
-Sys.chmod(f, (file.info(f)$mode | "0777"),use_umask=FALSE)
+#Sys.chmod(list.dirs("outputDT"), "0777",use_umask=FALSE)
+#f <- list.files("outputDT", all.files = TRUE, full.names = TRUE, recursive = TRUE)
+#Sys.chmod(f, (file.info(f)$mode | "0777"),use_umask=FALSE)
 
-Sys.chmod(list.dirs("initSoilC"), "0777",use_umask=FALSE)
-f <- list.files("initSoilC", all.files = TRUE, full.names = TRUE, recursive = TRUE)
-Sys.chmod(f, (file.info(f)$mode | "0777"),use_umask=FALSE)
+#Sys.chmod(list.dirs("initSoilC"), "0777",use_umask=FALSE)
+#f <- list.files("initSoilC", all.files = TRUE, full.names = TRUE, recursive = TRUE)
+#Sys.chmod(f, (file.info(f)$mode | "0777"),use_umask=FALSE)
 
 Sys.chmod(list.dirs("plots"), "0777",use_umask=FALSE)
 f <- list.files("plots", all.files = TRUE, full.names = TRUE, recursive = TRUE)
