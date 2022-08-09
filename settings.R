@@ -111,7 +111,7 @@ harvestLims <- c(9775000,1466000)
 year1harv=0 ###if 1 set harvLim for Low and MaxSust as 0.6 and 1.2 of HarvLim (Base)
 domSPrun = 0   ### 1 -> run only dominant layer
 startingYear = 2015
-endingYear = 2101
+endingYear = 2100
 if(!exists("nYears")) nYears = endingYear-startingYear
 
 #rcps = "CurrClim" #c("CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")#c("CurrClim","CanESM2.rcp26.rdata")#,"CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")
@@ -128,7 +128,7 @@ if(!exists("nSitesRun")) nSitesRun = 20000  ###aproximative number of samples fo
 #per6=2061:2090
 #per7=2071:2099
 perStarts <- c(2015,2021,2031,2041,2051,2061,2071)
-perEnds <- c(2040,2050,2060,2070,2080,2090,2100)
+perEnds <- c(2040,2050,2060,2070,2080,2090,2099)
 
 #simYear1 = per1 - startingYear
 #simYear2 = per2 - startingYear

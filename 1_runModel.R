@@ -54,6 +54,7 @@ for(iT in 1:length(deltaT)){
     index <- index+1
   }
 }
+deltaTP <- deltaTP[,c(which(deltaTP[1,]==0 & deltaTP[2,]==0),setdiff(1:ncol(deltaTP),which(deltaTP[1,]==0 & deltaTP[2,]==0)))]
 toMem <- ls()
 
 outType="testRun"
@@ -61,17 +62,19 @@ outType<-"dTabs"
 deltaIDs <- 1:ncol(deltaTP)
 sampleID <- 1
 if(outType=="testRun"){
-easyInit=FALSE
-forceSaveInitSoil=F 
-cons10run = F
-procDrPeat=F
-coeffPeat1=-240 
-coeffPeat2=70
-coefCH4 = 0.34#g m-2 y-1
-coefN20_1 = 0.23
-coefN20_2 = 0.077#g m-2 y-1
-landClassUnman=NULL
-compHarvX = 0
+  deltaID<-deltaIDs[1]
+  easyInit=FALSE
+  forceSaveInitSoil=F 
+  cons10run = F
+  initilizeSoil <- F
+  procDrPeat=F
+  coeffPeat1=-240 
+  coeffPeat2=70
+  coefCH4 = 0.34#g m-2 y-1
+  coefN20_1 = 0.23
+  coefN20_2 = 0.077#g m-2 y-1
+  landClassUnman=NULL
+  compHarvX = 0
 }
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 

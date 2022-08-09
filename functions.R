@@ -309,7 +309,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   # region <- regionPrebas(initPrebas)
   ###run PREBAS
   if(initilizeSoil){
-    if(!(harvScen =="Base" & harvInten == "Base")){
+    if(!(harvScen =="Base" & harvInten == "Base") | deltaID>1){
         if(!harvScen %in% c("protect","protectNoAdH","protectTapio")){
           if(identical(landClassX,1:3)) load(paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to3.rdata"))
           if(identical(landClassX,1:2)) load(paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to2.rdata"))
@@ -407,9 +407,9 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   
   print(paste("runModel",sampleID,"completed"))
   ##calculate steady state carbon from prebas litter 
-  if(harvScen=="Base" & harvInten =="Base" & initilizeSoil){
+  if(harvScen=="Base" & harvInten =="Base" & initilizeSoil & deltaID==1){
     initSoilC <- stXX_GV(region, 1)
-    print(paste("initSoilC",sampleID))
+    print(paste("initSoilC: ",sampleID))
     if(outType!="testRun" | forceSaveInitSoil){
       if(!outType %in% c("uncRun","uncSeg")){
         if(identical(landClassX,1:3)) save(initSoilC,file=paste0("initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to3.rdata"))
