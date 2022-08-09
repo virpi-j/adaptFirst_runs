@@ -86,12 +86,17 @@ if(outType=="testRun"){
            harvScen="Base",
            harvInten="Base")})
 } else {
-  sampleXs <- mclapply(deltaIDs, function(jx) {
+  sampleXs0 <- runModel(deltaIDs[1], 
+             outType=outType, 
+             harvScen="Base",
+             harvInten="Base")
+  sampleXs <- mclapply(deltaIDs[2:], function(jx) {
     runModel(jx,
              outType=outType, 
              harvScen="Base",
              harvInten="Base")
     }, mc.cores = nCores,mc.silent=FALSE)      
+  sampleXs <- list(sampleXs0, sampleXs)
 }
 
 save(sampleXs,deltaTP,file = "outputs.rdata")
