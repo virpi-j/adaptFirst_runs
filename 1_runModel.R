@@ -54,8 +54,9 @@ for(iT in 1:length(deltaT)){
     index <- index+1
   }
 }
-deltaTP <- deltaTP[,c(which(deltaTP[1,]==0 & deltaTP[2,]==0),setdiff(1:ncol(deltaTP),which(deltaTP[1,]==0 & deltaTP[2,]==0)))]
-print(paste("Run",ncol(deltaTP),"iterations for RS"))
+deltaTP0 <- which(deltaTP[1,]==0 & deltaTP[2,]==0)
+deltaTP <- deltaTP[,c(deltaTP0,setdiff(1:ncol(deltaTP),which(deltaTP[1,]==0 & deltaTP[2,]==0)))]
+print(paste("Run",ncol(deltaTP),"iterations for IRS"))
 toMem <- ls()
 
 outType="testRun"
@@ -100,6 +101,86 @@ if(outType=="testRun"){
 }
 
 save(sampleXs,deltaTP,file = "outputs.rdata")
+
+
+# load("outputs.rdata")
+output <- list()
+ndeltaTP <- ncol(deltaTP)
+m <- nrow(sampleXs[[1]])
+for(k in 1:m){
+  tmp <- data.frame()
+  index <- 0
+  for(ij in 1:ndeltaTP){
+    if(ij==deltaTP0) {
+      tmp <- rbind(tmp,cbind(t(deltaTP[,1]),sampleXs[[1]][k,2:ncol(sampleXs[[1]])]))
+      index <- -1
+    } else {
+      tmp <- rbind(tmp,cbind(t(deltaTP[,ij+1+index]),sampleXs[[2]][[ij+index]][k,2:ncol(sampleXs[[1]])]))
+    }
+  }  
+  names(tmp)[1:2] <- c("deltaT","deltaP")
+
+  output[[k]] <- tmp 
+  names(output)[k] <- sampleXs[[1]][k,1]
+  
+}
+save(output,file = paste0("outputs_",stat_name,".rdata"))
+
+plotFigs <- TRUE
+if(plotFigs){
+  #pdf(file=paste0("results_",stat_name,".pdf"))
+  for(k in 1:m){
+    contourPlot <- TRUE
+    if(contourPlot){
+    zz1<-matrix(as.numeric(output[[k]][,3]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
+    zz7<-matrix(as.numeric(output[[k]][,9]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
+    #zz1[is.na(zz1)]<-0
+    #zz7[is.na(zz7)]<-0
+    par(mfrow=c(1,1))   
+    nlev <- 10
+    zrange <- range(cbind(zz1,zz7), finite = TRUE)
+    filled.contour(deltaT, deltaP, zz1, 
+      zlim = zrange,
+      levels = pretty(zrange, nlev), nlevels = nlev,
+      col =  hcl.colors(20, "Spectral"),
+      xlab = "deltaT", ylab = "deltaP",  
+      main = paste0(names(output)[k]," ",perStarts[1],"-",perEnds[1])
+    )
+    filled.contour(deltaT, deltaP, zz7,       
+                   zlim = zrange,
+                   levels = pretty(zrange, nlev), nlevels = nlev,
+                   col =  hcl.colors(20, "Spectral"),
+                   xlab = "deltaT", ylab = "deltaP",  
+            main = paste0(names(output)[k]," ",perStarts[7],"-",perEnds[7])
+    )
+  } else {
+    par(mfrow=c(1,2))   
+    x<- as.numeric(output[[k]][,1])
+    y<- as.numeric(output[[k]][,2])
+    z1<- as.numeric(output[[k]][,3])
+    z7<- as.numeric(output[[k]][,9])
+    #scatter3D(x, y, z, colvar = z, col = NULL, add = FALSE)
+    scatter3D(x, y, z1, pch = 18, cex = 2, 
+            theta = 20, phi = 20, ticktype = "detailed",
+            xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
+            #surf = list(x = x.pred, y = y.pred, z = z.pred,  
+            #            facets = NA, fit = fitpoints), 
+            main = paste0("per1:",perStarts[1],"-",perEnds[1])
+    )
+    scatter3D(x, y, z7, pch = 18, cex = 2, 
+            theta = 20, phi = 20, ticktype = "detailed",
+            xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
+            #surf = list(x = x.pred, y = y.pred, z = z.pred,  
+            #            facets = NA, fit = fitpoints), 
+            main = paste0("per7:",perStarts[7],"-",perEnds[7])
+    )
+  }
+  }
+  dev.off()
+}
+
+
+
 # models outputs to NAs, outputDT, initSoilC and plots
 #Sys.chmod(list.dirs("NAs"), "0777",use_umask=FALSE)
 #f <- list.files("NAs", all.files = TRUE, full.names = TRUE, recursive = TRUE)
@@ -113,6 +194,6 @@ save(sampleXs,deltaTP,file = "outputs.rdata")
 #f <- list.files("initSoilC", all.files = TRUE, full.names = TRUE, recursive = TRUE)
 #Sys.chmod(f, (file.info(f)$mode | "0777"),use_umask=FALSE)
 
-Sys.chmod(list.dirs("plots"), "0777",use_umask=FALSE)
-f <- list.files("plots", all.files = TRUE, full.names = TRUE, recursive = TRUE)
-Sys.chmod(f, (file.info(f)$mode | "0777"),use_umask=FALSE)
+#Sys.chmod(list.dirs("plots"), "0777",use_umask=FALSE)
+#f <- list.files("plots", all.files = TRUE, full.names = TRUE, recursive = TRUE)
+#Sys.chmod(f, (file.info(f)$mode | "0777"),use_umask=FALSE)

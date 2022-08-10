@@ -127,8 +127,8 @@ if(!exists("nSitesRun")) nSitesRun = 20000  ###aproximative number of samples fo
 #per5=2051:2080
 #per6=2061:2090
 #per7=2071:2099
-perStarts <- c(2015,2021,2031,2041,2051,2061,2071)
-perEnds <- c(2040,2050,2060,2070,2080,2090,2099)
+perStarts <- c(2016,2021,2031,2041,2051,2061,2071)
+perEnds <- c(2040,2050,2060,2070,2080,2090,2100)
 
 #simYear1 = per1 - startingYear
 #simYear2 = per2 - startingYear
