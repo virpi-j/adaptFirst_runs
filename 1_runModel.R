@@ -128,14 +128,12 @@ save(output,file = paste0("outputs_",stat_name,".rdata"))
 
 plotFigs <- TRUE
 if(plotFigs){
-  #pdf(file=paste0("results_",stat_name,".pdf"))
+  pdf(file=paste0("results_",stat_name,".pdf"))
   for(k in 1:m){
     contourPlot <- TRUE
     if(contourPlot){
     zz1<-matrix(as.numeric(output[[k]][,3]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
     zz7<-matrix(as.numeric(output[[k]][,9]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
-    #zz1[is.na(zz1)]<-0
-    #zz7[is.na(zz7)]<-0
     par(mfrow=c(1,1))   
     nlev <- 10
     zrange <- range(cbind(zz1,zz7), finite = TRUE)
