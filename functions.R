@@ -431,7 +431,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     }
     # out <- region$multiOut[,,,,1]
   }
-  print(paste("all runs done",sampleID))
+  print(paste("all runs done",deltaID))
   
   #####process drained Peat
   if(procDrPeat){
