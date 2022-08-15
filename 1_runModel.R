@@ -63,6 +63,7 @@ outType="testRun"
 outType<-"dTabs"
 deltaIDs <- 2:ncol(deltaTP)
 sampleID <- 1
+deltaID <- 1
 if(outType=="testRun"){
   deltaID<-deltaIDs[1]
   easyInit=FALSE

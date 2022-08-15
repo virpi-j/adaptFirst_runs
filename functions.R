@@ -1258,7 +1258,7 @@ calMean <- function(varX,hscenX,areas){
 calculatePerCols <- function(outX){ #perStarts,perEnds,startingYear,
   for(iper in 1:length(perStarts)){      
     per <- perStarts[iper]:perEnds[iper]
-    simYear = per - startingYear + 1
+    simYear = per - startingYear# + 1
     colsOut = c(paste("V", simYear, sep=""))
     p <- outX[, .(per = rowMeans(.SD,na.rm=T)), .SDcols = colsOut, by = segID] 
     colnames(p)[2] <- paste0("per",iper)
