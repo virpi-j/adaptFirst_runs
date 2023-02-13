@@ -3,10 +3,10 @@ gc()
 setwd("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/")
 source("localSettings.r") # give station_id here
 #station_id <- 1 # This to localsettings! Station id 1 to 6
-stations <- data.frame(name=c("Helsinki","Jokioinen","Jyväskylä","Kajaani",
-                              "Sodankylä","Utsjoki"),
+stations <- data.frame(name=c("Helsinki","Jokioinen","Jyvaskyla","Kajaani",
+                              "Sodankyla","Utsjoki"),
               location=c("Helsinki_Vantaa_lentoasema", # Uusimaa 1
-                              "Jokioinen_Ilmala", # Kanta-Häme 9
+                              "Jokioinen_Ilmala", # Kanta-Hame 9
                               "Jyvaskyla_lentoasema", # Keski-Suomi 6 
                               "Kajaani_lentoasema", # Kainuu 16
                               "Sodankyla_Tahtela", # Lappi 8
@@ -46,8 +46,6 @@ print(paste("Weather station",stations[station_id,"name"]))
 print(paste("Forest data: maximum distance from weather station",
             round(max(d[nn.d])/1000,2),"km"))
 print(paste("Area of forest within the closest",nSitesRun,"segments is", round(sum(sum(ops[[1]]$area)),2),"hectares"))
-
-
 
 rcps = "CurrClim" 
 rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
