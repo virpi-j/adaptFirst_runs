@@ -1,20 +1,21 @@
 rm(list=ls())
 gc()
-
-station_id <- 1 # This to localsettings! Station id 1 to 6
+setwd("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/")
+source("localSettings.r") # give station_id here
+#station_id <- 1 # This to localsettings! Station id 1 to 6
 stations <- data.frame(name=c("Helsinki","Jokioinen","Jyväskylä","Kajaani",
                               "Sodankylä","Utsjoki"),
-              location=c("Helsinki_Vantaa_lentoasema",
-                              "Jokioinen_Ilmala",
-                              "Jyvaskyla_lentoasema",
-                              "Kajaani_lentoasema",
-                              "Sodankyla_Tahtela",
-                              "Utsjoki_Kevo"),
+              location=c("Helsinki_Vantaa_lentoasema", # Uusimaa 1
+                              "Jokioinen_Ilmala", # Kanta-Häme 9
+                              "Jyvaskyla_lentoasema", # Keski-Suomi 6 
+                              "Kajaani_lentoasema", # Kainuu 16
+                              "Sodankyla_Tahtela", # Lappi 8
+                              "Utsjoki_Kevo"), # Lappi 8
               ID = c(1:6), 
               x = c(24.96, 23.5, 25.67, 27.67, 26.63, 27.01),
               y = c(60.33, 60.81, 62.4, 64.28, 67.37, 69.76))
 
-r_nos_stations <- c(1,5,3,6,5,4) # check these! the region of the weather station
+r_nos_stations <- c(1,9,6,16,8,8) # administrative region of the weather station
 
 r_no = region = r_nos_stations[station_id] # region ID
 xy <- stations[station_id,c("ID","x","y")]
