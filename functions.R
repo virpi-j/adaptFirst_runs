@@ -469,7 +469,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   ## identify managed and unmanaged forests
   manFor <-  which(sampleX$cons==0)
   unmanFor <- which(sampleX$cons==1)
-  if(outType=="ststDeadW"){
+  if(outType=="ststDeadW" | rcpfile =="CurrClim"){
     yearsDeadW <- 1:nYears
     unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
@@ -477,7 +477,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
                                          r_no,"_deadWV_mortMod",mortMod,".rdata"))
     print("deadWood volume at steady state saved")
   }else{
-    load(paste0("/scratch/project_2000994/PREBASruns/finRuns/initDeadWVss/reg",
+    load(paste0("../initDeadWVss/reg",
                 r_no,"_deadWV_mortMod",mortMod,".rdata"))
     region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
       aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))

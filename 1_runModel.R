@@ -62,6 +62,7 @@ toMem <- ls()
 
 outType="testRun"
 outType<-"dTabs"
+rcps = "CurrClim" 
 deltaIDs <- 2:ncol(deltaTP)
 sampleID <- 1
 if(outType=="testRun"){
@@ -106,6 +107,7 @@ save(sampleXs,deltaTP,file = "outputs.rdata")
 
 # load("outputs.rdata")
 output <- list()
+rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
 ndeltaTP <- ncol(deltaTP)
 m <- nrow(sampleXs[[1]])
 for(k in 1:m){
