@@ -156,7 +156,9 @@ if(regSets=="forCent"){
     data.all_tmp <- rbind(data.all_tmp,data.all)
     #print(dim(data.all_tmp))
   }
-  
+  data.all<-data.all_tmp
+  rm(list="data.all_tmp")
+  gc()
   #load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/data.all_maakunta_",r_no,".rdata"))
   #data.all$segID <- data.all$maakuntaID
 }
