@@ -15,16 +15,20 @@ stations <- data.frame(name=c("Helsinki","Jokioinen","Jyväskylä","Kajaani",
               x = c(24.96, 23.5, 25.67, 27.67, 26.63, 27.01),
               y = c(60.33, 60.81, 62.4, 64.28, 67.37, 69.76))
 
-r_nos_stations <- c(1,9,6,16,8,8) # administrative region of the weather station
+r_nos_stations <- list()
+r_nos_stations[[1]] <- c(1,9,11,13,15)
+r_nos_stations[[2]] <- c(9,4,11,13)
+r_nos_stations[[3]] <- c(6,4,13,17,7,3,12)
+r_nos_stations[[4]] <- c(16,7,18,19)
+r_nos_stations[[5]] <- c(8)
+r_nos_stations[[6]] <- c(8)
 
-r_no = region = r_nos_stations[station_id] # region ID
+r_no = region = r_nos_stations[[station_id]][1] # region ID
 xy <- stations[station_id,c("ID","x","y")]
 stat_name <- stations[station_id,"name"]
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
 
-load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_no,"_IDsTab.rdata"))
-data.all <- cbind(data.all,data.IDs[match(data.all$segID, data.IDs$maakuntaID),4:5])
 
 ## Weather station coordinates:
 
