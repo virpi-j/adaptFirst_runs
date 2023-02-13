@@ -107,6 +107,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   rcpfile = rcps
   #if(outType != "uncRun"){
   #if(!outType %in% c("uncRun","uncSeg")){
+  print(paste("Clim:",rcpfile))
   if(rcpfile=="CurrClim"){
     load(paste(climatepath_orig, "CurrClim",".rdata", sep=""))
     #####process data considering only current climate###
