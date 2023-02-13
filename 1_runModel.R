@@ -10,8 +10,9 @@ stations <- data.frame(name=c("Helsinki","Jokioinen","Jyväskylä","Kajaani",
                               "Kajaani_lentoasema",
                               "Sodankyla_Tahtela",
                               "Utsjoki_Kevo"),
-              ID = c(1:6), x = c(24.96, 23.5, 25.67, 27.67, 26.63, 27.01),
-               y = c(60.33, 60.81, 62.4, 64.28, 67.37, 69.76))
+              ID = c(1:6), 
+              x = c(24.96, 23.5, 25.67, 27.67, 26.63, 27.01),
+              y = c(60.33, 60.81, 62.4, 64.28, 67.37, 69.76))
 
 r_nos_stations <- c(1,5,3,6,5,4) # check these! the region of the weather station
 

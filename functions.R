@@ -461,6 +461,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
       region$multiOut[siteDrPeat2,,28,,1]/10 - region$multiOut[siteDrPeat2,,29,,1]/10
     region$multiOut[siteDrPeat2,,46,1,1] = region$multiOut[siteDrPeat2,,46,1,1] + 
       coeffPeat2 +  region$GVout[siteDrPeat2,,5]
+    print("Drained peatlands processed.")
   }
   #####start initialize deadWood volume
   ## identify managed and unmanaged forests
@@ -480,6 +481,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
       aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
     region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
       aperm(replicate(length(unmanFor),(unmanDeadW$ssDeadW[1:nYears,])),c(3,1:2))
+    print("deadWood volume update processed.")
   }
   ####end initialize deadWood Volume
   
