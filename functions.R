@@ -409,7 +409,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   ##calculate steady state carbon from prebas litter 
   if(harvScen=="Base" & harvInten =="Base" & initilizeSoil & deltaID==1){
     initSoilC <- stXX_GV(region, 1)
-    print(paste("initSoilC: ",sampleID))
+    print(paste("initSoilC:",sampleID))
     if(outType!="testRun" | forceSaveInitSoil){
       if(!outType %in% c("uncRun","uncSeg")){
         if(identical(landClassX,1:3)) save(initSoilC,file=paste0("../initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to3.rdata"))
@@ -462,6 +462,8 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     region$multiOut[siteDrPeat2,,46,1,1] = region$multiOut[siteDrPeat2,,46,1,1] + 
       coeffPeat2 +  region$GVout[siteDrPeat2,,5]
     print("Drained peatlands processed.")
+  } else {
+    print("No peatland post-procession")
   }
   #####start initialize deadWood volume
   ## identify managed and unmanaged forests
@@ -475,7 +477,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
                                          r_no,"_deadWV_mortMod",mortMod,".rdata"))
     print("deadWood volume at steady state saved")
   }else{
-    load(paste0("../initDeadWVss/reg",
+    load(paste0("/scratch/project_2000994/PREBASruns/finRuns/initDeadWVss/reg",
                 r_no,"_deadWV_mortMod",mortMod,".rdata"))
     region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
       aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
