@@ -2,7 +2,6 @@ CSCrun=T
 
 # local settings
 
-
 # extrLandclass <- c(3) # which landclasses are left out from PREBAS modelling
 # ExcludeUndrPeatlands <- TRUE # TRUE if undrained peatlands left out from runs
 
@@ -49,9 +48,9 @@ if(!exists("harvInten")) harvInten = "Base"#c("NoHarv","Base")
 
 # Missing from varOuts: 
 # MinPeat-index, NEPdrPeat
-if(!exists("mortMod")) mortMod=3
+if(!exists("mortMod")) mortMod=13
 if(!exists("siteTypes")) siteTypes=1:20
-if(!exists("landClassX")) landClassX=1:3
+if(!exists("landClassX")) landClassX=1:2
 ###flag for settings the regions to consider
 if(!exists("regSets")) regSets <- "maakunta" ### "forCent", "maakunta"
 if(!exists("minDharvX")) minDharvX <- 15 ### minimum DBH for clearcutting
@@ -71,8 +70,8 @@ if(!exists("fertThin")) fertThin=3 ###flag that indicates to which TapioType of 
 if(!exists("nYearsFert")) nYearsFert=20 ###number of years for which the fertilization has effect
 
 ###reduce krein parameter in order to increase mortality
-pCrobasX <- pCROB
-pCrobasX[17,1:3] <- pCROB[17,1:3]*0.7
+#pCrobasX <- pCROB
+#pCrobasX[17,1:3] <- pCROB[17,1:3]*0.7
 
 # adapt-First: Volume, growth, Deadwood; C- sequestration (NEP & NPP) 
 varOuts <- c("NEP","GPPtrees", "npp", "grossGrowth", 
