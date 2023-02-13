@@ -148,19 +148,18 @@ perEnds <- c(2040,2050,2060,2070,2080,2090,2100)
 if(regSets=="forCent"){
   load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/forCent/data.all_forCent_",r_no,".rdata"))
 }else{
-  #data.all_tmp <- data.table()
-  #for(r_no in r_nos_stations[[station_id]]){
-  #  load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/data.all_maakunta_",r_no,".rdata"))
-  #  data.all$segID <- data.all$maakuntaID
-  #  data.all <- cbind(data.all,data.IDs[match(data.all$segID, data.IDs$maakuntaID),4:5])
-  #  data.all_tmp <- rbind(data.all_tmp,data.all)
-  #  #print(dim(data.all_tmp))
-  #}
-  #data.all<-data.all_tmp
-  #rm(list="data.all_tmp")
-  #gc()
-  load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/data.all_maakunta_",r_no,".rdata"))
-  data.all$segID <- data.all$maakuntaID
+  data.all_tmp <- data.table()
+  for(r_no in r_nos_stations[[station_id]]){
+    load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/data.all_maakunta_",r_no,".rdata"))
+    load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_no,"_IDsTab.rdata"))
+    data.all <- cbind(data.all,data.IDs[match(data.all$segID, data.IDs$maakuntaID),4:5])
+    data.all_tmp <- rbind(data.all_tmp,data.all)
+  }
+  data.all<-data.all_tmp
+  rm(list="data.all_tmp")
+  gc()
+  #load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/data.all_maakunta_",r_no,".rdata"))
+  #data.all$segID <- data.all$maakuntaID
 }
 ####procData
 data.all <- data.all[fert %in% siteTypes]
