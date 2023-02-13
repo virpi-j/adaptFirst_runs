@@ -63,8 +63,7 @@ toMem <- ls()
 
 outType="testRun"
 outType<-"dTabs"
-rcps = "CurrClim" 
-deltaIDs <- 2:ncol(deltaTP)
+deltaIDs <- 1:ncol(deltaTP)
 sampleID <- 1
 if(outType=="testRun"){
   deltaID<-deltaIDs[1]
@@ -90,10 +89,16 @@ if(outType=="testRun"){
            harvScen="Base",
            harvInten="Base")})
 } else {
+  # Baseline for soil and deadWood initialization
+  rcps = "CurrClim" 
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs0 <- runModel(deltaID=1, 
              outType=outType, 
              harvScen="Base",
              harvInten="Base")
+  # deltaT - deltaP climate runs  
+  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs <- mclapply(deltaIDs, function(jx) {
     runModel(jx,
              outType=outType, 
@@ -108,7 +113,6 @@ save(sampleXs,deltaTP,file = "outputs.rdata")
 
 # load("outputs.rdata")
 output <- list()
-rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
 ndeltaTP <- ncol(deltaTP)
 m <- nrow(sampleXs[[1]])
 for(k in 1:m){
