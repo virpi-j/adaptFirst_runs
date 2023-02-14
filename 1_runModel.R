@@ -66,8 +66,6 @@ deltaTP <- deltaTP[,c(deltaTP0,setdiff(1:ncol(deltaTP),which(deltaTP[1,]==0 & de
 print(paste("Run",ncol(deltaTP),"iterations for IRS"))
 toMem <- ls()
 
-outType="testRun"
-outType<-"dTabs"
 deltaIDs <- 1:ncol(deltaTP)
 sampleID <- 1
 if(outType=="testRun"){
@@ -87,18 +85,25 @@ if(outType=="testRun"){
 }
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 if(outType=="testRun"){
-  outType<-"dTabs"
+  rcps = "CurrClim" 
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  sampleXs0 <- runModel(outType=outType, 
+                        harvScen="Base",
+                        harvInten="Base")
+  
+  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs <- lapply(deltaIDs[1:3], function(jx) { 
-  runModel(jx, 
+    runModel(jx, 
            outType=outType, 
+           CO2fixed=CO2fixed,
            harvScen="Base",
            harvInten="Base")})
 } else {
   # Baseline for soil and deadWood initialization
   rcps = "CurrClim" 
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  sampleXs0 <- runModel(deltaID=1, 
-             outType=outType, 
+  sampleXs0 <- runModel(outType=outType, 
              harvScen="Base",
              harvInten="Base")
   # deltaT - deltaP climate runs  
@@ -106,7 +111,8 @@ if(outType=="testRun"){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs <- mclapply(deltaIDs, function(jx) {
     runModel(jx,
-             outType=outType, 
+             outType=outType,
+             CO2fixed=CO2fixed,
              harvScen="Base",
              harvInten="Base")
     }, mc.cores = nCores,mc.silent=FALSE)      

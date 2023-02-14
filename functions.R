@@ -6,7 +6,7 @@
 ## MAIN SCRIPT: uncRun for random segments, uncSeg for random values for segments
 ## ---------------------------------------------------------------------
 runModel <- function(deltaID,sampleID=1, outType="dTabs",
-                     harvScen,harvInten,easyInit=FALSE,
+                     harvScen,harvInten,easyInit=FALSE, CO2fixed=0,
                      forceSaveInitSoil=F, cons10run = F,
                      procDrPeat=F,coeffPeat1=-240,coeffPeat2=70,
                      coefCH4 = 0.34,#g m-2 y-1
@@ -126,13 +126,23 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
                          dat2$deltaT==deltaTP[1,deltaID] & 
                          dat2$Pchange==deltaTP[2,deltaID]),]
     climIDs <- unique(sampleX$climID)
-    dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
+    if(CO2fixed==0){
+      dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
                        #PAR=-0.894+1.8*dat2$GLOB,
                        PAR=1.8*dat2$GLOB/1000,
                        TAir=dat2$Tmean_detrended,
                        VPD=dat2$VPdef_detrended,
                        Precip=dat2$Pre,
                        CO2=CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),3])
+    } else {
+      dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
+                         #PAR=-0.894+1.8*dat2$GLOB,
+                         PAR=1.8*dat2$GLOB/1000,
+                         TAir=dat2$Tmean_detrended,
+                         VPD=dat2$VPdef_detrended,
+                         Precip=dat2$Pre,
+                         CO2=CO2fixed+0*CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),3])
+    }
     clim <- list(PAR = matrix(dat2$PAR,length(climIDs),nrow(dat2),byrow = TRUE),
          TAir = matrix(dat2$TAir,length(climIDs),nrow(dat2),byrow = TRUE),
          VPD = matrix(dat2$VPD,length(climIDs),nrow(dat2),byrow = TRUE),
