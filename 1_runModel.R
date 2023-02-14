@@ -50,8 +50,6 @@ print(paste("Area of forest within the closest",nSitesRun,"segments is", round(s
 rcps = "CurrClim" 
 rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
 
-deltaT <- -3:9
-deltaP <- seq(from = -15, to = 50, by = 5)
 deltaTP <- matrix(0,2,length(deltaP)*length(deltaT))
 index <- 1
 for(iT in 1:length(deltaT)){
