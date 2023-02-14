@@ -310,7 +310,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   # region <- regionPrebas(initPrebas)
   ###run PREBAS
   if(initilizeSoil){
-    if(!(harvScen =="Base" & harvInten == "Base") | deltaID>1){
+    if(!(harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
         if(!harvScen %in% c("protect","protectNoAdH","protectTapio")){
           if(identical(landClassX,1:3)) load(paste0("../initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to3.rdata"))
           if(identical(landClassX,1:2)) load(paste0("../initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to2.rdata"))
@@ -408,7 +408,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   
   print(paste("runModel",deltaID,"completed"))
   ##calculate steady state carbon from prebas litter 
-  if(harvScen=="Base" & harvInten =="Base" & initilizeSoil & deltaID==1){
+  if(harvScen=="Base" & harvInten =="Base" & initilizeSoil & rcpfile=="CurrClim"){
     initSoilC <- stXX_GV(region, 1)
     print(paste("initSoilC:",sampleID))
     if(outType!="testRun" | forceSaveInitSoil){
@@ -470,7 +470,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   ## identify managed and unmanaged forests
   manFor <-  which(sampleX$cons==0)
   unmanFor <- which(sampleX$cons==1)
-  if(outType=="ststDeadW" | rcpfile =="CurrClim"){
+  if(outType=="ststDeadW" | (harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
     yearsDeadW <- 1:nYears
     unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
