@@ -43,9 +43,9 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     initilizeSoil = F
   }
   if(procInSample){  
-    if(identical(landClassX,1:3)) load(paste0("../initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to3.rdata"))
-    if(identical(landClassX,1:2)) load(paste0("../initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1to2.rdata"))
-    if(identical(landClassX,1)) load(paste0("../initSoilC/forCent",r_no,"/initSoilC_",sampleID,"_LandClass1.rdata"))
+    if(identical(landClassX,1:3)) load(paste0("../initSoilC/station",station_id,"_LandClass1to3.rdata"))
+    if(identical(landClassX,1:2)) load(paste0("../initSoilC/station",station_id,"_LandClass1to2.rdata"))
+    if(identical(landClassX,1)) load(paste0("../initSoilC/station",station_id,"_LandClass1.rdata"))
     setnames(xDat,"nPix","N")
     xDat[,area:=N*16^2/10000]
     setkey(ops[[sampleID]],maakuntaID)
@@ -322,9 +322,9 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   if(initilizeSoil){
     if(!(harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
         if(!harvScen %in% c("protect","protectNoAdH","protectTapio")){
-          if(identical(landClassX,1:3)) load(paste0("../initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to3.rdata"))
-          if(identical(landClassX,1:2)) load(paste0("../initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to2.rdata"))
-          if(identical(landClassX,1)) load(paste0("../initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1.rdata"))
+          if(identical(landClassX,1:3)) load(paste0("../initSoilC/station",station_id,"_LandClass1to3.rdata"))
+          if(identical(landClassX,1:2)) load(paste0("../initSoilC/station",station_id,"_LandClass1to2.rdata"))
+          if(identical(landClassX,1)) load(paste0("../initSoilC/station",station_id,"_LandClass1.rdata"))
         }
     }
   }
@@ -423,9 +423,9 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     print(paste("initSoilC:",sampleID))
     if(outType!="testRun" | forceSaveInitSoil){
       if(!outType %in% c("uncRun","uncSeg")){
-        if(identical(landClassX,1:3)) save(initSoilC,file=paste0("../initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to3.rdata"))
-        if(identical(landClassX,1:2)) save(initSoilC,file=paste0("../initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1to2.rdata"))
-        if(identical(landClassX,1)) save(initSoilC,file=paste0("../initSoilC/forCent",r_no,"_initSoilC_",sampleID,"_LandClass1.rdata"))
+        if(identical(landClassX,1:3)) save(initSoilC,file=paste0("../initSoilC/station",station_id,"_LandClass1to3.rdata"))
+        if(identical(landClassX,1:2)) save(initSoilC,file=paste0("../initSoilC/station",station_id,"_LandClass1to2.rdata"))
+        if(identical(landClassX,1)) save(initSoilC,file=paste0("../initSoilC/station",station_id,"_LandClass1.rdata"))
       }
     }
     ###run yasso (starting from steady state) using PREBAS litter
