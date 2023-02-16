@@ -85,7 +85,8 @@ source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/fun
 if(outType=="testRun"){
   rcps = "CurrClim" 
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  sampleXs0 <- runModel(outType=outType, 
+  sampleXs0 <- runModel(1,
+                        outType=outType, 
                         harvScen="Base",
                         harvInten="Base")
   
