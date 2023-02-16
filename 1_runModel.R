@@ -106,8 +106,7 @@ if(outType=="testRun"){
   # deltaT - deltaP climate runs  
   rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  sampleXs <- mclapply(deltaIDs[1],
-                       deltaIDs, function(jx) {
+  sampleXs <- mclapply(deltaIDs, function(jx) {
     runModel(jx,
              outType=outType,
              CO2fixed=CO2fixed,

@@ -484,12 +484,12 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     yearsDeadW <- 1:nYears
     unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
-    save(unmanDeadW,manDeadW,file=paste0("../initDeadWVss/reg",
-                                         r_no,"_deadWV_mortMod",mortMod,".rdata"))
+    save(unmanDeadW,manDeadW,file=paste0("../initDeadWVss/station",
+                                         station_id,"_deadWV_mortMod",mortMod,".rdata"))
     print("deadWood volume at steady state saved")
   }else{
-    load(paste0("../initDeadWVss/reg",
-                r_no,"_deadWV_mortMod",mortMod,".rdata"))
+    load(paste0("../initDeadWVss/station",
+                station_id,"_deadWV_mortMod",mortMod,".rdata"))
     region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
       aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
     region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
