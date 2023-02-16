@@ -1,7 +1,3 @@
-rm(list=ls())
-gc()
-setwd("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/")
-source("localSettings.r") # give station_id here
 #station_id <- 1 # This to localsettings! Station id 1 to 6
 stations <- data.frame(name=c("Helsinki","Jokioinen","Jyvaskyla","Kajaani",
                               "Sodankyla","Utsjoki"),
