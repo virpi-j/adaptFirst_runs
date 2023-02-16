@@ -1,4 +1,5 @@
 #station_id <- 1 # This to localsettings! Station id 1 to 6
+print(paste("station",station_id))
 stations <- data.frame(name=c("Helsinki","Jokioinen","Jyvaskyla","Kajaani",
                               "Sodankyla","Utsjoki"),
               location=c("Helsinki_Vantaa_lentoasema", # Uusimaa 1
