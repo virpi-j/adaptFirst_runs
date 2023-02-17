@@ -485,6 +485,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     yearsDeadW <- 1:nYears
     unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
+    print(paste("dim manDeadW-deadWV:",dim(unmanDeadW$deadWV),"mean:",mean(unmanDeadW$deadWV)))
     save(unmanDeadW,manDeadW,file=paste0("../initDeadWVss/station",
                                          station_id,"_deadWV_mortMod",mortMod,".rdata"))
     print("deadWood volume at steady state saved")

@@ -78,7 +78,7 @@ if(outType=="testRun"){
   landClassUnman=NULL
   compHarvX = 0
 }
-source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+#source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 if(outType=="testRun"){
   rcps = "CurrClim" 
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
