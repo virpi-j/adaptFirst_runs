@@ -103,7 +103,7 @@ if(outType=="testRun"){
                         outType=outType, 
              harvScen="Base",
              harvInten="Base")
-  # deltaT - deltaP climate runs  
+  # deltaT & deltaP climate runs  
   rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs <- mclapply(deltaIDs, function(jx) {

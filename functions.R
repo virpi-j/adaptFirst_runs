@@ -220,6 +220,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
     initPrebas$P0y <- initPrebas$P0y[,resampleYear,]
     initPrebas$weather <- initPrebas$weather[,resampleYear,,]
     initPrebas$weatherYasso <- initPrebas$weatherYasso[,resampleYear,]
+    print(paste("weather data dim:",dim(initPrebas$P0y)))
   }
   
   
