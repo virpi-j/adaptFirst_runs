@@ -484,8 +484,9 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   if(outType=="ststDeadW" | (harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
     yearsDeadW <- 1:nYears
     unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
+    print(paste("dim unmanDeadW-deadWV:",dim(unmanDeadW$deadWV),"mean:",mean(unmanDeadW$deadWV)))
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
-    print(paste("dim manDeadW-deadWV:",dim(unmanDeadW$deadWV),"mean:",mean(unmanDeadW$deadWV)))
+    print(paste("dim manDeadW-deadWV:",dim(manDeadW$deadWV),"mean:",mean(manDeadW$deadWV)))
     save(unmanDeadW,manDeadW,file=paste0("../initDeadWVss/station",
                                          station_id,"_deadWV_mortMod",mortMod,".rdata"))
     print("deadWood volume at steady state saved")
