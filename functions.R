@@ -483,12 +483,16 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   unmanFor <- which(sampleX$cons==1)
   if(outType=="ststDeadW" | (harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
     yearsDeadW <- 1:nYears
-    unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
-    print(paste("dim unmanDeadW-deadWV:",dim(unmanDeadW$deadWV)))
-    print(paste("mean:",mean(unmanDeadW$deadWV)))
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
     print(paste("dim manDeadW-deadWV:",dim(manDeadW$deadWV)))
     print(paste("mean:",mean(manDeadW$deadWV)))
+    if(length(unmanFor)>0){
+      unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
+      print(paste("dim unmanDeadW-deadWV:",dim(unmanDeadW$deadWV)))
+      print(paste("mean:",mean(unmanDeadW$deadWV)))
+    } else {
+      unmanDeadW <- data.frame()
+    }
     save(unmanDeadW,manDeadW,file=paste0("../initDeadWVss/station",
                                          station_id,"_deadWV_mortMod",mortMod,".rdata"))
     print("deadWood volume at steady state saved")
@@ -497,8 +501,10 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
                 station_id,"_deadWV_mortMod",mortMod,".rdata"))
     region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
       aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
-    region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
-      aperm(replicate(length(unmanFor),(unmanDeadW$ssDeadW[1:nYears,])),c(3,1:2))
+    if(length(unmanFor)>0){
+      region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
+        aperm(replicate(length(unmanFor),(unmanDeadW$ssDeadW[1:nYears,])),c(3,1:2))
+    }
     print("deadWood volume update processed.")
   }
   ####end initialize deadWood Volume
