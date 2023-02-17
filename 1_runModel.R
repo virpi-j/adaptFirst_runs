@@ -89,7 +89,7 @@ if(outType=="testRun"){
   
   rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  sampleXs <- lapply(deltaIDs[1:3], function(jx) { 
+  sampleXs <- lapply(deltaIDs, function(jx) { 
     runModel(jx, 
            outType=outType, 
            CO2fixed=CO2fixed,
