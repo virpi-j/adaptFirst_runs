@@ -95,6 +95,8 @@ if(outType=="testRun"){
            CO2fixed=CO2fixed,
            harvScen="Base",
            harvInten="Base")})
+  sampleXs <- list(sampleXs0, sampleXs)
+  
 } else {
   # Baseline for soil and deadWood initialization
   rcps = "CurrClim" 
