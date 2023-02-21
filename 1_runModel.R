@@ -80,6 +80,7 @@ if(outType=="testRun"){
 }
 #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 if(outType=="testRun"){
+  outType<-"dTabs"
   rcps = "CurrClim" 
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs0 <- runModel(deltaIDs[1],
