@@ -143,12 +143,19 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
                          Precip=dat2$Pre,
                          CO2=CO2fixed+0*CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),3])
     }
-    clim <- list(PAR = matrix(dat2$PAR,length(climIDs),nrow(dat2),byrow = TRUE),
-         TAir = matrix(dat2$TAir,length(climIDs),nrow(dat2),byrow = TRUE),
-         VPD = matrix(dat2$VPD,length(climIDs),nrow(dat2),byrow = TRUE),
-         Precip = matrix(dat2$Precip,length(climIDs),nrow(dat2),byrow = TRUE),
-         CO2 = matrix(dat2$CO2,length(climIDs),nrow(dat2),byrow = TRUE),
-         id = climIDs)
+    nr <- length(climIDs)
+    clim <- list(PAR = t(replicate(nr,dat2$PAR)),
+                 TAir = t(replicate(nr,dat2$TAir)),
+                 VPD = t(replicate(nr,dat2$VPD)),
+                 Precip = t(replicate(nr,dat2$Precip)),
+                 CO2 = t(replicate(nr,dat2$CO2)),
+                 id = climIDs)
+    #clim <- list(PAR = matrix(dat2$PAR,length(climIDs),nrow(dat2),byrow = TRUE),
+    #     TAir = matrix(dat2$TAir,length(climIDs),nrow(dat2),byrow = TRUE),
+    #     VPD = matrix(dat2$VPD,length(climIDs),nrow(dat2),byrow = TRUE),
+    #     Precip = matrix(dat2$Precip,length(climIDs),nrow(dat2),byrow = TRUE),
+    #     CO2 = matrix(dat2$CO2,length(climIDs),nrow(dat2),byrow = TRUE),
+    #     id = climIDs)
     rownames(clim$PAR)<-climIDs     
     colnames(clim$PAR)<-1:ncol(clim$PAR)    
     rm(list="dat2")
@@ -511,6 +518,7 @@ runModel <- function(deltaID,sampleID=1, outType="dTabs",
   
   if(outType=="testRun") return(list(region = region,initPrebas=initPrebas))
   if(outType=="dTabs"){
+    print("Calculate outputs...")
     output <- runModOut(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
               colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)
     print("all outs calculated")
