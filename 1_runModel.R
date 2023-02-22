@@ -13,10 +13,10 @@ stations <- data.frame(name=c("Helsinki","Jokioinen","Jyvaskyla","Kajaani",
               y = c(60.33, 60.81, 62.4, 64.28, 67.37, 69.76))
 
 r_nos_stations <- list()
-r_nos_stations[[1]] <- c(1)#,9,11,13,15)
-r_nos_stations[[2]] <- c(9)#,4,11,13)
-r_nos_stations[[3]] <- c(6)#,4,13,17,7,3,12)
-r_nos_stations[[4]] <- c(16)#,7,18,19)
+r_nos_stations[[1]] <- c(1,9,11,13,15)
+r_nos_stations[[2]] <- c(9,4,11,13)
+r_nos_stations[[3]] <- c(6,4,13,17,7,3,12)
+r_nos_stations[[4]] <- c(16,7,18,19)
 r_nos_stations[[5]] <- c(8)
 r_nos_stations[[6]] <- c(8)
 
