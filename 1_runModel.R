@@ -105,7 +105,7 @@ if(outType=="testRun"){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs0 <- runModel(deltaIDs[1],
                         outType=outType, 
-             harvScen="Base",
+             harvScen="baseTapio",#"Base" or #BaseTapio
              harvInten="Base")
   # deltaT & deltaP climate runs  
   rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
@@ -114,7 +114,8 @@ if(outType=="testRun"){
     runModel(jx,
              outType=outType,
              CO2fixed=CO2fixed,
-             harvScen="Base",
+             harvScen="baseTapio",#"Base" or #BaseTapio
+             #harvScen="Base",
              harvInten="Base")
     }, mc.cores = nCores,mc.silent=FALSE)      
   sampleXs <- list(sampleXs0, sampleXs)
