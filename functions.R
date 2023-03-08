@@ -629,7 +629,7 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
   #  }
   ####process and save special variales
   print(paste("start special vars",deltaID))
-  output <- specialVarProc(sampleX,modOut,r_no,harvScen,harvInten,rcpfile,sampleID,
+  output <- specialVarProcAdapt(sampleX,modOut,r_no,harvScen,harvInten,rcpfile,sampleID,
                  areas,sampleForPlots,output)
   return(output)
 }
@@ -1314,7 +1314,7 @@ calculatePerCols <- function(outX){ #perStarts,perEnds,startingYear,
   return(pX)
 }
 
-specialVarProc <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,sampleID,
+specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,sampleID,
                            areas,sampleForPlots,output){
   nYears <-  max(region$nYears)
   nSites <-  max(region$nSites)
@@ -1341,14 +1341,36 @@ specialVarProc <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,sample
   colnames(output) <- names(pX)
   #print(output)
 
-    ###deciduous Volume Vdec
-  outX <- vDecFun(region)
+  ### pine Volume Vpine
+  outX <- vSpFun(region,SpID=1)
+  #outX <- vDecFun(region)
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "Vpine"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
+  
+  ### spruce Volume Vspruce
+  outX <- vSpFun(region,SpID=2)
+  #outX <- vDecFun(region)
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "Vspruce"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
+  
+  ### deciduous Volume Vdec
+  outX <- vSpFun(region,SpID=3)
+  #outX <- vDecFun(region)
   pX <- calculatePerCols(outX = outX)
   pX <- colMeans(pX)
   pX[1] <- "Vdec"
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
+  
 
   ####WenergyWood
   outX <- data.table(segID=sampleX$segID,apply(region$multiEnergyWood[,,,2],1:2,sum))
