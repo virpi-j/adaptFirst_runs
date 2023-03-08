@@ -526,7 +526,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   if(outType=="testRun") return(list(region = region,initPrebas=initPrebas))
   if(outType=="dTabs"){
     print("Calculate outputs...")
-    output <- runModOut(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
+    output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
               colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)
     print(output[1,])
     print("all outs calculated")
@@ -586,7 +586,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   # }
 }
 
-runModOut <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInten,rcpfile,areas,
+runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInten,rcpfile,areas,
                       colsOut1,colsOut2,colsOut3,varSel,sampleForPlots){
   ####create pdf for test plots 
   marginX= 1:2#(length(dim(out$annual[,,varSel,]))-1)
