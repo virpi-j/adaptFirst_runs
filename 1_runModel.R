@@ -79,40 +79,45 @@ if(outType=="testRun"){
   landClassUnman=NULL
   compHarvX = 0
 }
-#source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/finRuns/general/functions.r")
 if(outType=="testRun"){
   outType<-"dTabs"
-  rcps = "CurrClim" 
-  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  sampleXs0 <- runModel(deltaIDs[1],
+#  rcps = "CurrClim" 
+#  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  sampleXs0 <- runModelAdapt(deltaIDs[1],
                         outType=outType, 
-                        harvScen="Base",
+                        rcps = "CurrClim", 
+                        harvScen="baseTapio",
                         harvInten="Base")
   
-  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
-  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+#  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
+#  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs <- lapply(deltaIDs, function(jx) { 
-    runModel(jx, 
-           outType=outType, 
-           CO2fixed=CO2fixed,
-           harvScen="Base",
+    runModelAdapt(jx,
+                  outType=outType,  
+                  rcps = paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
+                  CO2fixed=CO2fixed,
+                  harvScen="baseTapio",#"Base" or #BaseTapio
            harvInten="Base")})
   sampleXs <- list(sampleXs0, sampleXs)
   
 } else {
   # Baseline for soil and deadWood initialization
-  rcps = "CurrClim" 
-  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  sampleXs0 <- runModel(deltaIDs[1],
-                        outType=outType, 
+#  rcps = "CurrClim" 
+#  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  sampleXs0 <- runModelAdapt(deltaIDs[1],
+              outType=outType,
+              rcps = "CurrClim", 
              harvScen="baseTapio",#"Base" or #BaseTapio
              harvInten="Base")
   # deltaT & deltaP climate runs  
-  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
-  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+#  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
+#  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs <- mclapply(deltaIDs, function(jx) {
-    runModel(jx,
-             outType=outType,
+    runModelAdapt(jx,
+             outType=outType,  
+             rcps = paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
              CO2fixed=CO2fixed,
              harvScen="baseTapio",#"Base" or #BaseTapio
              #harvScen="Base",

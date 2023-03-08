@@ -5,7 +5,7 @@
 ## ---------------------------------------------------------------------
 ## MAIN SCRIPT: uncRun for random segments, uncSeg for random values for segments
 ## ---------------------------------------------------------------------
-runModel <- function(deltaID,sampleID=1, outType="dTabs",
+runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
                      harvScen,harvInten,easyInit=FALSE, CO2fixed=0,
                      forceSaveInitSoil=F, cons10run = F,
                      procDrPeat=F,coeffPeat1=-240,coeffPeat2=70,
