@@ -110,7 +110,7 @@ if(outType=="testRun"){
   sampleXs0 <- runModelAdapt(deltaIDs[1],
               outType=outType,
               rcps = "CurrClim", 
-             harvScen="Base", # "Base" or #BaseTapio
+             harvScen="Base",# "Base" or #BaseTapio
              harvInten="Base")
   # deltaT & deltaP climate runs  
 #  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
@@ -120,7 +120,7 @@ if(outType=="testRun"){
              outType=outType,  
              rcps = paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
              CO2fixed=CO2fixed,
-             harvScen="baseTapio",#"Base" or #BaseTapio
+             harvScen="baseTapio",#"Base" or baseTapio
              #harvScen="Base",
              harvInten="Base")
     }, mc.cores = nCores,mc.silent=FALSE)      
