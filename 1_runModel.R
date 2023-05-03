@@ -1,7 +1,7 @@
 #station_id <- 1 # This to localsettings! Station id 1 to 6
 set.seed(1)
 print(paste("station",station_id))
-stations <- data.frame(name=c("Helsinki","Jokioinen","Jyvaskyla","Kajaani",
+stations <- data.frame(name=c("Vantaa_Helsinki","Jokioinen","Jyvaskyla","Kajaani",
                               "Sodankyla","Utsjoki"),
               location=c("Helsinki_Vantaa_lentoasema", # Uusimaa 1
                               "Jokioinen_Ilmala", # Kanta-Hame 9
@@ -25,7 +25,9 @@ r_no = region = r_nos_stations[[station_id]][1] # region ID
 xy <- stations[station_id,c("ID","x","y")]
 stat_name <- stations[station_id,"name"]
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
-source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
+#source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
+CO2_RCPyears <- read.csv2(file=paste0(climatepath,"co2_concentrations_PREBAS.csv"))
+co2Names<-names(CO2_RCPyears)[2:ncol(CO2_RCPyears)]
 
 #load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_no,"_IDsTab.rdata"))
 #data.all <- cbind(data.all,data.IDs[match(data.all$segID, data.IDs$maakuntaID),4:5])
@@ -46,7 +48,22 @@ print(paste("Forest data: maximum distance from weather station",
 print(paste("Area of forest within the closest",nSitesRun,"segments is", round(sum(sum(ops[[1]]$area)),2),"hectares"))
 
 rcps = "CurrClim" 
-rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
+#rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
+if(CO2fixed==0){
+  rcpsFile <- paste0(stat_name,"_1991_2100_constant_change_v3.csv")
+  Co2Col<-which(co2Names=="X2005.fixed")
+} else {
+  rcpsFile <- paste0(stat_name,"_1991_2100_seasonally_perturbed_v1.csv")
+}
+weatherData<-read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
+
+deltaP <- unique(weatherData$Pchange)
+deltaT <- unique(weatherData$deltaT)
+if(outType=="testRun"){
+  deltaT<-deltaT[c(1,2,length(deltaT))]
+  deltaP<-deltaP[c(1,2,length(deltaP))]
+}
+  
 
 deltaTP <- matrix(0,2,length(deltaP)*length(deltaT))
 index <- 1
@@ -97,9 +114,9 @@ if(outType=="testRun"){
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
                   outType=outType,  
-                  rcps = paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
+                  rcps = rcpsFile,#"paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
                   CO2fixed=CO2fixed,
-                  harvScen="baseTapio",#"Base" or #BaseTapio
+                  harvScen="Base",#"Base" or #BaseTapio
            harvInten="Base")})
   sampleXs <- list(sampleXs0, sampleXs)
   
@@ -119,10 +136,10 @@ if(outType=="testRun"){
   sampleXs <- mclapply(deltaIDs, function(jx) {
     runModelAdapt(jx,
              outType=outType,  
-             rcps = paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
+             rcps = rcpsFile, #paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
              CO2fixed=CO2fixed,
-             harvScen="baseTapio",#"Base" or baseTapio
-             #harvScen="Base",
+             #harvScen="baseTapio",#"Base" or baseTapio
+             harvScen="Base",
              harvInten="Base")
     }, mc.cores = nCores,mc.silent=FALSE)      
   sampleXs <- list(sampleXs0, sampleXs)
