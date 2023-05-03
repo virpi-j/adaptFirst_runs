@@ -57,6 +57,7 @@ if(CO2fixed==0){
 } else {
   rcpsFile <- paste0(stat_name,"_1991_2100_seasonally_perturbed_v1.csv")
   rcpsName <- "perturbed"
+  Co2Col<-CO2fixed
 }
 weatherData<-read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
 
