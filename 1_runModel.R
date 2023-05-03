@@ -53,8 +53,10 @@ rcps = "CurrClim"
 if(CO2fixed==0){
   rcpsFile <- paste0(stat_name,"_1991_2100_constant_change_v3.csv")
   Co2Col<-which(co2Names=="X2005.fixed")
+  rcpsName <- "constant"
 } else {
   rcpsFile <- paste0(stat_name,"_1991_2100_seasonally_perturbed_v1.csv")
+  rcpsName <- "perturbed"
 }
 weatherData<-read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
 
@@ -172,11 +174,11 @@ for(k in 1:m){
   names(output)[k] <- sampleXs[[1]][k,1]
   
 }
-save(output,file = paste0("outputs_",stat_name,".rdata"))
+save(output,file = paste0("outputs_",stat_name,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
 
 plotFigs <- TRUE
 if(plotFigs){
-  pdf(file=paste0("results_",stat_name,".pdf"))
+  pdf(file=paste0("results_",stat_name,"_",rcpsName,"_",co2Names[Co2Col],".pdf"))
   for(k in 1:m){
     contourPlot <- TRUE
     if(contourPlot){
@@ -190,14 +192,14 @@ if(plotFigs){
       levels = pretty(zrange, nlev), nlevels = nlev,
       col =  hcl.colors(20, "Spectral"),
       xlab = "deltaT", ylab = "deltaP",  
-      main = paste0(names(output)[k]," ",perStarts[1],"-",perEnds[1])
+      main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",perStarts[1],"-",perEnds[1])
     )
     filled.contour(deltaT, deltaP, zz7,       
                    zlim = zrange,
                    levels = pretty(zrange, nlev), nlevels = nlev,
                    col =  hcl.colors(20, "Spectral"),
                    xlab = "deltaT", ylab = "deltaP",  
-            main = paste0(names(output)[k]," ",perStarts[7],"-",perEnds[7])
+                   main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",perStarts[7],"-",perEnds[7])
     )
   } else {
     par(mfrow=c(1,2))   
