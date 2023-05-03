@@ -26,8 +26,9 @@ xy <- stations[station_id,c("ID","x","y")]
 stat_name <- stations[station_id,"name"]
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
 #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
-CO2_RCPyears <- read.csv2(file=paste0(climatepath,"co2_concentrations_PREBAS.csv"))
+CO2_RCPyears <- read.csv2(file=paste0(climatepath,"co2_concentrations_PREBAS.csv"),header=T,sep = ";")
 co2Names<-names(CO2_RCPyears)[2:ncol(CO2_RCPyears)]
+names(CO2_RCPyears)[1]<-"year"
 
 #load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_no,"_IDsTab.rdata"))
 #data.all <- cbind(data.all,data.IDs[match(data.all$segID, data.IDs$maakuntaID),4:5])
@@ -56,6 +57,8 @@ if(CO2fixed==0){
   rcpsFile <- paste0(stat_name,"_1991_2100_seasonally_perturbed_v1.csv")
 }
 weatherData<-read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
+
+print(paste("CO2scenario", names(CO2_RCPyears)[Co2Col]))
 
 deltaP <- unique(weatherData$Pchange)
 deltaT <- unique(weatherData$deltaT)

@@ -126,6 +126,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
                          dat2$deltaT==deltaTP[1,deltaID] & 
                          dat2$Pchange==deltaTP[2,deltaID]),]
     climIDs <- unique(sampleX$climID)
+    CO2<-as.numeric(sub(",",".",CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),(Co2Col+1)]))
     if(CO2fixed==0){
       dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
                        #PAR=-0.894+1.8*dat2$GLOB,
@@ -133,15 +134,16 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
                        TAir=dat2$Tmean_constant,#detrended,
                        VPD=dat2$VPdef_constant,#detrended,
                        Precip=dat2$Pre_constant,
-                       CO2=CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),(Co2Col+1)])
+                       CO2=CO2)
     } else {
-      dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
+      dat2 <- data.table(id=sampleX$climID[1],
+                         rday=1:nrow(dat2),
                          #PAR=-0.894+1.8*dat2$GLOB,
                          PAR=1.8*dat2$GLOB/1000,
                          TAir=dat2$Tmean_seasonal,#detrended,
                          VPD=dat2$VPdef_seasonal,#detrended,
                          Precip=dat2$Pre_seasonal,
-                         CO2=CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),(Co2Col+1)])
+                         CO2=CO2)
     }
     nr <- length(climIDs)
     clim <- list(PAR = t(replicate(nr,dat2$PAR)),
