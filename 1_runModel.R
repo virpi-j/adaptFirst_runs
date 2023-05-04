@@ -61,6 +61,7 @@ if(CO2fixed==0){
 }
 weatherData<-read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
 
+print(paste("Climate scenario",rcpsName))
 print(paste("CO2scenario", names(CO2_RCPyears)[Co2Col]))
 
 deltaP <- unique(weatherData$Pchange)
@@ -122,8 +123,8 @@ if(outType=="testRun"){
                   outType=outType,  
                   rcps = rcpsFile,#"paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
                   CO2fixed=CO2fixed,
-                  harvScen="Base",#"Base" or #BaseTapio
-           harvInten="Base")})
+                  harvScen=harvscen,#"Base" or #BaseTapio
+           harvInten=harvinten)})
   sampleXs <- list(sampleXs0, sampleXs)
   
 } else {
@@ -145,8 +146,8 @@ if(outType=="testRun"){
              rcps = rcpsFile, #paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
              CO2fixed=CO2fixed,
              #harvScen="baseTapio",#"Base" or baseTapio
-             harvScen="Base",
-             harvInten="Base")
+             harvScen=harvscen,
+             harvInten=harvinten)
     }, mc.cores = nCores,mc.silent=FALSE)      
   sampleXs <- list(sampleXs0, sampleXs)
 }
@@ -175,11 +176,11 @@ for(k in 1:m){
   names(output)[k] <- sampleXs[[1]][k,1]
   
 }
-save(output,file = paste0("outputs_",stat_name,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
+save(output,file = paste0("outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
 
 plotFigs <- TRUE
 if(plotFigs){
-  pdf(file=paste0("results_",stat_name,"_",rcpsName,"_",co2Names[Co2Col],".pdf"))
+  pdf(file=paste0("results_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".pdf"))
   for(k in 1:m){
     contourPlot <- TRUE
     if(contourPlot){
