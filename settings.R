@@ -6,8 +6,8 @@ CSCrun=T
 # ExcludeUndrPeatlands <- TRUE # TRUE if undrained peatlands left out from runs
 
 setX <- 1
-harvscen<- "Base" #"Base", adapt","protect","protectNoAdH","adaptNoAdH","adaptTapio"
-harvinten<- "Base" # "Base", "Low", "MaxSust", "NoHarv" 
+if(!exists("harvscen")) harvscen<- "Base" #"Base", adapt","protect","protectNoAdH","adaptNoAdH","adaptTapio"
+if(!exists("harvinten")) harvinten<- "Base" # "Base", "Low", "MaxSust", "NoHarv" 
 
 regSets <- "maakunta" ### "forCent", "maakunta"
 if(!exists("nSitesRun")) nSitesRun <- 10000 #20000
