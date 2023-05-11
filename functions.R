@@ -497,6 +497,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   ## identify managed and unmanaged forests
   manFor <-  which(sampleX$cons==0)
   unmanFor <- which(sampleX$cons==1)
+  print((harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim"))
   if(outType=="ststDeadW" | (harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
     yearsDeadW <- 1:85 #nYears
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
