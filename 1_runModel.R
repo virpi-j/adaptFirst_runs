@@ -62,10 +62,8 @@ if(CO2fixed==0){
 }
 weatherData<-read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
 
-climatepathAF <- climatepath
-
 print(paste("Climate scenario",rcpsName))
-print(paste("CO2scenario", names(CO2_RCPyears)[Co2Col]))
+print(paste("CO2scenario", names(CO2_RCPyears)[Co2Col+1]))
 
 deltaP <- unique(weatherData$Pchange)
 deltaT <- unique(weatherData$deltaT)
@@ -127,13 +125,13 @@ if(outType=="testRun"){
                              harvScen=harvscen,
                              harvInten=harvinten)
 
-#  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
-#  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  # IRS runs
   outType<-"dTabs"
   nYears <- 2100-2015
   endingYear <- nYears + startingYear
+  rcps <- rcpsFile 
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
-  print(paste("Simulate soilC for",nYears,"years"))
+  print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,

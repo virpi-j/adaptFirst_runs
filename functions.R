@@ -516,14 +516,14 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
     load(paste0("../initDeadWVss/station",
                 station_id,"_deadWV_mortMod",mortMod,".rdata"))
     DeadWInit <- matrix(0,nrow = nYears, ncol = dim(manDeadW$ssDeadW)[2])
-    DeadWInit[1:nrow(manDeadW$ssDeadW),] <- manDeadW$ssDeadW[1:nYears,]
+    DeadWInit[1:nrow(manDeadW$ssDeadW),] <- manDeadW$ssDeadW
     region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
       aperm(replicate(length(manFor),DeadWInit),c(3,1:2))
 #    region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
 #      aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
     if(length(unmanFor)>0){
       DeadWInit <- matrix(0,nrow = nYears, ncol = dim(unmanDeadW$ssDeadW)[2])
-      DeadWInit[1:nrow(unmanDeadW$ssDeadW),] <- unmanDeadW$ssDeadW[1:nYears,]
+      DeadWInit[1:nrow(unmanDeadW$ssDeadW),] <- unmanDeadW$ssDeadW
       region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
         aperm(replicate(length(unmanFor),DeadWInit),c(3,1:2))
 #      region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
