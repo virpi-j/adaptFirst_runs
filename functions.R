@@ -500,7 +500,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   if(outType=="ststDeadW" | (harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
     yearsDeadW <- 1:85 #nYears
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
-    print(paste("dim manDeadW-deadWV:",dim(manDeadW$deadWV)))
+    print(paste("dim manDeadW:",dim(manDeadW$ssDeadW)))
     print(paste("mean:",mean(manDeadW$deadWV)))
     if(length(unmanFor)>0){
       unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)

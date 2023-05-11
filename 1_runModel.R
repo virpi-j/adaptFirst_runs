@@ -24,8 +24,9 @@ r_nos_stations[[6]] <- c(8)
 r_no = region = r_nos_stations[[station_id]][1] # region ID
 xy <- stations[station_id,c("ID","x","y")]
 stat_name <- stations[station_id,"name"]
+nYears <- 2050-2015
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
-#source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
+##source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
 CO2_RCPyears <- read.csv2(file=paste0(climatepath,"co2_concentrations_PREBAS.csv"),header=T,sep = ";")
 co2Names<-names(CO2_RCPyears)[2:ncol(CO2_RCPyears)]
 names(CO2_RCPyears)[1]<-"year"
@@ -60,6 +61,8 @@ if(CO2fixed==0){
   Co2Col<-CO2fixed
 }
 weatherData<-read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
+
+climatepathAF <- climatepath
 
 print(paste("Climate scenario",rcpsName))
 print(paste("CO2scenario", names(CO2_RCPyears)[Co2Col]))
@@ -102,22 +105,36 @@ if(outType=="testRun"){
   coefN20_2 = 0.077#g m-2 y-1
   landClassUnman=NULL
   compHarvX = 0
+  sampleX=NULL
+  funPreb = regionPrebas
+  initSoilCreStart=NULL
+  outModReStart=NULL
+  reStartYear=1
 }
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
 
 if(outType=="testRun"){
-  outType<-"dTabs"
-#  rcps = "CurrClim" 
-#  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  sampleXs0 <- runModelAdapt(deltaIDs[1],
-                        outType=outType, 
-                        rcps = "CurrClim", 
-                        harvScen="Base",
-                        harvInten="Base")
-  
+  # CurrClim scenario using the IBC-carbon settings to get soilC initialization
+  outType<-"testRun"
+  nYears<-2050-2015
+  endingYear <- nYears + startingYear
+  print(paste("Simulate soilC for",nYears,"years"))
+  sampleXs0 <- runModelAdapt(1,
+                             outType=outType,  
+                             rcps = "CurrClim",
+                             CO2fixed=CO2fixed,
+                             harvScen=harvscen,
+                             harvInten=harvinten)
+
 #  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
 #  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  outType<-"dTabs"
+  nYears <- 2100-2015
+  endingYear <- nYears + startingYear
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
+  print(paste("Simulate soilC for",nYears,"years"))
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
                   outType=outType,  
