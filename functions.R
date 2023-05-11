@@ -497,9 +497,8 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   ## identify managed and unmanaged forests
   manFor <-  which(sampleX$cons==0)
   unmanFor <- which(sampleX$cons==1)
-  print((harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim"))
   if(outType=="ststDeadW" | (harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
-    yearsDeadW <- 1:85 #nYears
+    yearsDeadW <- 1:nYears
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
     print(paste("dim manDeadW:",dim(manDeadW$ssDeadW)))
     print(paste("mean:",mean(manDeadW$deadWV)))
@@ -516,11 +515,19 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   }else{
     load(paste0("../initDeadWVss/station",
                 station_id,"_deadWV_mortMod",mortMod,".rdata"))
+    DeadWInit <- matrix(0,nrow = nYears, ncol = dim(manDeadW$ssDeadW)[2])
+    DeadWInit[1:nrow(manDeadW$ssDeadW),] <- manDeadW$ssDeadW[1:nYears,]
     region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
-      aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
+      aperm(replicate(length(manFor),DeadWInit),c(3,1:2))
+#    region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
+#      aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
     if(length(unmanFor)>0){
+      DeadWInit <- matrix(0,nrow = nYears, ncol = dim(unmanDeadW$ssDeadW)[2])
+      DeadWInit[1:nrow(unmanDeadW$ssDeadW),] <- unmanDeadW$ssDeadW[1:nYears,]
       region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
-        aperm(replicate(length(unmanFor),(unmanDeadW$ssDeadW[1:nYears,])),c(3,1:2))
+        aperm(replicate(length(unmanFor),DeadWInit),c(3,1:2))
+#      region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
+#        aperm(replicate(length(unmanFor),(unmanDeadW$ssDeadW[1:nYears,])),c(3,1:2))
     }
     print("deadWood volume update processed.")
   }
