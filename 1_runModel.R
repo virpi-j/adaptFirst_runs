@@ -173,22 +173,17 @@ save(sampleXs,deltaTP,file = "outputs.rdata")
 load("outputs.rdata")
 output <- list()
 ndeltaTP <- ncol(deltaTP)
-m <- nrow(sampleXs[[1]])
+m <- nrow(sampleXs[[2]][[1]])
 for(k in 1:m){
   tmp <- data.frame()
   index <- 0
   for(ij in 1:ndeltaTP){
-    #if(ij==deltaTP0) {
-    #  tmp <- rbind(tmp,cbind(t(deltaTP[,1]),sampleXs[[1]][k,2:ncol(sampleXs[[1]])]))
-    #  index <- -1
-    #} else {
-      tmp <- rbind(tmp,cbind(t(deltaTP[,ij+index]),sampleXs[[2]][[ij]][k,2:ncol(sampleXs[[2]][[1]])]))
-    #}
+    tmp <- rbind(tmp,cbind(t(deltaTP[,ij+index]),sampleXs[[2]][[ij]][k,2:ncol(sampleXs[[2]][[1]])]))
   }  
   names(tmp)[1:2] <- c("deltaT","deltaP")
 
   output[[k]] <- tmp 
-  names(output)[k] <- sampleXs[[1]][k,1]
+  names(output)[k] <- sampleXs[[2]][[1]][k,1]
   
 }
 save(output,file = paste0("outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
