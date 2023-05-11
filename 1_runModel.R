@@ -144,17 +144,25 @@ if(outType=="testRun"){
   
 } else {
   # Baseline for soil and deadWood initialization
-#  rcps = "CurrClim" 
-#  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  sampleXs0 <- runModelAdapt(deltaIDs[1],
-              outType=outType,
-              rcps = "CurrClim", 
-              harvScen="Base",
-              #harvScen="baseTapio",
-             harvInten="Base")
-  # deltaT & deltaP climate runs  
-#  rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
-#  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  outType<-"testRun"
+  nYears<-2050-2015
+  endingYear <- nYears + startingYear
+  print(paste("Simulate soilC for",nYears,"years"))
+  sampleXs0 <- runModelAdapt(1,
+                             outType=outType,  
+                             rcps = "CurrClim",
+                             CO2fixed=CO2fixed,
+                             harvScen=harvscen,
+                             harvInten=harvinten)
+
+  # IRS runs
+  outType<-"dTabs"
+  nYears <- 2100-2015
+  endingYear <- nYears + startingYear
+  rcps <- rcpsFile 
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
+  print(paste("Simulate for",nYears,"years"))
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   sampleXs <- mclapply(deltaIDs, function(jx) {
     runModelAdapt(jx,
              outType=outType,  
