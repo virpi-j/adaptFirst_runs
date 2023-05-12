@@ -504,7 +504,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
     print(paste("mean:",mean(manDeadW$deadWV)))
     if(length(unmanFor)>0){
       unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
-      print(paste("dim unmanDeadW-deadWV:",dim(unmanDeadW$deadWV)))
+      print(paste("dim unmanDeadW:",dim(unmanDeadW$deadWV)))
       print(paste("mean:",mean(unmanDeadW$deadWV)))
     } else {
       unmanDeadW <- data.frame()
