@@ -175,10 +175,10 @@ if(outType=="testRun"){
   sampleXs <- list(sampleXs0, sampleXs)
 }
 
-save(sampleXs,deltaTP,file = "outputs.rdata")
+save(sampleXs,deltaTP,file = paste0("outputs",station_id,".rdata"))
 
 
-load("outputs.rdata")
+load(paste0("outputs",station_id,".rdata"))
 output <- list()
 ndeltaTP <- ncol(deltaTP)
 m <- nrow(sampleXs[[2]][[1]])
