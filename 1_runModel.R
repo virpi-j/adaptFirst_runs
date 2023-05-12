@@ -176,7 +176,7 @@ if(outType=="testRun"){
 }
 
 save(sampleXs,deltaTP,file = paste0("outputs",station_id,".rdata"))
-
+print("Results saved as lists")
 
 load(paste0("outputs",station_id,".rdata"))
 output <- list()
