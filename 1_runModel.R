@@ -122,8 +122,8 @@ if(outType=="testRun"){
                              outType=outType,  
                              rcps = "CurrClim",
                              CO2fixed=CO2fixed,
-                             harvScen=harvscen,
-                             harvInten=harvinten)
+                             harvScen="Base",
+                             harvInten="Base")
 
   # IRS runs
   outType<-"dTabs"
@@ -152,8 +152,8 @@ if(outType=="testRun"){
                              outType=outType,  
                              rcps = "CurrClim",
                              CO2fixed=CO2fixed,
-                             harvScen=harvscen,
-                             harvInten=harvinten)
+                             harvScen="Base",
+                             harvInten="Base")
 
   # IRS runs
   outType<-"dTabs"
