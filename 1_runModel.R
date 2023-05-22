@@ -144,17 +144,18 @@ if(outType=="testRun"){
   
 } else {
   # Baseline for soil and deadWood initialization
-  outType<-"testRun"
-  nYears<-2050-2015
-  endingYear <- nYears + startingYear
-  print(paste("Simulate soilC for",nYears,"years"))
-  sampleXs0 <- runModelAdapt(1,
-                             outType=outType,  
-                             rcps = "CurrClim",
-                             CO2fixed=CO2fixed,
-                             harvScen="Base",
-                             harvInten="Base")
-
+  if(CO2fixed==0 & harvscen=="Base" & harvinten=="Base"){
+    outType<-"testRun"
+    nYears<-2050-2015
+    endingYear <- nYears + startingYear
+    print(paste("Simulate soilC for",nYears,"years"))
+    sampleXs0 <- runModelAdapt(1,
+                               outType=outType,  
+                               rcps = "CurrClim",
+                               CO2fixed=CO2fixed,
+                               harvScen="Base",
+                               harvInten="Base")
+  }
   # IRS runs
   outType<-"dTabs"
   nYears <- 2100-2015
