@@ -48,6 +48,7 @@ print(paste("Weather station",stations[station_id,"name"]))
 print(paste("Forest data: maximum distance from weather station",
             round(max(d[nn.d])/1000,2),"km"))
 print(paste("Area of forest within the closest",nSitesRun,"segments is", round(sum(sum(ops[[1]]$area)),2),"hectares"))
+source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/2_createRaster.R")
 
 rcps = "CurrClim" 
 #rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
