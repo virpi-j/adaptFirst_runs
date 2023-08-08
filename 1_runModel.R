@@ -10,22 +10,32 @@ stations <- data.frame(name=c("Vantaa_Helsinki","Jokioinen","Jyvaskyla","Kajaani
                               "Sodankyla_Tahtela", # Lappi 8
                               "Utsjoki_Kevo"), # Lappi 8
               ID = c(1:6), 
-              x = c(24.96, 23.5, 25.67, 27.67, 26.63, 27.01),
+              x = c(24.96, 23.50, 25.67, 27.67, 26.63, 27.01),
               y = c(60.33, 60.81, 62.4, 64.28, 67.37, 69.76))
 
 r_nos_stations <- list()
 r_nos_stations[[1]] <- c(1,9,11,13,15)
-r_nos_stations[[2]] <- c(9,4,11,13)
+r_nos_stations[[2]] <- c(1,4,9,11,13,15)
 r_nos_stations[[3]] <- c(6,4,13,17,7,3,12)
 r_nos_stations[[4]] <- c(16,7,18,19)
 r_nos_stations[[5]] <- c(8)
 r_nos_stations[[6]] <- c(8)
 
 r_no = region = r_nos_stations[[station_id]][1] # region ID
-xy <- stations[station_id,c("ID","x","y")]
+
 stat_name <- stations[station_id,"name"]
 nYears <- 2050-2015
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
+
+xy_UTM <- data.frame()
+for(ij in 1:nrow(stations)){
+  xy <- stations[ij,c("ID","x","y")]
+  xy_UTM <- rbind(xy_UTM, LongLatToUTM(xy)[2:3])
+}
+colnames(xy_UTM)<-c("x_UTM","y_UTM")
+stations <- cbind(stations,xy_UTM)
+print(stations)
+
 ##source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
 CO2_RCPyears <- read.csv2(file=paste0(climatepath,"co2_concentrations_PREBAS.csv"),header=T,sep = ";")
 co2Names<-names(CO2_RCPyears)[2:ncol(CO2_RCPyears)]
@@ -37,10 +47,12 @@ print(paste("PREBAS version",vPREBAS))
 
 ## Weather station coordinates:
 
+xy <- stations[station_id,c("ID","x","y")]
 station_coords <- LongLatToUTM(xy) # dd to UTM
 
 d<- sqrt((data.all$x - station_coords$x)^2+(data.all$y - station_coords$y)^2)
-nn.d <- order(d, decreasing=F)[1:nSitesRun]
+nn.d <- order(d[d<100], decreasing=F)[1:nSitesRun]
+print(range(d))
 
 ops <- list(data.all[nn.d,])
 
@@ -48,8 +60,9 @@ print(paste("Weather station",stations[station_id,"name"]))
 print(paste("Forest data: maximum distance from weather station",
             round(max(d[nn.d])/1000,2),"km"))
 print(paste("Area of forest within the closest",nSitesRun,"segments is", round(sum(sum(ops[[1]]$area)),2),"hectares"))
-source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/2_createRaster.R")
-
+if(toRaster){
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/2_createRaster.R")
+}
 rcps = "CurrClim" 
 #rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
 if(CO2fixed==0){

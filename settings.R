@@ -152,9 +152,9 @@ if(regSets=="forCent"){
   load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/forCent/data.all_forCent_",r_no,".rdata"))
 }else{
   data.all_tmp <- data.table()
-  for(r_no in r_nos_stations[[station_id]]){
-    load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/data.all_maakunta_",r_no,".rdata"))
-    load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_no,"_IDsTab.rdata"))
+  for(r_noi in r_nos_stations[[station_id]]){
+    load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/data.all_maakunta_",r_noi,".rdata"))
+    load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_noi,"_IDsTab.rdata"))
     #data.all <- cbind(data.all,data.IDs[match(data.all$segID, data.IDs$maakuntaID),4:5])
     data.all <- cbind(data.all,data.IDs[match(data.all$maakuntaID, data.IDs$maakuntaID),4:5])
     data.all_tmp <- rbind(data.all_tmp,data.all)
