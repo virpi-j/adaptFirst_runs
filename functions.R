@@ -533,7 +533,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   }
   ####end initialize deadWood Volume
   
-  if(outType=="testRun") return(list(region = region,initPrebas=initPrebas))
+  if(outType=="testRun") return(list(region = region,initPrebas=initPrebas, clim=clim))
   if(outType=="dTabs"){
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
