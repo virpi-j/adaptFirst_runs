@@ -17,7 +17,7 @@ r_nos_stations <- list()
 r_nos_stations[[1]] <- c(1)#,9,11,13,15)
 r_nos_stations[[2]] <- c(11,1,9)#,1,4,9,13,15)
 r_nos_stations[[3]] <- c(6)#,4,13,17,7,3,12)
-r_nos_stations[[4]] <- c(16)#,7,18,19)
+r_nos_stations[[4]] <- c(16,19)#,7,18,19)
 r_nos_stations[[5]] <- c(8)
 r_nos_stations[[6]] <- c(8)
 
