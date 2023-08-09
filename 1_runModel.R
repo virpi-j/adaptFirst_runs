@@ -17,7 +17,7 @@ r_nos_stations <- list()
 r_nos_stations[[1]] <- c(1)#,9,11,13,15)
 r_nos_stations[[2]] <- c(11,1,9)#,1,4,9,13,15)
 r_nos_stations[[3]] <- c(6)#,4,13,17,7,3,12)
-r_nos_stations[[4]] <- c(16,7,18,19)
+r_nos_stations[[4]] <- c(16)#,7,18,19)
 r_nos_stations[[5]] <- c(8)
 r_nos_stations[[6]] <- c(8)
 
@@ -78,6 +78,7 @@ print(paste("Area of forest within the closest",nSitesRun,"segments is", round(s
 if(toRaster){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/2_createRaster.R")
 }
+
 rcps = "CurrClim" 
 #rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
 if(CO2fixed==0){
