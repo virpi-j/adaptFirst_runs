@@ -17,7 +17,7 @@ gc()
 data.IDs <- data.IDs[segID!=0]
 setkey(data.IDs,segID)
 
-varXs <- c("age")
+if(!exists(varXs)) varXs <- c("age")
 varX <- varXs[1]
 
 for(varX in varXs){
