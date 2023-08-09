@@ -79,6 +79,7 @@ print(paste("Area of forest within the closest",nSitesRun,"segments is", round(s
 if(toRaster){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/2_createRaster.R")
 }
+if(toRaster) dev.off()
 
 rcps = "CurrClim" 
 #rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
