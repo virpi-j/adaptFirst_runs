@@ -38,6 +38,7 @@ for(ij in 1:nrow(stations)){
 colnames(xy_UTM)<-c("x_UTM","y_UTM")
 stations <- cbind(stations,xy_UTM)
 print(stations)
+if(toRaster & station_id==1) write.csv(stations[,c("ID","name","x_UTM","y_UTM")],file="weather_stations.csv")
 
 ##source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/05_create_CO2cols.R")
 CO2_RCPyears <- read.csv2(file=paste0(climatepath,"co2_concentrations_PREBAS.csv"),header=T,sep = ";")
