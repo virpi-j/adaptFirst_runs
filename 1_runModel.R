@@ -210,10 +210,10 @@ if(outType=="testRun"){
   sampleXs <- list(sampleXs0, sampleXs)
 }
 
-save(sampleXs,deltaTP,file = paste0("outputs",station_id,".rdata"))
+save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,".rdata"))
 print("Results saved as lists")
 
-load(paste0("outputs",station_id,".rdata"))
+load(paste0("Results/outputs",station_id,".rdata"))
 output <- list()
 ndeltaTP <- ncol(deltaTP)
 m <- nrow(sampleXs[[2]][[1]])
@@ -229,11 +229,11 @@ for(k in 1:m){
   names(output)[k] <- sampleXs[[2]][[1]][k,1]
   
 }
-save(output,file = paste0("outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
+save(output,file = paste0("Results/outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
 
 plotFigs <- TRUE
 if(plotFigs){
-  pdf(file=paste0("results_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".pdf"))
+  pdf(file=paste0("Results/results_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".pdf"))
   for(k in 1:m){
     contourPlot <- TRUE
     if(contourPlot){
