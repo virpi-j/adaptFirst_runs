@@ -10,13 +10,13 @@ stations <- data.frame(name=c("Vantaa_Helsinki","Jokioinen","Jyvaskyla","Kajaani
                               "Sodankyla_Tahtela", # Lappi 8
                               "Utsjoki_Kevo"), # Lappi 8
               ID = c(1:6), 
-              x = c(24.96, 23.50, 25.67, 27.67, 26.63, 27.01),
-              y = c(60.33, 60.81, 62.4, 64.28, 67.37, 69.76))
+              x = c(24.96, 23.48, 25.67, 27.67, 26.63, 27.01),
+              y = c(60.33, 60.80, 62.4, 64.28, 67.37, 69.76))
 
 r_nos_stations <- list()
-r_nos_stations[[1]] <- c(1,9,11,13,15)
-r_nos_stations[[2]] <- c(1,4,9,11,13,15)
-r_nos_stations[[3]] <- c(6,4,13,17,7,3,12)
+r_nos_stations[[1]] <- c(1)#,9,11,13,15)
+r_nos_stations[[2]] <- c(11,1,9)#,1,4,9,13,15)
+r_nos_stations[[3]] <- c(6)#,4,13,17,7,3,12)
 r_nos_stations[[4]] <- c(16,7,18,19)
 r_nos_stations[[5]] <- c(8)
 r_nos_stations[[6]] <- c(8)
@@ -30,7 +30,10 @@ devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/
 xy_UTM <- data.frame()
 for(ij in 1:nrow(stations)){
   xy <- stations[ij,c("ID","x","y")]
-  xy_UTM <- rbind(xy_UTM, LongLatToUTM(xy)[2:3])
+  coordinates(xy) <- c("x","y")
+  proj4string(xy) <- CRS("+proj=longlat +datum=WGS84") 
+  res <- spTransform(xy, crsX)#CRS(paste("+proj=utm +zone=",35," ellps=WGS84",sep='')))
+  xy_UTM <- rbind(xy_UTM, station_coords<-as.data.frame(res)[2:3])
 }
 colnames(xy_UTM)<-c("x_UTM","y_UTM")
 stations <- cbind(stations,xy_UTM)
@@ -48,14 +51,26 @@ print(paste("PREBAS version",vPREBAS))
 ## Weather station coordinates:
 
 xy <- stations[station_id,c("ID","x","y")]
-station_coords <- LongLatToUTM(xy) # dd to UTM
+coordinates(xy) <- c("x","y")
+proj4string(xy) <- CRS("+proj=longlat +datum=WGS84") 
+res <- spTransform(xy, crsX)#CRS(paste("+proj=utm +zone=",35," ellps=WGS84",sep='')))
+station_coords<-as.data.frame(res)[2:3]
+#station_coords <- LongLatToUTM(xy) # dd to UTM
+print(station_coords)
 
 d<- sqrt((data.all$x - station_coords$x)^2+(data.all$y - station_coords$y)^2)
-nn.d <- order(d[d<100], decreasing=F)[1:nSitesRun]
+nn.d <- order(d, decreasing=F)[1:nSitesRun]
+
 print(range(d))
 
 ops <- list(data.all[nn.d,])
-
+if(toRaster){
+  ndat <- sample(1:nrow(data.all),10000)
+  plot(data.all$x[ndat],data.all$y[ndat])
+  points(station_coords$x,station_coords$y,cex=2,col="red")
+  ndat <- sample(1:nrow(ops[[1]]),1000)
+  points(ops[[1]]$x[ndat],ops[[1]]$y[ndat],col="green")
+}
 print(paste("Weather station",stations[station_id,"name"]))
 print(paste("Forest data: maximum distance from weather station",
             round(max(d[nn.d])/1000,2),"km"))
