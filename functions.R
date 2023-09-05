@@ -187,6 +187,11 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
+  SBB <- T
+  if(SBB){
+    SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
+  }
+  
   ##### if the mortality model flag is 13 uses 
   ##### mortMod=1 (reineke) for managed forests
   ##### mortMod=3 (reineke + empirical model) for unmanaged forests
@@ -537,7 +542,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   if(outType=="dTabs"){
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
-              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)
+              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,SBBbp)
     print(output[1,])
     print("all outs calculated")
     #print(output)
@@ -597,7 +602,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
 }
 
 runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInten,rcpfile,areas,
-                      colsOut1,colsOut2,colsOut3,varSel,sampleForPlots){
+                      colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,SBBbp){
   ####create pdf for test plots 
   marginX= 1:2#(length(dim(out$annual[,,varSel,]))-1)
   nas <- data.table()
@@ -640,7 +645,7 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
   ####process and save special variales
   print(paste("start special vars",deltaID))
   output <- specialVarProcAdapt(sampleX,modOut,r_no,harvScen,harvInten,rcpfile,sampleID,
-                 areas,sampleForPlots,output)
+                 areas,sampleForPlots,output,SBBbp)
   return(output)
 }
 
@@ -912,7 +917,7 @@ create_prebas_input.f = function(r_no, clim, data.sample, nYears,
                               CO2=clim$CO2[, 1:(nYears*365)],
                               yassoRun = 1,
                               mortMod = mortMod)
-  initPrebas
+  #initPrebas
 }
 
 yasso.mean.climate.f = function(dat, data.sample, startingYear, nYears){
@@ -1326,7 +1331,7 @@ calculatePerCols <- function(outX){ #perStarts,perEnds,startingYear,
 }
 
 specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,sampleID,
-                           areas,sampleForPlots,output){
+                           areas,sampleForPlots,output,SBBbp){
   nYears <-  max(region$nYears)
   nSites <-  max(region$nSites)
   ####process and save special variables: 
@@ -1410,6 +1415,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
+  
   ####GVw
   outX <- data.table(segID=sampleX$segID,region$GVout[,,4])
   pX <- calculatePerCols(outX = outX)
@@ -1418,6 +1424,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
+  
   ####Wtot
   outX <- data.table(segID=sampleX$segID,apply(region$multiOut[,,c(24,25,31,32,33),,1],1:2,sum))
   pX <- calculatePerCols(outX = outX)
@@ -1426,7 +1433,17 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
+  
+  ####SBBbp
+  outX <- data.table(segID=sampleX$segID,SBBbp)
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "SBBbp"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  
   gc()
+  
   return(output)
 } 
 
@@ -1862,5 +1879,57 @@ outProcFun <- function(modOut,varSel,funX="baWmean"){
   return(outX)
 }
 
-
+SBBbivoltinePotential <- function(initPrebas=initPrebas,nYears){
+  # climid, year, date, vars c(PAR, TAir, VPD, Precip, CO2)
+  #initPrebas <- sampleXs0$initPrebas$weather
+  nT <- nrow(initPrebas$weather)
+  SSBgen <- matrix(1,nT,nYears)
+  
+  for(yi in 1:nYears){
+    wi <- 2 # Tair
+    Ti <- initPrebas$weather[,yi,,wi]
+    stageNames <- c("flight","egg","larvae","pupae","adult")
+    Talpha <- c(5, 10.6, 8.2, 9.9, 3.2) # Temp.threshold values for phases
+    nStages <- length(Talpha) # Number of development stages
+    pulpaeStages <- 1:3*nStages-2 # stage from which pulpae development begins: If the next stage is reached, adult generation is generated
+    Falpha <- c(110, 51.8, 204.4, 57.7, 238.5) # Degree sum limits
+    Talpha <- rep(Talpha,3)
+    Falpha <- rep(Falpha,3)
+    
+    stageID <- matrix(0,nT,ncol(Ti))
+    #Fid <- matrix(0,nT,nYears)
+    Titmp <-Ti
+    for(ij in 1:nrow(Titmp)){
+      Titmp[ij,1:which(Ti[1,]>(19.5-5))[1]]<-0
+    }
+    for(alpha in 1:length(Talpha)){
+      # print(alpha)
+      Falphai <- Falpha[alpha]
+      Di <- t(apply((Titmp-Talpha[alpha])*(Titmp>=Talpha[alpha]),1,cumsum))
+      for(ij in 1:nrow(Di)){
+        stageFinish <- which(Di[ij,]/Falphai>=1)
+        stageID[ij,Di[ij,]>0] <- alpha -1 + min(1,Di[ij,ncol(Di)]/Falphai)
+        if(length(stageFinish)>0){  
+          stageFinish <- stageFinish[1]
+          #print(stageFinish)
+        #  Fid[ij,(which(0<Di[ij,])[1]):stageFinish] <- alpha
+          Titmp[ij,1:stageFinish] <- 0
+        } else { 
+          Titmp[ij,] <- 0
+        }
+      }
+      #  if(alpha==11) break()
+      #  print(rbind(#Tii<-Ti[ij,],Titmpi=Titmp[ij,],
+      #    Dii=Di[ij,],stagei=stageID[ij,],Fi=Fid[ij,])[,70:300])
+    }
+    for(alpha in pulpaeStages){
+      ss<-matrix(1,nrow(Di),2)
+      ss[,2]<-stageID[,ncol(stageID)]-alpha
+      SSBgen[stageID[,ncol(stageID)]>alpha,yi]<-SSBgen[stageID[,ncol(stageID)]>alpha,yi]+apply(ss,1,min)[stageID[,ncol(stageID)]>alpha]
+    }
+  }
+  print(SSBgen-1)
+  return(SSBgen-1)
+  
+}
 
