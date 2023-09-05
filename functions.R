@@ -187,11 +187,6 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
-  SBB <- T
-  if(SBB){
-    SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
-  }
-  
   ##### if the mortality model flag is 13 uses 
   ##### mortMod=1 (reineke) for managed forests
   ##### mortMod=3 (reineke + empirical model) for unmanaged forests
@@ -244,6 +239,11 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
     print(paste("weather data dim:",dim(initPrebas$P0y)))
   }
   
+  
+  SBB <- T
+  if(SBB){
+    SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
+  }
   
   # Loop management scenarios ------------------------------------------------
   # for(harvScen in harvScen) { ## MaxSust fails, others worked.
