@@ -1883,7 +1883,7 @@ SBBbivoltinePotential <- function(initPrebas=initPrebas,nYears){
   # climid, year, date, vars c(PAR, TAir, VPD, Precip, CO2)
   #initPrebas <- sampleXs0$initPrebas$weather
   nT <- nrow(initPrebas$weather)
-  SSBgen <- matrix(1,nT,nYears)
+  SSBgen <- matrix(0,nT,nYears)
   
   for(yi in 1:nYears){
     wi <- 2 # Tair
