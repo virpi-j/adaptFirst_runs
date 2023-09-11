@@ -238,47 +238,48 @@ if(plotFigs){
   for(k in 1:m){
     contourPlot <- TRUE
     if(contourPlot){
-    zz1<-matrix(as.numeric(output[[k]][,3]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
-    zz7<-matrix(as.numeric(output[[k]][,9]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
-    par(mfrow=c(1,1))   
-    nlev <- 10
-    zrange <- range(cbind(zz1,zz7), finite = TRUE)
-    filled.contour(deltaT, deltaP, zz1, 
-      zlim = zrange,
-      levels = pretty(zrange, nlev), nlevels = nlev,
-      col =  hcl.colors(20, "Spectral"),
-      xlab = "deltaT", ylab = "deltaP",  
-      main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",perStarts[1],"-",perEnds[1])
-    )
-    filled.contour(deltaT, deltaP, zz7,       
-                   zlim = zrange,
-                   levels = pretty(zrange, nlev), nlevels = nlev,
-                   col =  hcl.colors(20, "Spectral"),
-                   xlab = "deltaT", ylab = "deltaP",  
-                   main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",perStarts[7],"-",perEnds[7])
-    )
-  } else {
-    par(mfrow=c(1,2))   
-    x<- as.numeric(output[[k]][,1])
-    y<- as.numeric(output[[k]][,2])
-    z1<- as.numeric(output[[k]][,3])
-    z7<- as.numeric(output[[k]][,9])
-    #scatter3D(x, y, z, colvar = z, col = NULL, add = FALSE)
-    scatter3D(x, y, z1, pch = 18, cex = 2, 
-            theta = 20, phi = 20, ticktype = "detailed",
-            xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
-            #surf = list(x = x.pred, y = y.pred, z = z.pred,  
-            #            facets = NA, fit = fitpoints), 
-            main = paste0("per1:",perStarts[1],"-",perEnds[1])
-    )
-    scatter3D(x, y, z7, pch = 18, cex = 2, 
-            theta = 20, phi = 20, ticktype = "detailed",
-            xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
-            #surf = list(x = x.pred, y = y.pred, z = z.pred,  
-            #            facets = NA, fit = fitpoints), 
-            main = paste0("per7:",perStarts[7],"-",perEnds[7])
-    )
-  }
+      zz1<-matrix(as.numeric(output[[k]][,3]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
+      zz7<-matrix(as.numeric(output[[k]][,10]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
+      par(mfrow=c(1,1))   
+      nlev <- 10
+      zrange <- range(cbind(zz1,zz7), finite = TRUE)
+      filled.contour(deltaT, deltaP, zz1, 
+                     zlim = zrange,
+                     levels = pretty(zrange, nlev), nlevels = nlev,
+                     col =  hcl.colors(20, "Spectral"),
+                     xlab = "deltaT", ylab = "deltaP",  
+                     main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",perStarts[1],"-",perEnds[1])
+      )
+      filled.contour(deltaT, deltaP, zz7,       
+                     zlim = zrange,
+                     levels = pretty(zrange, nlev), nlevels = nlev,
+                     col =  hcl.colors(20, "Spectral"),
+                     xlab = "deltaT", ylab = "deltaP",  
+                     main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",
+                                   perStarts[8],"-",perEnds[8])
+      )
+    } else {
+      par(mfrow=c(1,2))   
+      x<- as.numeric(output[[k]][,1])
+      y<- as.numeric(output[[k]][,2])
+      z1<- as.numeric(output[[k]][,3])
+      z7<- as.numeric(output[[k]][,10])
+      #scatter3D(x, y, z, colvar = z, col = NULL, add = FALSE)
+      scatter3D(x, y, z1, pch = 18, cex = 2, 
+                theta = 20, phi = 20, ticktype = "detailed",
+                xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
+                #surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                #            facets = NA, fit = fitpoints), 
+                main = paste0("per1:",perStarts[1],"-",perEnds[1])
+      )
+      scatter3D(x, y, z7, pch = 18, cex = 2, 
+                theta = 20, phi = 20, ticktype = "detailed",
+                xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
+                #surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                #            facets = NA, fit = fitpoints), 
+                main = paste0("per7:",perStarts[8],"-",perEnds[8])
+      )
+    }
   }
   dev.off()
 }
