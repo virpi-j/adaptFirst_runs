@@ -110,7 +110,7 @@ roundTotWoodRatio <- 0.87
 harvestLims <- c(9775000,1466000)
 year1harv=0 ###if 1 set harvLim for Low and MaxSust as 0.6 and 1.2 of HarvLim (Base)
 domSPrun = 0   ### 1 -> run only dominant layer
-startingYear = 2015
+startingYear = 1991 #2015
 endingYear = 2100
 if(!exists("nYears")) {
   nYears = endingYear-startingYear
@@ -130,8 +130,13 @@ if(!exists("nSitesRun")) nSitesRun = 20000  ###aproximative number of samples fo
 #per5=2051:2080
 #per6=2061:2090
 #per7=2071:2099
-perStarts <- c(2016,2021,2031,2041,2051,2061,2071)
-perEnds <- c(2040,2050,2060,2070,2080,2090,2100)
+#1991-2020,2011—2040
+
+perStarts <- c(1991,2011,2021,2031,2041,2051,2061,2071)
+perEnds <- c(2020,2040,2050,2060,2070,2080,2090,2100)
+
+#perStarts <- c(2016,2021,2031,2041,2051,2061,2071)
+#perEnds <- c(2040,2050,2060,2070,2080,2090,2100)
 
 #simYear1 = per1 - startingYear
 #simYear2 = per2 - startingYear
