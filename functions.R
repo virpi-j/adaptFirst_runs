@@ -236,12 +236,13 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
     initPrebas$P0y <- initPrebas$P0y[,resampleYear,]
     initPrebas$weather <- initPrebas$weather[,resampleYear,,]
     initPrebas$weatherYasso <- initPrebas$weatherYasso[,resampleYear,]
-    print(paste("weather data dim:",dim(initPrebas$P0y)))
+  #  print(paste("weather data dim:",dim(initPrebas$P0y)))
   }
   
   
   SBB <- T
   if(SBB){
+    clim_ids <- match(data.sample$id,clim$id)
     SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
   }
   
@@ -537,12 +538,19 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
     print("deadWood volume update processed.")
   }
   ####end initialize deadWood Volume
+  if(SBB){
+    #clim_ids <- match(data.sample$id,clim$id)
+    #SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
+    PI <- SBB_predisposition(modOut = region)
+    pSBB <- SBB_damage_prob(PI,SBBbp,clim_ids)
+  }
   
-  if(outType=="testRun") return(list(region = region,initPrebas=initPrebas, clim=clim))
+  if(outType=="testRun") return(list(region = region,initPrebas=initPrebas, clim=clim, SBBbp=SBBbp[clim_ids,],
+                                     sbbPI = PI, pSBB = pSBB))
   if(outType=="dTabs"){
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
-              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,SBBbp)
+              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,SBBbp[clim_ids,],PI,pSBB)
     print(output[1,])
     print("all outs calculated")
     #print(output)
@@ -602,7 +610,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
 }
 
 runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInten,rcpfile,areas,
-                      colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,SBBbp){
+                      colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,SBBbp,PI,pSBB){
   ####create pdf for test plots 
   marginX= 1:2#(length(dim(out$annual[,,varSel,]))-1)
   nas <- data.table()
@@ -645,7 +653,7 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
   ####process and save special variales
   print(paste("start special vars",deltaID))
   output <- specialVarProcAdapt(sampleX,modOut,r_no,harvScen,harvInten,rcpfile,sampleID,
-                 areas,sampleForPlots,output,SBBbp)
+                 areas,sampleForPlots,output,SBBbp,PI,pSBB)
   return(output)
 }
 
@@ -1331,7 +1339,7 @@ calculatePerCols <- function(outX){ #perStarts,perEnds,startingYear,
 }
 
 specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,sampleID,
-                           areas,sampleForPlots,output,SBBbp){
+                           areas,sampleForPlots,output,SBBbp,PI,pSBB){
   nYears <-  max(region$nYears)
   nSites <-  max(region$nSites)
   ####process and save special variables: 
@@ -1442,6 +1450,22 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   
+  ####PI
+  outX <- data.table(segID=sampleX$segID,PI)
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "sbbPI"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+
+  ####pSBB damage
+  outX <- data.table(segID=sampleX$segID,pSBB)
+  pX <- calculatePerCols(outX = outX)
+  pX <- colMeans(pX)
+  pX[1] <- "pSBBdamage"
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+
   gc()
   
   return(output)
@@ -1882,8 +1906,10 @@ outProcFun <- function(modOut,varSel,funX="baWmean"){
 SBBbivoltinePotential <- function(initPrebas=initPrebas,nYears){
   # climid, year, date, vars c(PAR, TAir, VPD, Precip, CO2)
   #initPrebas <- sampleXs0$initPrebas$weather
+  SBB_funct <- "lange" # "lange" or "seidl"
+
   nT <- nrow(initPrebas$weather)
-  SSBgen <- matrix(0,nT,nYears)
+  SBBgen <- matrix(0,nT,nYears)
   
   for(yi in 1:nYears){
     wi <- 2 # Tair
@@ -1902,34 +1928,86 @@ SBBbivoltinePotential <- function(initPrebas=initPrebas,nYears){
     for(ij in 1:nrow(Titmp)){
       Titmp[ij,1:which(Ti[1,]>(19.5-5))[1]]<-0
     }
-    for(alpha in 1:length(Talpha)){
-      # print(alpha)
-      Falphai <- Falpha[alpha]
-      Di <- t(apply((Titmp-Talpha[alpha])*(Titmp>=Talpha[alpha]),1,cumsum))
-      for(ij in 1:nrow(Di)){
-        stageFinish <- which(Di[ij,]/Falphai>=1)
-        stageID[ij,Di[ij,]>0] <- alpha -1 + min(1,Di[ij,ncol(Di)]/Falphai)
-        if(length(stageFinish)>0){  
-          stageFinish <- stageFinish[1]
-          #print(stageFinish)
-        #  Fid[ij,(which(0<Di[ij,])[1]):stageFinish] <- alpha
-          Titmp[ij,1:stageFinish] <- 0
-        } else { 
-          Titmp[ij,] <- 0
+    
+    if(SBB_funct=="lange"){
+      for(alpha in 1:length(Talpha)){
+        # print(alpha)
+        Falphai <- Falpha[alpha]
+        Di <- t(apply((Titmp-Talpha[alpha])*(Titmp>=Talpha[alpha]),1,cumsum))
+        for(ij in 1:nrow(Di)){
+          stageFinish <- which(Di[ij,]/Falphai>=1)
+          stageID[ij,Di[ij,]>0] <- alpha -1 + min(1,Di[ij,ncol(Di)]/Falphai)
+          if(length(stageFinish)>0){  
+            stageFinish <- stageFinish[1]
+            #print(stageFinish)
+            #  Fid[ij,(which(0<Di[ij,])[1]):stageFinish] <- alpha
+            Titmp[ij,1:stageFinish] <- 0
+          } else { 
+            Titmp[ij,] <- 0
+          }
         }
+        #  if(alpha==11) break()
+        #  print(rbind(#Tii<-Ti[ij,],Titmpi=Titmp[ij,],
+        #    Dii=Di[ij,],stagei=stageID[ij,],Fi=Fid[ij,])[,70:300])
       }
-      #  if(alpha==11) break()
-      #  print(rbind(#Tii<-Ti[ij,],Titmpi=Titmp[ij,],
-      #    Dii=Di[ij,],stagei=stageID[ij,],Fi=Fid[ij,])[,70:300])
-    }
-    for(alpha in pulpaeStages){
-      ss<-matrix(1,nrow(Di),2)
-      ss[,2]<-stageID[,ncol(stageID)]-alpha
-      SSBgen[stageID[,ncol(stageID)]>alpha,yi]<-SSBgen[stageID[,ncol(stageID)]>alpha,yi]+apply(ss,1,min)[stageID[,ncol(stageID)]>alpha]
+      for(alpha in pulpaeStages){
+        ss<-matrix(1,nrow(Di),2)
+        ss[,2]<-stageID[,ncol(stageID)]-alpha
+        SBBgen[stageID[,ncol(stageID)]>alpha,yi]<-SBBgen[stageID[,ncol(stageID)]>alpha,yi]+apply(ss,1,min)[stageID[,ncol(stageID)]>alpha]
+      }
+    } else if(SBB_funct=="seidl"){
+      SBBgen[,yi]<-apply((Titmp-5)*(Titmp>8.3),1,sum)/557
+      SBBgen[(SBBgen%%1<0.6)]<-floor(SBBgen[(SBBgen%%1<0.6)])
     }
   }
-  print(SSBgen-1)
-  return(SSBgen-1)
+  #if(SBB_funct=="lange") SBBgen<-SBBgen-1
+
+  print(SBBgen)
+  return(SBBgen)
   
+}
+
+SBB_predisposition <- function(modOut){
+  
+  ba <- data.table(apply(modOut$multiOut[,,13,,1],1:2,sum))
+  age <-data.table(apply(modOut$multiOut[,,7,,1],1:2,mean)) # should it be the age of spruce or the whole stand?
+  ba_spruce <-data.table(apply(modOut$multiOut[,,13,,1]*(modOut$multiOut[,,4,,1]==2),1:2,sum))
+  share_spruce <- ba_spruce/ba
+  share_spruce[share_spruce=="NaN"]<-0
+  
+  share_lims <- c(0,0.1, 0.25, 0.50, 0.7, 1)
+  share_facts <- c(0.08, 0.17, 0.5, 0.83, 1.00)
+  PIspruce <- matrix(share_facts[findInterval(as.matrix(share_spruce),share_lims)],nrow = nSitesRun,ncol=nYears)
+  
+  age_lims <- c(0,60,80,100,1e4)
+  age_facts <- c(0.2, 0.6, 0.9, 1.0)
+  PIage <- matrix(age_facts[findInterval(as.matrix(age),age_lims)],nrow = nSitesRun,ncol=nYears)
+  
+  ba_lims <- c(0, 10, 20, 30, 40, 60, 1e3)
+  ba_facts <- c(0.9, 0.5, 0.3, 0.2, 0.3, 0.4)
+  PIba <- matrix(ba_facts[findInterval(as.matrix(ba),ba_lims)],nrow = nSitesRun,ncol=nYears)
+  
+  PIdrought <- 0*PIba
+  
+  PI = 0.3*PIspruce + 0.25*PIage + 0.15*PIba + 0.3*PIdrought
+  
+  return(PI)
+}
+
+SBB_damage_prob <- function(PI,SBBbp,clim_ids){
+  # calculate probability for SBB damage from PI and SBB bivoltine potential
+
+  SBBgen <- SBBbp
+  # Seidl et al. 2007:
+  GEN <- 0*SBBgen
+  GEN[SBBgen==0]<-0
+  GEN[SBBgen==1]<-0.1
+  GEN[SBBgen>=0.6 & SBBgen<=1]<-0.2
+  GEN[SBBgen==2]<-0.6
+  GEN[SBBgen>2]<-1
+  x1 <- -1.51
+  x2 <- 1.65
+  pBByr <- 1 - exp(x1*PI^x2)^GEN[clim_ids,]
+  return(pBByr)
 }
 
