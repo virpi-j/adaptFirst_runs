@@ -131,9 +131,9 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
       dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
                        #PAR=-0.894+1.8*dat2$GLOB,
                        PAR=1.8*dat2$GLOB/1000,
-                       TAir=dat2$Tmean_constant,#detrended,
-                       VPD=dat2$VPdef_constant,#detrended,
-                       Precip=dat2$Pre_constant,
+                       TAir=dat2$Tmean_seasonal,#_constant,#detrended,
+                       VPD=dat2$VPdef_seasonal,#_constant,#detrended,
+                       Precip=dat2$Pre_seasonal,#constant,
                        CO2=CO2)
     } else {
       dat2 <- data.table(id=sampleX$climID[1],
