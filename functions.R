@@ -1975,7 +1975,7 @@ SBB_predisposition <- function(modOut){
   share_spruce <- ba_spruce/ba
   share_spruce[share_spruce=="NaN"]<-0
   
-  share_lims <- c(0,0.1, 0.25, 0.50, 0.7, 1)
+  share_lims <- c(0,0.1, 0.25, 0.50, 0.7, 1.01)
   share_facts <- c(0.08, 0.17, 0.5, 0.83, 1.00)
   PIspruce <- matrix(share_facts[findInterval(as.matrix(share_spruce),share_lims)],nrow = nSitesRun,ncol=nYears)
   
