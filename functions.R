@@ -1965,7 +1965,7 @@ SBBbivoltinePotential <- function(initPrebas=initPrebas,nYears){
   }
   #if(SBB_funct=="lange") SBBgen<-SBBgen-1
 
-  print(SBBgen)
+  #print(SBBgen)
   return(SBBgen)
   
 }
@@ -1978,7 +1978,7 @@ SBB_predisposition <- function(modOut){
   share_spruce <- ba_spruce/ba
   share_spruce[share_spruce=="NaN"]<-0
   ba <- ba_spruce
-  aSW<-apply(region$multiOut[,,40,,1],1:2,sum)
+  aSW<-apply(modOut$multiOut[,,40,,1],1:2,sum)
   aSW[aSW>1]<-1
   aSW <- 1 - aSW
   
