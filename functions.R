@@ -1970,10 +1970,18 @@ SBBbivoltinePotential <- function(initPrebas=initPrebas,nYears){
 SBB_predisposition <- function(modOut){
   
   ba <- data.table(apply(modOut$multiOut[,,13,,1],1:2,sum))
-  age <-data.table(apply(modOut$multiOut[,,7,,1],1:2,mean)) # should it be the age of spruce or the whole stand?
+  age <-data.table(apply(modOut$multiOut[,,7,,1]*(modOut$multiOut[,,4,,1]==2),1:2,mean)) # should it be the age of spruce or the whole stand?
   ba_spruce <-data.table(apply(modOut$multiOut[,,13,,1]*(modOut$multiOut[,,4,,1]==2),1:2,sum))
   share_spruce <- ba_spruce/ba
   share_spruce[share_spruce=="NaN"]<-0
+  ba <- ba_spruce
+  aSW<-apply(region$multiOut[,,40,,1],1:2,sum)
+  aSW[aSW>1]<-1
+  aSW <- 1 - aSW
+  
+  aSW_lims <- c(0,0.05, 0.1, 0.15, 0.2, 0.3, 1.01)
+  aSW_facts <- c(0.0, 0.05,0.4,0.6,0.9,0.95,1)
+  PIdrought <- matrix(aSW_facts[findInterval(as.matrix(aSW),aSW_lims)],nrow = nSitesRun,ncol=nYears)
   
   share_lims <- c(0,0.1, 0.25, 0.50, 0.7, 1.01)
   share_facts <- c(0.08, 0.17, 0.5, 0.83, 1.00)
