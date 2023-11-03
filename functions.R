@@ -541,7 +541,9 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   if(SBB){
     #clim_ids <- match(data.sample$id,clim$id)
     #SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
+    print("calculate PIs")
     PI <- SBB_predisposition(modOut = region)
+    print("calculate pSBB")
     pSBB <- SBB_damage_prob(PI,SBBbp,clim_ids)
     print("SBB factors calculated")
   }
