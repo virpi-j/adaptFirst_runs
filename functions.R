@@ -543,6 +543,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
     #SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
     PI <- SBB_predisposition(modOut = region)
     pSBB <- SBB_damage_prob(PI,SBBbp,clim_ids)
+    print("SBB factors calculated")
   }
   
   if(outType=="testRun") return(list(region = region,initPrebas=initPrebas, clim=clim, SBBbp=SBBbp[clim_ids,],
@@ -1994,8 +1995,6 @@ SBB_predisposition <- function(modOut){
   ba_lims <- c(0, 10, 20, 30, 40, 60, 1e3)
   ba_facts <- c(0.9, 0.5, 0.3, 0.2, 0.3, 0.4)
   PIba <- matrix(ba_facts[findInterval(as.matrix(ba),ba_lims)],nrow = nSitesRun,ncol=nYears)
-  
-  PIdrought <- 0*PIba
   
   PI = 0.3*PIspruce + 0.25*PIage + 0.15*PIba + 0.3*PIdrought
   
