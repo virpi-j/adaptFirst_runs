@@ -23,7 +23,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   # print(date())
   path_to_inputs <- "/scratch/project_2000994/PREBASruns/finRuns/"
   print(paste("start sample ID",sampleID))
-  print(paste("start delta ID",deltaID,": deltaT=", deltaTP[1,deltaID]," deltaP=", deltaTP[2,deltaID]))
+  if(rcps!="CurrClim")  print(paste("start delta ID",deltaID,": deltaT=", deltaTP[1,deltaID]," deltaP=", deltaTP[2,deltaID]))
   
   initilizeSoil=T ###flag for soil initialization 
   procInSample=F
