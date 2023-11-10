@@ -515,9 +515,10 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
     } else {
       unmanDeadW <- data.frame()
     }
-    save(unmanDeadW,manDeadW,file=paste0("../initDeadWVss/station",
+    if(exists("station_id")){ save(unmanDeadW,manDeadW,file=paste0("../initDeadWVss/station",
                                          station_id,"_deadWV_mortMod",mortMod,".rdata"))
-    print("deadWood volume at steady state saved")
+      print("deadWood volume at steady state saved")
+    }
   }else{
     load(paste0("../initDeadWVss/station",
                 station_id,"_deadWV_mortMod",mortMod,".rdata"))
@@ -1984,19 +1985,19 @@ SBB_predisposition <- function(modOut){
   
   aSW_lims <- c(0,0.05, 0.1, 0.15, 0.2, 0.3, 1.01)
   aSW_facts <- c(0.0, 0.05,0.4,0.6,0.9,0.95,1)
-  PIdrought <- matrix(aSW_facts[findInterval(as.matrix(aSW),aSW_lims)],nrow = nSitesRun,ncol=nYears)
+  PIdrought <- matrix(aSW_facts[findInterval(as.matrix(aSW),aSW_lims)],nrow = dim(modOut$multiOut)[1],ncol=nYears)
   
   share_lims <- c(0,0.1, 0.25, 0.50, 0.7, 1.01)
   share_facts <- c(0.08, 0.17, 0.5, 0.83, 1.00)
-  PIspruce <- matrix(share_facts[findInterval(as.matrix(share_spruce),share_lims)],nrow = nSitesRun,ncol=nYears)
+  PIspruce <- matrix(share_facts[findInterval(as.matrix(share_spruce),share_lims)],nrow = dim(modOut$multiOut)[1],ncol=nYears)
   
   age_lims <- c(0,60,80,100,1e4)
   age_facts <- c(0.2, 0.6, 0.9, 1.0)
-  PIage <- matrix(age_facts[findInterval(as.matrix(age),age_lims)],nrow = nSitesRun,ncol=nYears)
+  PIage <- matrix(age_facts[findInterval(as.matrix(age),age_lims)],nrow = dim(modOut$multiOut)[1],ncol=nYears)
   
   ba_lims <- c(0, 10, 20, 30, 40, 60, 1e3)
   ba_facts <- c(0.9, 0.5, 0.3, 0.2, 0.3, 0.4)
-  PIba <- matrix(ba_facts[findInterval(as.matrix(ba),ba_lims)],nrow = nSitesRun,ncol=nYears)
+  PIba <- matrix(ba_facts[findInterval(as.matrix(ba),ba_lims)],nrow = dim(modOut$multiOut)[1],ncol=nYears)
   
   #PI = 0.3*PIspruce + 0.25*PIage + 0.15*PIba + 0.3*PIdrought
   PI = PIspruce*PIage*PIba*PIdrought
