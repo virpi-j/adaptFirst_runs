@@ -2000,7 +2000,8 @@ SBB_predisposition <- function(modOut){
   PIba <- matrix(ba_facts[findInterval(as.matrix(ba),ba_lims)],nrow = dim(modOut$multiOut)[1],ncol=nYears)
   
   #PI = 0.3*PIspruce + 0.25*PIage + 0.15*PIba + 0.3*PIdrought
-  PI = PIspruce*PIage*PIba*PIdrought
+  PI = (0.3*PIspruce + 0.25*PIage + 0.15*PIba)/0.7*PIdrought
+  #PI = PIspruce*PIage*PIba*PIdrought
   return(PI)
 }
 
