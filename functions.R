@@ -671,8 +671,8 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
       nax$sampleID <- sampleID
       nas <- rbind(nas,nax)
     } 
-    pX <- pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1)
-    pX <- colSums(pX)/sum(sampleX$area)
+    pX[,-1] <- pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1)
+    pX[,-1] <- colSums(pX[,-1])/sum(sampleX$area)
     pX[1] <- varNames[varSel[ij]]
     names(pX)[1] <- "var"
     output <- rbind(output, pX)
