@@ -118,6 +118,7 @@ if(!exists("nYears")) {
 } else {
   endingYear <- nYears + startingYear
 }
+
 #rcps = "CurrClim" #c("CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")#c("CurrClim","CanESM2.rcp26.rdata")#,"CanESM2.rcp45.rdata","CanESM2.rcp85.rdata")
 
 if(!exists("nSitesRun")) nSitesRun = 20000  ###aproximative number of samples for set runs
