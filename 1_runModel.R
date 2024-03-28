@@ -242,7 +242,7 @@ if(climScen<0){
   save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,".rdata"))
   print("Results saved as lists")
 } else {
-  save(sampleXs,file = paste0("Results/weatherStation",station_id,"/output_averages_",rcps,".rdata"))
+  save(sampleXs,file = paste0("Results/outputs",station_id,"_",rcps,".rdata"))
 }
 
 if(climScen<0){
