@@ -178,6 +178,7 @@ if(outType=="testRun"){
   # IRS runs
   outType<-"dTabs"
   nYears <- 2100-1991#2015
+  if(climScen > 0) nYears <- 2100-2015
   endingYear <- nYears + startingYear
   rcps <- rcpsFile 
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
