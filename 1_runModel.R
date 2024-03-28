@@ -81,45 +81,61 @@ if(toRaster){
 }
 if(toRaster) dev.off()
 
+#### Climate selection #############################################
 rcps = "CurrClim" 
-#rcps <- paste0(stat_name,"_1991_2100_constant_change_v1.csv")
-if(CO2fixed==0){
-  rcpsFile <- paste0(stat_name,"_1991_2100_constant_change_v3.csv")
-  Co2Col<-which(co2Names=="X2005.fixed")
-  rcpsName <- "constant"
-} else {
-  rcpsFile <- paste0(stat_name,"_1991_2100_seasonally_perturbed_v1.csv")
-  rcpsName <- "perturbed"
-  Co2Col<-CO2fixed
-}
-weatherData<-read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
 
-print(paste("Climate scenario",rcpsName))
-print(paste("CO2scenario", names(CO2_RCPyears)[Co2Col+1]))
-
-deltaP <- unique(weatherData$Pchange)
-deltaT <- unique(weatherData$deltaT)
-if(outType=="testRun"){
-  deltaT<-deltaT[c(1,2,length(deltaT))]
-  deltaP<-deltaP[c(1,2,length(deltaP))]
-}
-  
-
-deltaTP <- matrix(0,2,length(deltaP)*length(deltaT))
-index <- 1
-for(iT in 1:length(deltaT)){
-  for(iP in 1:length(deltaP)){
-    deltaTP[1,index] <- deltaT[iT]
-    deltaTP[2,index] <- deltaP[iP]
-    index <- index+1
+#############
+#pathtoken = "/scratch/project_2000994/PREBASruns/finRuns/"
+if(climScen > 0){
+  climatepath = "/scratch/project_2000994/RCP/"
+  climMod <- c("CanESM2.","CNRM.","GFDL.","HadGEM2.","MIROC.")
+  rcpx <- c("rcp26","rcp45","rcp85")
+  rcps <- rcpsFile <-paste0(climMod[ClimModid],rcpx[climScen])
+  rcpsName <- rcps
+  CO2fixed <- 0
+} else if(climScen<0){
+  if(CO2fixed==0){
+    rcpsFile <- paste0(stat_name,"_1991_2100_constant_change_v3.csv")
+    Co2Col<-which(co2Names=="X2005.fixed")
+    rcpsName <- "constant"
+  } else {
+    rcpsFile <- paste0(stat_name,"_1991_2100_seasonally_perturbed_v1.csv")
+    rcpsName <- "perturbed"
+    Co2Col<-CO2fixed
   }
+  weatherData<-read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
+  print(paste("CO2scenario", names(CO2_RCPyears)[Co2Col+1]))
 }
-deltaTP0 <- which(deltaTP[1,]==0 & deltaTP[2,]==0)
-deltaTP <- deltaTP[,c(deltaTP0,setdiff(1:ncol(deltaTP),which(deltaTP[1,]==0 & deltaTP[2,]==0)))]
-print(paste("Run",ncol(deltaTP),"iterations for IRS"))
-toMem <- ls()
+print(paste("Climate scenario",rcpsName))
 
-deltaIDs <- 1:ncol(deltaTP)
+if(climScen<0){
+  deltaP <- unique(weatherData$Pchange)
+  deltaT <- unique(weatherData$deltaT)
+  if(outType=="testRun"){
+    deltaT<-deltaT[c(1,2,length(deltaT))]
+    deltaP<-deltaP[c(1,2,length(deltaP))]
+  }
+  
+  
+  deltaTP <- matrix(0,2,length(deltaP)*length(deltaT))
+  index <- 1
+  for(iT in 1:length(deltaT)){
+    for(iP in 1:length(deltaP)){
+      deltaTP[1,index] <- deltaT[iT]
+      deltaTP[2,index] <- deltaP[iP]
+      index <- index+1
+    }
+  }
+  deltaTP0 <- which(deltaTP[1,]==0 & deltaTP[2,]==0)
+  deltaTP <- deltaTP[,c(deltaTP0,setdiff(1:ncol(deltaTP),which(deltaTP[1,]==0 & deltaTP[2,]==0)))]
+  print(paste("Run",ncol(deltaTP),"iterations for IRS"))
+  toMem <- ls()
+  
+  deltaIDs <- 1:ncol(deltaTP)
+} else if(climScen>0){
+  deltaIDs <- 1
+}
+
 sampleID <- 1
 if(outType=="testRun"){
   deltaID<-deltaIDs[1]
@@ -167,9 +183,10 @@ if(outType=="testRun"){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  source("~/adaptFirst_runs/functions.R")
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
-                  outType=outType,  
+                  outType=outType, climScen=climScen,
                   rcps = rcpsFile,#"paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
                   CO2fixed=CO2fixed,
                   harvScen=harvscen,#"Base" or #BaseTapio
@@ -199,91 +216,106 @@ if(outType=="testRun"){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  source("~/adaptFirst_runs/functions.R")
+#  sampleXs <- runModelAdapt(1,
+#                outType=outType,  
+#                rcps = rcpsFile,
+#                CO2fixed=CO2fixed,
+#                climScen=climScen,
+#                harvScen="Base",
+#                harvInten="Base")
   sampleXs <- mclapply(deltaIDs, function(jx) {
     runModelAdapt(jx,
              outType=outType,  
              rcps = rcpsFile, #paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
-             CO2fixed=CO2fixed,
+             CO2fixed=CO2fixed, climScen=climScen,
              #harvScen="baseTapio",#"Base" or baseTapio
              harvScen=harvscen,
              harvInten=harvinten)
     }, mc.cores = nCores,mc.silent=FALSE)      
-  sampleXs <- list(sampleXs0, sampleXs)
-}
-
-save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,".rdata"))
-print("Results saved as lists")
-
-load(paste0("Results/outputs",station_id,".rdata"))
-output <- list()
-ndeltaTP <- ncol(deltaTP)
-m <- nrow(sampleXs[[2]][[1]])
-for(k in 1:m){
-  tmp <- data.frame()
-  index <- 0
-  for(ij in 1:ndeltaTP){
-    tmp <- rbind(tmp,cbind(t(deltaTP[,ij+index]),sampleXs[[2]][[ij]][k,2:ncol(sampleXs[[2]][[1]])]))
-  }  
-  names(tmp)[1:2] <- c("deltaT","deltaP")
-
-  output[[k]] <- tmp 
-  names(output)[k] <- sampleXs[[2]][[1]][k,1]
-  
-}
-save(output,file = paste0("Results/outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
-
-plotFigs <- TRUE
-if(plotFigs){
-  pdf(file=paste0("Results/results_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".pdf"))
-  for(k in 1:m){
-    contourPlot <- TRUE
-    if(contourPlot){
-      zz1<-matrix(as.numeric(output[[k]][,3]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
-      zz7<-matrix(as.numeric(output[[k]][,10]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
-      par(mfrow=c(1,1))   
-      nlev <- 10
-      zrange <- range(cbind(zz1,zz7), finite = TRUE)
-      filled.contour(deltaT, deltaP, zz1, 
-                     zlim = zrange,
-                     levels = pretty(zrange, nlev), nlevels = nlev,
-                     col =  hcl.colors(20, "Spectral"),
-                     xlab = "deltaT", ylab = "deltaP",  
-                     main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",perStarts[1],"-",perEnds[1])
-      )
-      filled.contour(deltaT, deltaP, zz7,       
-                     zlim = zrange,
-                     levels = pretty(zrange, nlev), nlevels = nlev,
-                     col =  hcl.colors(20, "Spectral"),
-                     xlab = "deltaT", ylab = "deltaP",  
-                     main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",
-                                   perStarts[8],"-",perEnds[8])
-      )
-    } else {
-      par(mfrow=c(1,2))   
-      x<- as.numeric(output[[k]][,1])
-      y<- as.numeric(output[[k]][,2])
-      z1<- as.numeric(output[[k]][,3])
-      z7<- as.numeric(output[[k]][,10])
-      #scatter3D(x, y, z, colvar = z, col = NULL, add = FALSE)
-      scatter3D(x, y, z1, pch = 18, cex = 2, 
-                theta = 20, phi = 20, ticktype = "detailed",
-                xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
-                #surf = list(x = x.pred, y = y.pred, z = z.pred,  
-                #            facets = NA, fit = fitpoints), 
-                main = paste0("per1:",perStarts[1],"-",perEnds[1])
-      )
-      scatter3D(x, y, z7, pch = 18, cex = 2, 
-                theta = 20, phi = 20, ticktype = "detailed",
-                xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
-                #surf = list(x = x.pred, y = y.pred, z = z.pred,  
-                #            facets = NA, fit = fitpoints), 
-                main = paste0("per7:",perStarts[8],"-",perEnds[8])
-      )
-    }
+  if(climScen<0){
+    sampleXs <- list(sampleXs0, sampleXs)
   }
-  dev.off()
 }
 
+if(climScen<0){
+  save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,".rdata"))
+  print("Results saved as lists")
+} else {
+  save(sampleXs,file = paste0("Results/weatherStation",station_id,"/output_averages_",rcps,".rdata"))
+}
+
+if(climScen<0){
+  load(paste0("Results/outputs",station_id,".rdata"))
+  output <- list()
+  ndeltaTP <- ncol(deltaTP)
+  m <- nrow(sampleXs[[2]][[1]])
+  for(k in 1:m){
+    tmp <- data.frame()
+    index <- 0
+    for(ij in 1:ndeltaTP){
+      tmp <- rbind(tmp,cbind(t(deltaTP[,ij+index]),sampleXs[[2]][[ij]][k,2:ncol(sampleXs[[2]][[1]])]))
+    }  
+    names(tmp)[1:2] <- c("deltaT","deltaP")
+    
+    output[[k]] <- tmp 
+    names(output)[k] <- sampleXs[[2]][[1]][k,1]
+    
+  }
+  save(output,file = paste0("Results/outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
+  
+  plotFigs <- TRUE
+  if(plotFigs){
+    pdf(file=paste0("Results/results_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".pdf"))
+    for(k in 1:m){
+      contourPlot <- TRUE
+      if(contourPlot){
+        zz1<-matrix(as.numeric(output[[k]][,3]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
+        zz7<-matrix(as.numeric(output[[k]][,10]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
+        par(mfrow=c(1,1))   
+        nlev <- 10
+        zrange <- range(cbind(zz1,zz7), finite = TRUE)
+        filled.contour(deltaT, deltaP, zz1, 
+                       zlim = zrange,
+                       levels = pretty(zrange, nlev), nlevels = nlev,
+                       col =  hcl.colors(20, "Spectral"),
+                       xlab = "deltaT", ylab = "deltaP",  
+                       main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",perStarts[1],"-",perEnds[1])
+        )
+        filled.contour(deltaT, deltaP, zz7,       
+                       zlim = zrange,
+                       levels = pretty(zrange, nlev), nlevels = nlev,
+                       col =  hcl.colors(20, "Spectral"),
+                       xlab = "deltaT", ylab = "deltaP",  
+                       main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",
+                                     perStarts[8],"-",perEnds[8])
+        )
+      } else {
+        par(mfrow=c(1,2))   
+        x<- as.numeric(output[[k]][,1])
+        y<- as.numeric(output[[k]][,2])
+        z1<- as.numeric(output[[k]][,3])
+        z7<- as.numeric(output[[k]][,10])
+        #scatter3D(x, y, z, colvar = z, col = NULL, add = FALSE)
+        scatter3D(x, y, z1, pch = 18, cex = 2, 
+                  theta = 20, phi = 20, ticktype = "detailed",
+                  xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
+                  #surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                  #            facets = NA, fit = fitpoints), 
+                  main = paste0("per1:",perStarts[1],"-",perEnds[1])
+        )
+        scatter3D(x, y, z7, pch = 18, cex = 2, 
+                  theta = 20, phi = 20, ticktype = "detailed",
+                  xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
+                  #surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                  #            facets = NA, fit = fitpoints), 
+                  main = paste0("per7:",perStarts[8],"-",perEnds[8])
+        )
+      }
+    }
+    dev.off()
+  }
+}
 
 
 # models outputs to NAs, outputDT, initSoilC and plots

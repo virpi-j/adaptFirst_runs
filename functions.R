@@ -5,7 +5,7 @@
 ## ---------------------------------------------------------------------
 ## MAIN SCRIPT: uncRun for random segments, uncSeg for random values for segments
 ## ---------------------------------------------------------------------
-runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
+runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps = "CurrClim",
                      harvScen,harvInten,easyInit=FALSE, CO2fixed=0,
                      forceSaveInitSoil=F, cons10run = F,
                      procDrPeat=F,coeffPeat1=-240,coeffPeat2=70,
@@ -27,7 +27,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   # print(date())
   path_to_inputs <- "/scratch/project_2000994/PREBASruns/finRuns/"
   print(paste("start sample ID",sampleID))
-  if(rcps!="CurrClim")  print(paste("start delta ID",deltaID,": deltaT=", deltaTP[1,deltaID]," deltaP=", deltaTP[2,deltaID]))
+  if(rcps!="CurrClim" & climScen<0)  print(paste("start delta ID",deltaID,": deltaT=", deltaTP[1,deltaID]," deltaP=", deltaTP[2,deltaID]))
   
   initilizeSoil=T ###flag for soil initialization 
   procInSample=F
@@ -112,18 +112,35 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   #if(outType != "uncRun"){
   #if(!outType %in% c("uncRun","uncSeg")){
   print(paste("Clim:",rcpfile))
-  if(rcpfile=="CurrClim"){
-    load(paste(climatepath_orig, "CurrClim",".rdata", sep=""))
-    #####process data considering only current climate###
-    # dat <- dat[rday %in% 1:10958] #uncomment to select some years (10958 needs to be modified)
-    maxRday <- max(dat$rday)
-    #xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2))
-    xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2),
-              (dat$rday+maxRday*3))
-    dat = rbind(dat,dat,dat,dat)
-    #dat <- dat[rep(1:nrow(dat),4),]
-    dat[,rday:=xday]
-    rm(list = "xday")
+  if(climScen>=0){
+    if(rcpfile=="CurrClim"){
+      load(paste(climatepath_orig, "CurrClim",".rdata", sep=""))
+      #####process data considering only current climate###
+      # dat <- dat[rday %in% 1:10958] #uncomment to select some years (10958 needs to be modified)
+      maxRday <- max(dat$rday)
+      #xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2))
+      xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2),
+                (dat$rday+maxRday*3))
+      dat = rbind(dat,dat,dat,dat)
+      #dat <- dat[rep(1:nrow(dat),4),]
+      dat[,rday:=xday]
+      rm(list = "xday")
+    } else {
+      climatepath = "/scratch/project_2000994/RCP/"
+      load(paste(climatepath, rcpfile,".rdata", sep=""))
+      missingIDs <- setdiff(unique(sampleX$id), unique(dat$id))
+      if(length(missingIDs)>0){
+        coords <- fread("/scratch/project_2000994/RCP/coordinates")
+        for(i in 1:length(missingIDs)){
+          idX <- order((coords$x - coords$x[missingIDs[i]])^2 + (coords$y - coords$y[missingIDs[i]])^2)
+          idX <- idX[idX%in%unique(dat$id)][1]
+          nn<-which(sampleX$id==missingIDs[i]) 
+          sampleX[nn,climID:=idX]
+          sampleX[nn,id:=idX]
+          print(paste("SampleID",sampleID,"clim ids: ",missingIDs[i], "was replaced with",idX))
+        }
+      }
+    }
   } else {
     dat2 <- read.csv(paste0(climatepath, rcpfile)) 
     dat2 <- dat2[which(dat2$Year2>=startingYear & 
@@ -133,12 +150,12 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
     CO2<-as.numeric(sub(",",".",CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),(Co2Col+1)]))
     if(CO2fixed==0){
       dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
-                       #PAR=-0.894+1.8*dat2$GLOB,
-                       PAR=1.8*dat2$GLOB/1000,
-                       TAir=dat2$Tmean_constant,#detrended,
-                       VPD=dat2$VPdef_constant,#detrended,
-                       Precip=dat2$Pre_constant,
-                       CO2=CO2)
+                         #PAR=-0.894+1.8*dat2$GLOB,
+                         PAR=1.8*dat2$GLOB/1000,
+                         TAir=dat2$Tmean_constant,#detrended,
+                         VPD=dat2$VPdef_constant,#detrended,
+                         Precip=dat2$Pre_constant,
+                         CO2=CO2)
     } else {
       dat2 <- data.table(id=sampleX$climID[1],
                          rday=1:nrow(dat2),
@@ -180,7 +197,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   areas <- data.sample$area
   totAreaSample <- sum(data.sample$area)
   
-  if(rcpfile=="CurrClim") clim = prep.climate.f(dat, data.sample, startingYear, nYears)
+  if(rcpfile=="CurrClim" | climScen >0) clim = prep.climate.f(dat, data.sample, startingYear, nYears)
   
   Region = nfiareas[ID==r_no, Region]
   
@@ -244,7 +261,7 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   }
   
   
-  SBB <- T
+  SBB <- F
   if(SBB){
     clim_ids <- match(data.sample$id,clim$id)
     SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
@@ -553,13 +570,14 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
     print("SBB factors calculated")
   }
   
-  if(outType=="testRun") return(list(region = region,initPrebas=initPrebas, clim=clim, SBBbp=SBBbp[clim_ids,],
-                                     sbbPI = PI, pSBB = pSBB))
+  if(outType=="testRun") return(list(region = region,initPrebas=initPrebas, clim=clim)) 
+                                     #SBBbp=SBBbp[clim_ids,],
+                                     #sbbPI = PI, pSBB = pSBB))
   if(outType=="dTabs"){
     print("Calculate outputs...")
-    output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,rcpfile,areas,
-              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,SBBbp[clim_ids,],PI,pSBB)
-    print(output[1,])
+    output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,climScen, rcpfile,areas,
+              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)#,SBBbp[clim_ids,],PI,pSBB)
+    print(output[c(1,6),])
     print("all outs calculated")
     #print(output)
     return(output)
@@ -617,13 +635,13 @@ runModelAdapt <- function(deltaID,sampleID=1, outType="dTabs",rcps = "CurrClim",
   # }
 }
 
-runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInten,rcpfile,areas,
-                      colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,SBBbp,PI,pSBB){
+runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInten,climScen,rcpfile,areas,
+                      colsOut1,colsOut2,colsOut3,varSel,sampleForPlots){#},SBBbp,PI,pSBB){
   ####create pdf for test plots 
   marginX= 1:2#(length(dim(out$annual[,,varSel,]))-1)
   nas <- data.table()
   output <- data.frame()
-  
+  ij<-1
   for (ij in 1:length(varSel)) {
     # print(varSel[ij])
     if(funX[ij]=="baWmean"){
@@ -636,6 +654,16 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
     #print(outX)
     #if(sampleID==sampleForPlots){testPlot(outX,varNames[varSel[ij]],areas)}
     pX <- calculatePerCols(outX = outX)
+#    pX <- calculatePerColsAllRows(outX = outX)
+    assign(varNames[varSel[ij]],pX)
+    save(list=varNames[varSel[ij]],
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNames[varSel[ij]],
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,".rdata"))
+    rm(list=varNames[varSel[ij]]); gc()
+    
     ##check for NAs
     nax <- data.table(segID=unique(which(is.na(pX),arr.ind=T)[,1]))
     if(nrow(nax)>0){
@@ -643,7 +671,8 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
       nax$sampleID <- sampleID
       nas <- rbind(nas,nax)
     } 
-    pX <- colMeans(pX)
+    pX <- pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1)
+    pX <- colSums(pX)/sum(sampleX$area)
     pX[1] <- varNames[varSel[ij]]
     names(pX)[1] <- "var"
     output <- rbind(output, pX)
@@ -661,7 +690,7 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
   ####process and save special variales
   print(paste("start special vars",deltaID))
   output <- specialVarProcAdapt(sampleX,modOut,r_no,harvScen,harvInten,rcpfile,sampleID,
-                 areas,sampleForPlots,output,SBBbp,PI,pSBB)
+                 areas,sampleForPlots,output)#,SBBbp,PI,pSBB)
   return(output)
 }
 
@@ -1330,10 +1359,12 @@ calMean <- function(varX,hscenX,areas){
 }
 
 calculatePerCols <- function(outX){ #perStarts,perEnds,startingYear,
+  iper <- 1
   for(iper in 1:length(perStarts)){      
     per <- perStarts[iper]:perEnds[iper]
     simYear = per - startingYear# + 1
     colsOut = c(paste("V", simYear, sep=""))
+#    outX <- outX*area
     p <- outX[, .(per = rowMeans(.SD,na.rm=T)), .SDcols = colsOut, by = segID] 
     colnames(p)[2] <- paste0("per",iper)
     if(iper==1) {
@@ -1346,8 +1377,25 @@ calculatePerCols <- function(outX){ #perStarts,perEnds,startingYear,
   return(pX)
 }
 
+calculatePerColsAllRows <- function(outX){ #perStarts,perEnds,startingYear,
+  for(iper in 1:length(perStarts)){      
+    per <- perStarts[iper]:perEnds[iper]
+    simYear = per - startingYear# + 1
+    colsOut = c(paste("V", simYear, sep=""))
+    p <- cbind(outX[,"segID"],rowMeans(outX[,..colsOut])) 
+    colnames(p)[2] <- paste0("per",iper)
+    if(iper==1) {
+      pX <- data.table(p)
+  #    colnames(pX)[1] <- "var"
+    } else {
+      pX <- cbind(pX, p[,2])
+    }
+  }
+  return(pX)
+}
+
 specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,sampleID,
-                           areas,sampleForPlots,output,SBBbp,PI,pSBB){
+                           areas,sampleForPlots,output){#},SBBbp,PI,pSBB){
   nYears <-  max(region$nYears)
   nSites <-  max(region$nSites)
   ####process and save special variables: 
@@ -1451,33 +1499,34 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   #print(output)
   
   ####SBBbp
-  outX <- data.table(segID=sampleX$segID,SBBbp)
-  pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "SBBbp"
-  output <- rbind(output, pX)
-  colnames(output) <- names(pX)
+#  outX <- data.table(segID=sampleX$segID,SBBbp)
+#  pX <- calculatePerCols(outX = outX)
+#  pX <- colMeans(pX)
+#  pX[1] <- "SBBbp"
+#  output <- rbind(output, pX)
+#  colnames(output) <- names(pX)
   
   ####PI
-  outX <- data.table(segID=sampleX$segID,PI)
-  pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "sbbPI"
-  output <- rbind(output, pX)
-  colnames(output) <- names(pX)
+#  outX <- data.table(segID=sampleX$segID,PI)
+#  pX <- calculatePerCols(outX = outX)
+#  pX <- colMeans(pX)
+#  pX[1] <- "sbbPI"
+#  output <- rbind(output, pX)
+#  colnames(output) <- names(pX)
 
   ####pSBB damage
-  outX <- data.table(segID=sampleX$segID,pSBB)
-  pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "pSBBdamage"
-  output <- rbind(output, pX)
-  colnames(output) <- names(pX)
+#  outX <- data.table(segID=sampleX$segID,pSBB)
+#  pX <- calculatePerCols(outX = outX)
+#  pX <- colMeans(pX)
+#  pX[1] <- "pSBBdamage"
+#  output <- rbind(output, pX)
+#  colnames(output) <- names(pX)
 
   gc()
   
   return(output)
 } 
+
 
 
 
