@@ -110,7 +110,8 @@ roundTotWoodRatio <- 0.87
 harvestLims <- c(9775000,1466000)
 year1harv=0 ###if 1 set harvLim for Low and MaxSust as 0.6 and 1.2 of HarvLim (Base)
 domSPrun = 0   ### 1 -> run only dominant layer
-startingYear = 1991 #2015
+startingYear = 2015
+if(climScen<0) startingYear = 1991 #2015
 endingYear = 2100
 if(!exists("nYears")) {
   nYears = endingYear-startingYear
