@@ -183,7 +183,7 @@ if(outType=="testRun"){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  source("~/adaptFirst_runs/functions.R")
+#  source("~/adaptFirst_runs/functions.R")
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
                   outType=outType, climScen=climScen,
@@ -216,7 +216,7 @@ if(outType=="testRun"){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  source("~/adaptFirst_runs/functions.R")
+#  source("~/adaptFirst_runs/functions.R")
 #  sampleXs <- runModelAdapt(1,
 #                outType=outType,  
 #                rcps = rcpsFile,
