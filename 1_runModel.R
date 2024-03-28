@@ -192,7 +192,7 @@ if(outType=="testRun"){
                   CO2fixed=CO2fixed,
                   harvScen=harvscen,#"Base" or #BaseTapio
            harvInten=harvinten)})
-  sampleXs <- list(sampleXs0, sampleXs)
+  if(climScen<0) sampleXs <- list(sampleXs0, sampleXs)
   
 } else {
   # Baseline for soil and deadWood initialization
