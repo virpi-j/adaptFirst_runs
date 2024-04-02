@@ -25,6 +25,42 @@ r_no = region = r_nos_stations[[station_id]][1] # region ID
 
 stat_name <- stations[station_id,"name"]
 nYears <- 2050-2015
+
+###### Calibrated PREBAS #################################
+if(calibratedPREBAS){
+  load("../modelParameters/pCROBAS_newVcalP_CN2703.rdata")
+  load("../modelParameters/pPRELES_newVcalP_CN2703.rdata")
+  pCROB_new <- pCROBAS_newVcalP_CN
+  pCROB_cc <- pCROBAS_newVcalP_CN
+  
+  # Annikki's corrections
+  pCROB_new[54,2] <- 1.5033  # tissue N
+  pCROB_new[55,2] <- 0.0113  # tissue N
+  pCROB_new[54,3] <- 3.00    # tissue N birch
+  pCROB_new[55,3] <- 0.037   # tissue N
+  pCROB_new[57,3] <- 0.2     # tissue N
+  pCROB_new[58,3] <- 0.05     # tissue N
+  
+  pCROB_new[63,2] <- -4.866   # restricted N uptake, intercept
+  pCROB_new[64,2] <- 0.993    # restricted N uptake, coeff
+  pCROB_new[63,1] <- -4.596   # restricted N uptake, intercept
+  pCROB_new[64,1] <- 0.887    # restricted N uptake, coeff
+  pCROB_new[63,3] <- -4.696   # restricted N uptake, intercept
+  pCROB_new[64,3] <- 1.282       # restricted N uptake, coeff
+  
+  pCROB <- pCROB_new
+  
+  pPREL_new <- pPRELES_newVcalP_CN
+  pPREL <- pPREL_new
+  
+#  parsCN_cc_alfar <- parsCN_alfar
+#  parsCN_new_alfar <- parsCN_alfar
+  
+#  parsCN_cc_alfar <- parsCN_alfar
+#  parsCN_cc_alfar[1,3]<- 2*parsCN_alfar[1,1]
+#  parsCN_new_alfar <- parsCN_cc_alfar
+} 
+
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
 
 xy_UTM <- data.frame()
@@ -159,6 +195,7 @@ if(outType=="testRun"){
 }
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+
 
 if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
