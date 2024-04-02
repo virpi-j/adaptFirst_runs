@@ -53,15 +53,18 @@ if(calibratedPREBAS){
   pPREL_new <- pPRELES_newVcalP_CN
   pPREL <- pPREL_new
   
-#  parsCN_cc_alfar <- parsCN_alfar
-#  parsCN_new_alfar <- parsCN_alfar
-  
-#  parsCN_cc_alfar <- parsCN_alfar
-#  parsCN_cc_alfar[1,3]<- 2*parsCN_alfar[1,1]
-#  parsCN_new_alfar <- parsCN_cc_alfar
-} 
 
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
+parsCN_new_alfar <- parsCN_alfar
+
+if(calibratedPREBAS){
+  parsCN_cc_alfar <- parsCN_alfar
+  parsCN_new_alfar <- parsCN_alfar
+  
+  parsCN_cc_alfar <- parsCN_alfar
+  parsCN_cc_alfar[1,3]<- 2*parsCN_alfar[1,1]
+  parsCN_new_alfar <- parsCN_cc_alfar
+} 
 
 xy_UTM <- data.frame()
 for(ij in 1:nrow(stations)){
