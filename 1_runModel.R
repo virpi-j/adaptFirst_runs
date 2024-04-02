@@ -47,11 +47,13 @@ if(calibratedPREBAS){
   pCROB_new[64,1] <- 0.887    # restricted N uptake, coeff
   pCROB_new[63,3] <- -4.696   # restricted N uptake, intercept
   pCROB_new[64,3] <- 1.282       # restricted N uptake, coeff
+  pCROB_new[41,1:3] <- restrictionSwitch        # set restriction switch active, 1 = default. 
+  #   - This should be automatic in the current New Version that can be downloaded
   
   pCROB <- pCrobasX <- pCROB_new
   
   pPREL_new <- pPRELES_newVcalP_CN
-  pPREL <- pPREL_new
+  pPREL <- pPRELES <- pPREL_new
 }  
 
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
