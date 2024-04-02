@@ -1369,7 +1369,7 @@ calculatePerCols <- function(outX){ #perStarts,perEnds,startingYear,
     colnames(p)[2] <- paste0("per",iper)
     if(iper==1) {
       pX <- data.table(p)
-      colnames(pX)[1] <- "var"
+  #    colnames(pX)[1] <- "var"
     } else {
       pX <- cbind(pX, p[,2])
     }
@@ -1405,8 +1405,17 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   #if(sampleID==sampleForPlots){testPlot(outX,"domSpecies",areas)}
   ###take the most frequent species in the periods
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "domSpecies"
+  varNam <- "domSpecies"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
@@ -1415,8 +1424,17 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   ###age dominant species
   outX <- domFun(region,varX="age")
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "domAge"
+  varNam <- "domAge"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
@@ -1425,28 +1443,53 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   outX <- vSpFun(region,SpID=1)
   #outX <- vDecFun(region)
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "Vpine"
+  varNam <- "Vpine"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
   
   ### spruce Volume Vspruce
   outX <- vSpFun(region,SpID=2)
-  #outX <- vDecFun(region)
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "Vspruce"
+  varNam <-  "Vspruce"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
   
   ### deciduous Volume Vdec
   outX <- vSpFun(region,SpID=3)
-  #outX <- vDecFun(region)
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "Vdec"
+  varNam <-  "Vdec"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
@@ -1455,18 +1498,35 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   ####WenergyWood
   outX <- data.table(segID=sampleX$segID,apply(region$multiEnergyWood[,,,2],1:2,sum))
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "Wenergywood"
+  varNam <-  "Wenergywood"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
 
   ####VenergyWood
   outX <- data.table(segID=sampleX$segID,apply(region$multiEnergyWood[,,,1],1:2,sum))
-  if(sampleID==sampleForPlots){testPlot(outX,"VenergyWood",areas)}
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "Venergywood"
+  varNam <-  "Venergywood"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
@@ -1474,8 +1534,17 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   ####GVgpp
   outX <- data.table(segID=sampleX$segID,region$GVout[,,3])
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "GVgpp"
+  varNam <-  "GVgpp"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
@@ -1483,8 +1552,17 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   ####GVw
   outX <- data.table(segID=sampleX$segID,region$GVout[,,4])
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "GVw"
+  varNam <-  "GVw"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
@@ -1492,11 +1570,151 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   ####Wtot
   outX <- data.table(segID=sampleX$segID,apply(region$multiOut[,,c(24,25,31,32,33),,1],1:2,sum))
   pX <- calculatePerCols(outX = outX)
-  pX <- colMeans(pX)
-  pX[1] <- "Wtot"
+  varNam <-  "Wtot"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   #print(output)
+  
+  NUP <- F
+  if(NUP){
+    #### alphar
+    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,3,1,1])
+    pX <- calculatePerCols(outX = outX)
+    varNam <-  "alphar"
+    assign(varNam,pX)
+    save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,".rdata"))
+    rm(list=varNam); gc()
+    pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+    pX <- c(var = varNam, pX)
+    output <- rbind(output, pX)
+    colnames(output) <- names(pX)
+    #print(output)
+    
+    ####### Nup
+    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,55,1,2])
+    pX <- calculatePerCols(outX = outX)
+    varNam <- "Nup"
+    assign(varNam,pX)
+    save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,".rdata"))
+    rm(list=varNam); gc()
+    pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+    pX <- c(var = varNam, pX)
+    output <- rbind(output, pX)
+    colnames(output) <- names(pX)
+    #print(output)
+    
+    ### Ndem
+    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,56,1,2])
+    pX <- calculatePerCols(outX = outX)
+    varNam <- "Ndem"
+    assign(varNam,pX)
+    save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,".rdata"))
+    rm(list=varNam); gc()
+    pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+    pX <- c(var = varNam, pX)
+    output <- rbind(output, pX)
+    colnames(output) <- names(pX)
+    #print(output)
+    
+    ### "Umax"
+    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,57,1,2])
+    pX <- calculatePerCols(outX = outX)
+    varNam <- "Umax"
+    assign(varNam,pX)
+    save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,".rdata"))
+    rm(list=varNam); gc()
+    pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+    pX <- c(var = varNam, pX)
+    output <- rbind(output, pX)
+    colnames(output) <- names(pX)
+    #print(output)
+    
+
+    ####### "Gf"
+    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,55,1,1])
+    pX <- calculatePerCols(outX = outX)
+    varNam <- "Gf"
+    assign(varNam,pX)
+    save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,".rdata"))
+    rm(list=varNam); gc()
+    pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+    pX <- c(var = varNam, pX)
+    output <- rbind(output, pX)
+    colnames(output) <- names(pX)
+    #print(output)
+    
+    ### "Gr"
+    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,56,1,1])
+    pX <- calculatePerCols(outX = outX)
+    varNam <- "Gr"
+    assign(varNam,pX)
+    save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,".rdata"))
+    rm(list=varNam); gc()
+    pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+    pX <- c(var = varNam, pX)
+    output <- rbind(output, pX)
+    colnames(output) <- names(pX)
+    #print(output)
+    
+    ### "Gw"
+    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,57,1,1])
+    pX <- calculatePerCols(outX = outX)
+    varNam <- "Gw"
+    assign(varNam,pX)
+    save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,".rdata"))
+    rm(list=varNam); gc()
+    pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+    pX <- c(var = varNam, pX)
+    output <- rbind(output, pX)
+    colnames(output) <- names(pX)
+    #print(output)
+    
+  }
   
   ####SBBbp
 #  outX <- data.table(segID=sampleX$segID,SBBbp)
