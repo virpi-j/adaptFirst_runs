@@ -48,11 +48,11 @@ if(calibratedPREBAS){
   pCROB_new[63,3] <- -4.696   # restricted N uptake, intercept
   pCROB_new[64,3] <- 1.282       # restricted N uptake, coeff
   
-  pCROB <- pCROB_new
+  pCROB <- pCrobasX <- pCROB_new
   
   pPREL_new <- pPRELES_newVcalP_CN
   pPREL <- pPREL_new
-  
+}  
 
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
 parsCN_new_alfar <- parsCN_alfar

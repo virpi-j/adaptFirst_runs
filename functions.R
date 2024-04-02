@@ -445,14 +445,14 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     }
   }else{
     if(harvScen=="baseTapio"){
-      region <- regionPrebas(initPrebas,compHarv=compHarvX, pCN_alfar = parsCN_new_alfar)
+      region <- regionPrebas(initPrebas,compHarv=compHarvX)
     }else{
       ##Don't pass minDharvX if NA
       if (is.na(minDharvX)) {
-        region <- regionPrebas(initPrebas, pCN_alfar = parsCN_new_alfar, HarvLim = as.numeric(HarvLimX),
+        region <- regionPrebas(initPrebas, HarvLim = as.numeric(HarvLimX),
                                cutAreas =cutArX,compHarv=compHarvX)
       } else {
-        region <- regionPrebas(initPrebas, pCN_alfar = parsCN_new_alfar, HarvLim = as.numeric(HarvLimX),
+        region <- regionPrebas(initPrebas, HarvLim = as.numeric(HarvLimX),
                                minDharv = minDharvX,cutAreas =cutArX,
                                compHarv=compHarvX)
       }
@@ -949,6 +949,7 @@ create_prebas_input.f = function(r_no, clim, data.sample, nYears,
   initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                               # litterSize = litterSize,#pAWEN = parsAWEN,
                               pCROBAS = pCrobasX,
+                              pCN_alfar = parsCN_new_alfar,
                               defaultThin=defaultThin,
                               ClCut = ClCut, areas =areas,
                               energyCut = energyCut, 
