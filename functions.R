@@ -946,24 +946,43 @@ create_prebas_input.f = function(r_no, clim, data.sample, nYears,
   if(!exists("tTapioParX")) tTapioParX = tTapio
   #initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM)[,6,]*HcFactorX
   initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM,pCrobasX,HcModVx)[,6,]*HcFactorX
-  initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
-                              # litterSize = litterSize,#pAWEN = parsAWEN,
-                              pCROBAS = pCrobasX,
-                              pCN_alfar = parsCN_new_alfar,
-                              defaultThin=defaultThin,
-                              ClCut = ClCut, areas =areas,
-                              energyCut = energyCut, 
-                              ftTapioPar = ftTapioParX,
-                              tTapioPar = tTapioParX,
-                              multiInitVar = as.array(initVar),
-                              PAR = clim$PAR[, 1:(nYears*365)],
-                              TAir=clim$TAir[, 1:(nYears*365)],
-                              VPD=clim$VPD[, 1:(nYears*365)],
-                              Precip=clim$Precip[, 1:(nYears*365)],
-                              CO2=clim$CO2[, 1:(nYears*365)],
-                              yassoRun = 1,
-                              mortMod = mortMod)
-  #initPrebas
+  if(climScen>0){
+    initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
+                                # litterSize = litterSize,#pAWEN = parsAWEN,
+                                pCROBAS = pCrobasX,
+                                pCN_alfar = parsCN_new_alfar,
+                                defaultThin=defaultThin,
+                                ClCut = ClCut, areas =areas,
+                                energyCut = energyCut, 
+                                ftTapioPar = ftTapioParX,
+                                tTapioPar = tTapioParX,
+                                multiInitVar = as.array(initVar),
+                                PAR = clim$PAR[, 1:(nYears*365)],
+                                TAir=clim$TAir[, 1:(nYears*365)],
+                                VPD=clim$VPD[, 1:(nYears*365)],
+                                Precip=clim$Precip[, 1:(nYears*365)],
+                                CO2=clim$CO2[, 1:(nYears*365)],
+                                yassoRun = 1,
+                                mortMod = mortMod)
+  } else {
+    initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
+                                # litterSize = litterSize,#pAWEN = parsAWEN,
+                                pCROBAS = pCrobasX,
+                                defaultThin=defaultThin,
+                                ClCut = ClCut, areas =areas,
+                                energyCut = energyCut, 
+                                ftTapioPar = ftTapioParX,
+                                tTapioPar = tTapioParX,
+                                multiInitVar = as.array(initVar),
+                                PAR = clim$PAR[, 1:(nYears*365)],
+                                TAir=clim$TAir[, 1:(nYears*365)],
+                                VPD=clim$VPD[, 1:(nYears*365)],
+                                Precip=clim$Precip[, 1:(nYears*365)],
+                                CO2=clim$CO2[, 1:(nYears*365)],
+                                yassoRun = 1,
+                                mortMod = mortMod)
+    
+  }  #initPrebas
 }
 
 yasso.mean.climate.f = function(dat, data.sample, startingYear, nYears){
