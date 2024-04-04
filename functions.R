@@ -120,8 +120,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       maxRday <- max(dat$rday)
       #xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2))
       xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2),
-                (dat$rday+maxRday*3))
-      dat = rbind(dat,dat,dat,dat)
+                (dat$rday+maxRday*3),(dat$rday+maxRday*4),(dat$rday+maxRday*5))
+      dat = rbind(dat,dat,dat,dat,dat,dat)
       #dat <- dat[rep(1:nrow(dat),4),]
       dat[,rday:=xday]
       rm(list = "xday")
@@ -260,13 +260,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   #  print(paste("weather data dim:",dim(initPrebas$P0y)))
   }
   
-  
   SBB <- F
-  if(SBB){
-    clim_ids <- match(data.sample$id,clim$id)
-    SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
-  }
-  
   # Loop management scenarios ------------------------------------------------
   # for(harvScen in harvScen) { ## MaxSust fails, others worked.
   # print(date())
@@ -465,13 +459,14 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   if(harvScen=="Base" & harvInten =="Base" & initilizeSoil & rcpfile=="CurrClim"){
     initSoilC <- stXX_GV(region, 1)
     print(paste("initSoilC:",sampleID))
-    if(outType!="testRun" | forceSaveInitSoil){
+    #if(outType!="testRun" | forceSaveInitSoil){
       if(!outType %in% c("uncRun","uncSeg")){
         if(identical(landClassX,1:3)) save(initSoilC,file=paste0("../initSoilC/station",station_id,"_LandClass1to3.rdata"))
         if(identical(landClassX,1:2)) save(initSoilC,file=paste0("../initSoilC/station",station_id,"_LandClass1to2.rdata"))
         if(identical(landClassX,1)) save(initSoilC,file=paste0("../initSoilC/station",station_id,"_LandClass1.rdata"))
+        print("initSoilC saved.")
       }
-    }
+    #}
     ###run yasso (starting from steady state) using PREBAS litter
     # region <- yassoPREBASin(region,initSoilC)
     initPrebas$yassoRun <- rep(1,initPrebas$nSites)

@@ -205,6 +205,7 @@ source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/maste
 if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
   sampleXs0 <- list()
+#  print(CO2fixed==0 & harvscen=="Base" & harvinten=="Base")
   if(CO2fixed==0 & harvscen=="Base" & harvinten=="Base"){
     outType<-"testRun"
     nYears<-2050-2015
@@ -216,6 +217,7 @@ if(outType=="testRun"){
                                CO2fixed=CO2fixed,
                                harvScen="Base",
                                harvInten="Base")
+    print(sampleXs0$region$multiOut[100,,"NEP",1,1])
   }
   # IRS runs
   outType<-"dTabs"
@@ -223,17 +225,24 @@ if(outType=="testRun"){
   if(climScen > 0) nYears <- 2100-2015
   endingYear <- nYears + startingYear
   rcps <- rcpsFile 
-  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
+  #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-#  source("~/adaptFirst_runs/functions.R")
+  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+  #  source("~/adaptFirst_runs/functions.R")
+#  sampleXs <- runModelAdapt(1,outType="testRun",rcps = "CurrClim",CO2fixed=CO2fixed,
+ #                           harvScen="Base",harvInten="Base")  
+#  print(sampleXs$region$multiOut[100,,"NEP",1,1])
+#  break()
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
                   outType=outType, climScen=climScen,
-                  rcps = rcpsFile,#"paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
+                  rcps = rcpsFile,
                   CO2fixed=CO2fixed,
                   harvScen=harvscen,#"Base" or #BaseTapio
            harvInten=harvinten)})
+  print(sampleXs[[1]]$region$multiOut[100,,"NEP",1,1])
+  
   if(climScen<10) sampleXs <- list(sampleXs0, sampleXs)
   
 } else {
