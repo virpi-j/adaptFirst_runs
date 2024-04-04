@@ -217,7 +217,7 @@ if(outType=="testRun"){
                                CO2fixed=CO2fixed,
                                harvScen="Base",
                                harvInten="Base")
-    print(sampleXs0$region$multiOut[100,,"NEP",1,1])
+    #print(sampleXs0$region$multiOut[100,,"NEP",1,1])
   }
   # IRS runs
   outType<-"dTabs"
@@ -241,7 +241,7 @@ if(outType=="testRun"){
                   CO2fixed=CO2fixed,
                   harvScen=harvscen,#"Base" or #BaseTapio
            harvInten=harvinten)})
-  print(sampleXs[[1]]$region$multiOut[100,,"NEP",1,1])
+  #print(sampleXs[[1]]$region$multiOut[100,,"NEP",1,1])
   
   if(climScen<10) sampleXs <- list(sampleXs0, sampleXs)
   
@@ -297,7 +297,7 @@ if(climScen<0){
   save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,".rdata"))
   print("Results saved as lists")
 } else {
-  print(sampleXs[[2]][[1]][,1:5])
+  print(sampleXs[[2]][[1]][,1:4])
   save(sampleXs,file = paste0("Results/outputs",station_id,"_",rcps,
                               "_",harvscen,"_",harvinten,
                               "_Nrestrct",restrictionSwitch,".rdata"))
