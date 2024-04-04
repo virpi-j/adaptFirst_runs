@@ -572,7 +572,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,climScen, rcpfile,areas,
               colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)#,SBBbp[clim_ids,],PI,pSBB)
-    print(output[c(1,6),])
+    print(output[c(1,6,nrow(output)),])
     print("all outs calculated")
     #print(output)
     return(output)
@@ -1600,7 +1600,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   colnames(output) <- names(pX)
   #print(output)
   
-  NUP <- F
+  NUP <- T
   if(NUP){
     #### alphar
     outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,3,1,1])

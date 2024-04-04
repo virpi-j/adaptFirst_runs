@@ -206,7 +206,7 @@ if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
   sampleXs0 <- list()
 #  print(CO2fixed==0 & harvscen=="Base" & harvinten=="Base")
-  if(CO2fixed==0 & harvscen=="Base" & harvinten=="Base"){
+  if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
     outType<-"testRun"
     nYears<-2050-2015
     endingYear <- nYears + startingYear
@@ -270,7 +270,8 @@ if(outType=="testRun"){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-#  source("~/adaptFirst_runs/functions.R")
+  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+  #  source("~/adaptFirst_runs/functions.R")
 #  sampleXs <- runModelAdapt(1,
 #                outType=outType,  
 #                rcps = rcpsFile,
@@ -296,7 +297,10 @@ if(climScen<0){
   save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,".rdata"))
   print("Results saved as lists")
 } else {
-  save(sampleXs,file = paste0("Results/outputs",station_id,"_",rcps,".rdata"))
+  print(sampleXs[[2]][[1]][,1:5])
+  save(sampleXs,file = paste0("Results/outputs",station_id,"_",rcps,
+                              "_",harvscen,"_",harvinten,
+                              "_Nrestrct",restrictionSwitch,".rdata"))
 }
 
 if(climScen<0){
