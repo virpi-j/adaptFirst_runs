@@ -297,8 +297,9 @@ if(climScen<0){
   save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,".rdata"))
   print("Results saved as lists")
 } else {
+  output <- sampleXs[[2]][[1]]
   print(sampleXs[[2]][[1]][,1:4])
-  save(sampleXs,file = paste0("Results/outputs",station_id,"_",rcps,
+  save(output,file = paste0("Results/outputs",station_id,"_",rcps,
                               "_",harvscen,"_",harvinten,
                               "_Nrestrct",restrictionSwitch,".rdata"))
 }
