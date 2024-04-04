@@ -572,7 +572,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,climScen, rcpfile,areas,
               colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)#,SBBbp[clim_ids,],PI,pSBB)
-    print(output[c(1,6,nrow(output)),])
+    print(output[c(1,6,nrow(output)-3),])
     print("all outs calculated")
     #print(output)
     return(output)
