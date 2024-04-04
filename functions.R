@@ -555,23 +555,11 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     print("deadWood volume update processed.")
   }
   ####end initialize deadWood Volume
-  if(SBB){
-    #clim_ids <- match(data.sample$id,clim$id)
-    #SBBbp <- SBBbivoltinePotential(initPrebas,nYears)
-    print("calculate PIs")
-    PI <- SBB_predisposition(modOut = region)
-    print("calculate pSBB")
-    pSBB <- SBB_damage_prob(PI,SBBbp,clim_ids)
-    print("SBB factors calculated")
-  }
-  
   if(outType=="testRun") return(list(region = region,initPrebas=initPrebas, clim=clim)) 
-                                     #SBBbp=SBBbp[clim_ids,],
-                                     #sbbPI = PI, pSBB = pSBB))
   if(outType=="dTabs"){
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,climScen, rcpfile,areas,
-              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)#,SBBbp[clim_ids,],PI,pSBB)
+              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)
     print(output[c(1,6,nrow(output)-3),])
     print("all outs calculated")
     #print(output)
@@ -947,12 +935,11 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
     lat <- location$coords.x2
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                 latitude = lat,
-                                # litterSize = litterSize,#pAWEN = parsAWEN,
                                 pCROBAS = pCrobasX,
                                 pCN_alfar = parsCN_new_alfar,
-                                alpharNcalc = T,
-                                alpharVersion = 1,                                
-                                ECMmod=1, #flag for ECM modelling MAkela et al.2022
+                                #alpharNcalc = T,
+                                alpharVersion = restrictionSwitch,                                
+                                ECMmod = 1,
                                 defaultThin = defaultThin,
                                 ClCut = ClCut, 
                                 areas =areas,
