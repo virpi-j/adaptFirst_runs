@@ -212,6 +212,7 @@ if(outType=="testRun"){
     print(paste("Simulate soilC for",nYears,"years"))
     sampleXs0 <- runModelAdapt(1,
                                outType=outType,  
+                               climScen=0,
                                rcps = "CurrClim",
                                CO2fixed=CO2fixed,
                                harvScen="Base",

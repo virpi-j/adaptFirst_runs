@@ -204,7 +204,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   ## Second, continue now starting from soil SS
   initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
-                                     harv=harvScen, HcFactorX=HcFactor)
+                                     harv=harvScen, HcFactorX=HcFactor, climScen=climScen)
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
@@ -737,7 +737,7 @@ sample_data.f = function(data.all, nSample) {
 # StartingYear = climate data that detrermines simulation period must have year greater than this.
 create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                  startingYear=0,domSPrun=0,
-                                 harv, HcFactorX=HcFactor) { # dat = climscendataset
+                                 harv, HcFactorX=HcFactor,climScen=climScen) { # dat = climscendataset
   #domSPrun=0 initialize model for mixed forests according to data inputs 
   #domSPrun=1 initialize model only for dominant species 
   nSites <- nrow(data.sample)
@@ -950,11 +950,12 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 # litterSize = litterSize,#pAWEN = parsAWEN,
                                 pCROBAS = pCrobasX,
                                 pCN_alfar = parsCN_new_alfar,
-                                alpharNcalc=T,
+                                alpharNcalc = T,
                                 alpharVersion = 1,                                
                                 ECMmod=1, #flag for ECM modelling MAkela et al.2022
-                                defaultThin=defaultThin,
-                                ClCut = ClCut, areas =areas,
+                                defaultThin = defaultThin,
+                                ClCut = ClCut, 
+                                areas =areas,
                                 energyCut = energyCut, 
                                 ftTapioPar = ftTapioParX,
                                 tTapioPar = tTapioParX,
