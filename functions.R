@@ -1603,7 +1603,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   NUP <- T
   if(NUP){
     #### alphar
-    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,3,1,1])
+    outX <- data.table(segID=sampleX$segID,region$multiOut[,,3,1,1])
     pX <- calculatePerCols(outX = outX)
     varNam <-  "alphar"
     assign(varNam,pX)
@@ -1621,7 +1621,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     #print(output)
     
     ####### Nup
-    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,55,1,2])
+    outX <- data.table(segID=sampleX$segID,region$multiOut[,,55,1,2])
     pX <- calculatePerCols(outX = outX)
     varNam <- "Nup"
     assign(varNam,pX)
@@ -1639,7 +1639,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     #print(output)
     
     ### Ndem
-    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,56,1,2])
+    outX <- data.table(segID=sampleX$segID,region$multiOut[,,56,1,2])
     pX <- calculatePerCols(outX = outX)
     varNam <- "Ndem"
     assign(varNam,pX)
@@ -1657,7 +1657,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     #print(output)
     
     ### "Umax"
-    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,57,1,2])
+    outX <- data.table(segID=sampleX$segID,region$multiOut[,,57,1,2])
     pX <- calculatePerCols(outX = outX)
     varNam <- "Umax"
     assign(varNam,pX)
@@ -1676,7 +1676,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     
 
     ####### "Gf"
-    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,55,1,1])
+    outX <- data.table(segID=sampleX$segID,region$multiOut[,,55,1,1])
     pX <- calculatePerCols(outX = outX)
     varNam <- "Gf"
     assign(varNam,pX)
@@ -1694,7 +1694,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     #print(output)
     
     ### "Gr"
-    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,56,1,1])
+    outX <- data.table(segID=sampleX$segID,region$multiOut[,,56,1,1])
     pX <- calculatePerCols(outX = outX)
     varNam <- "Gr"
     assign(varNam,pX)
@@ -1712,7 +1712,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     #print(output)
     
     ### "Gw"
-    outX <- data.table(segID=sampleX$segID,modOut$multiOut[,,57,1,1])
+    outX <- data.table(segID=sampleX$segID,region$multiOut[,,57,1,1])
     pX <- calculatePerCols(outX = outX)
     varNam <- "Gw"
     assign(varNam,pX)
