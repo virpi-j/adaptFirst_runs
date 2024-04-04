@@ -291,7 +291,7 @@ if(climScen<0){
   print("Results saved as lists")
 } else {
   output <- sampleXs[[2]][[1]]
-  print(sampleXs[[2]][[1]][,1:4])
+  print(output[,1:4])
   save(output,file = paste0("Results/outputs",station_id,"_",rcps,
                               "_",harvscen,"_",harvinten,
                               "_Nrestrct",restrictionSwitch,".rdata"))

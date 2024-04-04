@@ -202,7 +202,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   Region = nfiareas[ID==r_no, Region]
   
   ## Second, continue now starting from soil SS
-  initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
+  initPrebas = create_prebas_input.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
                                      harv=harvScen, HcFactorX=HcFactor)
   opsna <- which(is.na(initPrebas$multiInitVar))
