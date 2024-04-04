@@ -202,7 +202,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   Region = nfiareas[ID==r_no, Region]
   
   ## Second, continue now starting from soil SS
-  initPrebas = create_prebas_input.f(r_no, clim, data.sample, nYears = nYears,
+  initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
                                      harv=harvScen, HcFactorX=HcFactor)
   opsna <- which(is.na(initPrebas$multiInitVar))
@@ -942,7 +942,11 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   #initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM)[,6,]*HcFactorX
   initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM,pCrobasX,HcModVx)[,6,]*HcFactorX
   if(climScen>0){
+    cord = SpatialPoints(cbind(sampleX$x,sampleX$y), proj4string=CRS("+init=EPSG:3067"))
+    location<-as.data.frame(spTransform(cord, CRS("+init=epsg:4326")))
+    lat <- location$coords.x2
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
+                                latitude = lat,
                                 # litterSize = litterSize,#pAWEN = parsAWEN,
                                 pCROBAS = pCrobasX,
                                 pCN_alfar = parsCN_new_alfar,
