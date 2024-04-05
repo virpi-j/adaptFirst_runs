@@ -230,7 +230,7 @@ if(outType=="testRun"){
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  source("~/adaptFirst_runs/functions.R")
+  #source("~/adaptFirst_runs/functions.R")
   source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
@@ -286,7 +286,7 @@ if(outType=="testRun"){
              CO2fixed=CO2fixed, climScen=climScen,
              #harvScen="baseTapio",#"Base" or baseTapio
              harvScen=harvscen,
-             harvInten=harvinten)
+             harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
     }, mc.cores = nCores,mc.silent=FALSE)      
   if(climScen<10){
     sampleXs <- list(sampleXs0, sampleXs)
@@ -298,7 +298,7 @@ if(climScen<0){
   print("Results saved as lists")
 } else {
   output <- sampleXs[[2]][[1]]
-  print(output[,1:4])
+  print(output)
   save(output,file = paste0("Results/outputs",station_id,"_",rcps,
                               "_",harvscen,"_",harvinten,
                               "_Nrestrct",restrictionSwitch,".rdata"))
