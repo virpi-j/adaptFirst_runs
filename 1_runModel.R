@@ -217,6 +217,9 @@ if(outType=="testRun"){
                                CO2fixed=CO2fixed,
                                harvScen="Base",
                                harvInten="Base")
+    P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
+    fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
+                          sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
   }
   # IRS runs
   outType<-"dTabs"
@@ -254,6 +257,9 @@ if(outType=="testRun"){
                                CO2fixed=CO2fixed,
                                harvScen="Base",
                                harvInten="Base")
+    P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
+    fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
+                          sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
   }
   # IRS runs
   outType<-"dTabs"

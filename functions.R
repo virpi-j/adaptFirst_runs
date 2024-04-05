@@ -204,7 +204,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   ## Second, continue now starting from soil SS
   initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
-                                     harv=harvScen, HcFactorX=HcFactor, climScen=climScen)
+                                     harv=harvScen, HcFactorX=HcFactor, 
+                                     climScen=climScen, sampleX=sampleX)
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
@@ -725,7 +726,7 @@ sample_data.f = function(data.all, nSample) {
 # StartingYear = climate data that detrermines simulation period must have year greater than this.
 create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                  startingYear=0,domSPrun=0,
-                                 harv, HcFactorX=HcFactor,climScen=climScen) { # dat = climscendataset
+                                 harv, HcFactorX=HcFactor,climScen=climScen,sampleX=sampleX) { # dat = climscendataset
   #domSPrun=0 initialize model for mixed forests according to data inputs 
   #domSPrun=1 initialize model only for dominant species 
   nSites <- nrow(data.sample)
@@ -930,14 +931,18 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   #initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM)[,6,]*HcFactorX
   initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM,pCrobasX,HcModVx)[,6,]*HcFactorX
   if(climScen>0){
-    cord = SpatialPoints(cbind(sampleX$x,sampleX$y), proj4string=CRS("+init=EPSG:3067"))
-    location<-as.data.frame(spTransform(cord, CRS("+init=epsg:4326")))
-    lat <- location$coords.x2
+    set_thin_PROJ6_warnings(TRUE)
+    xy <- sampleX[,c("segID","x","y")]
+    coordinates(xy) <- c("x","y")
+    proj4string(xy) <- crsX
+    #cord = SpatialPoints(xy, proj4string=CRS("+init=EPSG:3067"))
+    location<-as.data.frame(spTransform(xy, CRS("+init=epsg:4326")))
+    lat <- location$y
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                 latitude = lat,
                                 pCROBAS = pCrobasX,
                                 pCN_alfar = parsCN_new_alfar,
-                                #alpharNcalc = T,
+                                alpharNcalc = T,
                                 alpharVersion = restrictionSwitch,                                
                                 ECMmod = 1,
                                 defaultThin = defaultThin,
@@ -953,7 +958,8 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 Precip=clim$Precip[, 1:(nYears*365)],
                                 CO2=clim$CO2[, 1:(nYears*365)],
                                 yassoRun = 1,
-                                mortMod = mortMod)
+                                mortMod = mortMod,
+                                p0currClim = P0currclim, fT0AvgCurrClim = fT0)
   } else {
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                 # litterSize = litterSize,#pAWEN = parsAWEN,
