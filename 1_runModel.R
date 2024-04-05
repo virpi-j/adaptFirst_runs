@@ -238,7 +238,7 @@ if(outType=="testRun"){
                   rcps = rcpsFile,
                   CO2fixed=CO2fixed,
                   harvScen=harvscen,#"Base" or #BaseTapio
-           harvInten=harvinten)})
+           harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)})
 
   if(climScen<10) sampleXs <- list(sampleXs0, sampleXs)
   
