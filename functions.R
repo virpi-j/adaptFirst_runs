@@ -205,7 +205,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
                                      harv=harvScen, HcFactorX=HcFactor, 
-                                     climScen=climScen, sampleX=sampleX, P0currclim, fT0)
+                                     climScen=climScen, sampleX=sampleX, P0currclim=P0currclim, fT0=fT0)
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
@@ -442,6 +442,9 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     if(harvScen=="baseTapio"){
       region <- regionPrebas(initPrebas,compHarv=compHarvX)
     }else{
+      if(climScen>0){ save(HarvLimX, cutArX,compHarvX,file =paste0("testDataRegion",restrictionSwitch,".rdata"))
+        print("region run data saved")
+        }
       ##Don't pass minDharvX if NA
       if (is.na(minDharvX)) {
         region <- regionPrebas(initPrebas, HarvLim = as.numeric(HarvLimX),
@@ -938,6 +941,25 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
     #cord = SpatialPoints(xy, proj4string=CRS("+init=EPSG:3067"))
     location<-as.data.frame(spTransform(xy, CRS("+init=epsg:4326")))
     lat <- location$y
+    save(nYears,nSites,siteInfo,lat,
+         pCrobasX,
+         parsCN_new_alfar,
+         restrictionSwitch,                                
+         defaultThin,
+         ClCut, 
+         areas,
+         energyCut, 
+         ftTapioParX,
+         tTapioParX,
+         initVar,
+         clim,
+         mortMod,
+         P0currclim, fT0, file=paste0("testDataInit",restrictionSwitch,".rdata"))
+    print("data saved")
+    if(length(clim$id)!=length(P0currclim)){
+      P0currclim <- as.vector(mean(P0currclim)*array(1,c(1,length(clim$id))))
+      fT0 <- as.vector(mean(fT0)*array(1,c(1,length(clim$id))))
+    }
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                 latitude = lat,
                                 pCROBAS = pCrobasX,
