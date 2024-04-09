@@ -1626,7 +1626,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   NUP <- T
   if(NUP){
     #### alphar
-    outX <- data.table(segID=sampleX$segID,region$multiOut[,,3,1,1])
+    outX <- data.table(segID=sampleX$segID,region$multiOut[,,3,1,2])
     pX <- calculatePerCols(outX = outX)
     varNam <-  "alphar"
     assign(varNam,pX)
