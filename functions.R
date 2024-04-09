@@ -209,6 +209,9 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
+  initPrebas$pPRELES <- pPREL
+  initPrebas$pCROBAS <- pCROB
+  
   ##### if the mortality model flag is 13 uses 
   ##### mortMod=1 (reineke) for managed forests
   ##### mortMod=3 (reineke + empirical model) for unmanaged forests
@@ -941,10 +944,9 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
     #cord = SpatialPoints(xy, proj4string=CRS("+init=EPSG:3067"))
     location<-as.data.frame(spTransform(xy, CRS("+init=epsg:4326")))
     lat <- location$y
-    save(nYears,nSites,siteInfo,lat,
-         pCrobasX,
-         parsCN_new_alfar,
-         restrictionSwitch,                                
+    #print(paste("check crobas:",pCrobasX[55,3]))
+    #print(pCrobasX)
+    save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
          defaultThin,
          ClCut, 
          areas,

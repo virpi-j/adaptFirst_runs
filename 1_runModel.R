@@ -231,7 +231,7 @@ if(outType=="testRun"){
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  #source("~/adaptFirst_runs/functions.R")
+  source("~/adaptFirst_runs/functions.R")
   source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
