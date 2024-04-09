@@ -277,7 +277,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       initPrebas$ClCut = initPrebas$defaultThin = rep(0,nSample)
       HarvLim1 = 0
       harvInten = "NoHarv"
-    }else if(harvScen=="Tapio"){
+    }else if(harvScen%in%c("baseTapio","Tapio")){
       HarvLim1 = 0
     }else{
       HarvLim0 = nfiareas[ID==r_no, VOL_fraction]*rem[Scenario == harvScen & Area == Region, "1990-2013"]
