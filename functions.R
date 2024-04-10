@@ -1646,7 +1646,8 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     #print(output)
     
     ####### Nup
-    outX <- data.table(segID=sampleX$segID,region$multiOut[,,55,1,2])
+#    outX <- data.table(segID=sampleX$segID,region$multiOut[,,55,1,2])
+      outX <- data.table(segID=sampleX$segID,apply(region$multiOut[,,55,,2],marginX,sum))
     pX <- calculatePerCols(outX = outX)
     varNam <- "Nup"
     assign(varNam,pX)
@@ -1664,7 +1665,8 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     #print(output)
     
     ### Ndem
-    outX <- data.table(segID=sampleX$segID,region$multiOut[,,56,1,2])
+#    outX <- data.table(segID=sampleX$segID,region$multiOut[,,56,1,2])
+      outX <- data.table(segID=sampleX$segID,apply(region$multiOut[,,56,,2],marginX,sum))
     pX <- calculatePerCols(outX = outX)
     varNam <- "Ndem"
     assign(varNam,pX)
@@ -1682,7 +1684,11 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     #print(output)
     
     ### "Umax"
-    outX <- data.table(segID=sampleX$segID,region$multiOut[,,57,1,2])
+    #outX <- data.table(segID=sampleX$segID,region$multiOut[,,57,1,2])
+    tmp <- region$multiOut[,,57,,1]
+    region$multiOut[,,57,,1] <- region$multiOut[,,57,,2] 
+    outX <- data.table(segID=sampleX$segID,baWmean(region,57))
+    region$multiOut[,,57,,1] <- tmp
     pX <- calculatePerCols(outX = outX)
     varNam <- "Umax"
     assign(varNam,pX)
