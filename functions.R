@@ -23,7 +23,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     outType <- "testRun"
     sampleID <- deltaID
   }
-    
+  set.seed(1)  
   # print(date())
   path_to_inputs <- "/scratch/project_2000994/PREBASruns/finRuns/"
   print(paste("start sample ID",sampleID))
