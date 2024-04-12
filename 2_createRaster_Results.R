@@ -51,7 +51,7 @@ for(varX in varXs){
   rastX <- rasterFromXYZ(tabX[,.(x,y,per7)])
   crs(rastX) <- crsX
   plot(rastX)
-  writeRaster(rastX,filename = paste0(filee"_per7.tiff"),overwrite=T)
+  writeRaster(rastX,filename = paste0(filee,"_per7.tiff"),overwrite=T)
   
   #hist(rastX, main = paste(varX))
   
