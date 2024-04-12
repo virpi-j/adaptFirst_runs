@@ -651,7 +651,7 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
                      varNames[varSel[ij]],
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
-                     rcpfile,".rdata"))
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
     rm(list=varNames[varSel[ij]]); gc()
     
     ##check for NAs
@@ -1452,7 +1452,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1471,7 +1471,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1490,7 +1490,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1508,7 +1508,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1526,7 +1526,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1545,7 +1545,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1563,7 +1563,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1581,7 +1581,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1599,7 +1599,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1617,7 +1617,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
-                   rcpfile,".rdata"))
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
   rm(list=varNam); gc()
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
@@ -1637,7 +1637,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
-                     rcpfile,".rdata"))
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
     rm(list=varNam); gc()
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
@@ -1657,7 +1657,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
-                     rcpfile,".rdata"))
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
     rm(list=varNam); gc()
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
@@ -1676,7 +1676,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
-                     rcpfile,".rdata"))
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
     rm(list=varNam); gc()
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
@@ -1698,7 +1698,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
-                     rcpfile,".rdata"))
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
     rm(list=varNam); gc()
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
@@ -1718,7 +1718,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
-                     rcpfile,".rdata"))
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
     rm(list=varNam); gc()
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
@@ -1737,7 +1737,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
-                     rcpfile,".rdata"))
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
     rm(list=varNam); gc()
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
@@ -1756,7 +1756,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
-                     rcpfile,".rdata"))
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
     rm(list=varNam); gc()
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
