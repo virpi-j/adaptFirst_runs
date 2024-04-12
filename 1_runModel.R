@@ -106,6 +106,8 @@ nn.d <- order(d, decreasing=F)[1:nSitesRun]
 print(range(d))
 
 ops <- list(data.all[nn.d,])
+print(summary(ops[[1]]))
+
 if(toRaster){
   ndat <- sample(1:nrow(data.all),10000)
   plot(data.all$x[ndat],data.all$y[ndat])
