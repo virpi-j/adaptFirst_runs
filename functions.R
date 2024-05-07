@@ -468,9 +468,10 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     print(paste("initSoilC:",sampleID))
     #if(outType!="testRun" | forceSaveInitSoil){
       if(!outType %in% c("uncRun","uncSeg")){
-        if(identical(landClassX,1:3)) save(initSoilC,file=paste0("../initSoilC/station",station_id,"_LandClass1to3.rdata"))
-        if(identical(landClassX,1:2)) save(initSoilC,file=paste0("../initSoilC/station",station_id,"_LandClass1to2.rdata"))
-        if(identical(landClassX,1)) save(initSoilC,file=paste0("../initSoilC/station",station_id,"_LandClass1.rdata"))
+        pathToInitiSoilC <- "/scratch/project_2000994/PREBASruns/adaptFirst/initSoilC/"
+        if(identical(landClassX,1:3)) save(initSoilC,file=paste0(pathToInitiSoilC,"station",station_id,"_LandClass1to3.rdata"))
+        if(identical(landClassX,1:2)) save(initSoilC,file=paste0(pathToInitiSoilC,"station",station_id,"_LandClass1to2.rdata"))
+        if(identical(landClassX,1)) save(initSoilC,file=paste0(pathToInitiSoilC,"station",station_id,"_LandClass1.rdata"))
         print("initSoilC saved.")
       }
     #}

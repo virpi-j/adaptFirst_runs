@@ -57,9 +57,10 @@ if(calibratedPREBAS){
 }  
 
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
-parsCN_new_alfar <- parsCN_alfar
 
 if(calibratedPREBAS){
+  parsCN_new_alfar <- parsCN_alfar
+  
   parsCN_cc_alfar <- parsCN_alfar
   parsCN_new_alfar <- parsCN_alfar
   
