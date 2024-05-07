@@ -941,7 +941,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   if(!exists("tTapioParX")) tTapioParX = tTapio
   #initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM)[,6,]*HcFactorX
   initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM,pCrobasX,HcModVx)[,6,]*HcFactorX
-  if(climScen>0){
+  if(climScen>=0){
     set_thin_PROJ6_warnings(TRUE)
     xy <- sampleX[,c("segID","x","y")]
     coordinates(xy) <- c("x","y")
