@@ -202,10 +202,18 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   Region = nfiareas[ID==r_no, Region]
   
   ## Second, continue now starting from soil SS
+  if(exists("restrictionSwitch")){
   initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
                                      harv=harvScen, HcFactorX=HcFactor, 
                                      climScen=climScen, sampleX=sampleX, P0currclim=P0currclim, fT0=fT0)
+  } else {
+    initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
+                                             startingYear = startingYear,domSPrun=domSPrun,
+                                             harv=harvScen, HcFactorX=HcFactor, 
+                                             climScen=climScen, sampleX=sampleX)
+    
+  }
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
@@ -951,6 +959,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
     lat <- location$y
     #print(paste("check crobas:",pCrobasX[55,3]))
     #print(pCrobasX)
+    if(exists("restrictionSwitch")){
     save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
          defaultThin,
          ClCut, 
@@ -989,6 +998,27 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 yassoRun = 1,
                                 mortMod = mortMod,
                                 p0currClim = P0currclim, fT0AvgCurrClim = fT0)
+    } else {
+      initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
+                                  latitude = lat,
+                                  pCROBAS = pCrobasX,
+                                  ECMmod = 1,
+                                  defaultThin = defaultThin,
+                                  ClCut = ClCut, 
+                                  areas =areas,
+                                  energyCut = energyCut, 
+                                  ftTapioPar = ftTapioParX,
+                                  tTapioPar = tTapioParX,
+                                  multiInitVar = as.array(initVar),
+                                  PAR = clim$PAR[, 1:(nYears*365)],
+                                  TAir=clim$TAir[, 1:(nYears*365)],
+                                  VPD=clim$VPD[, 1:(nYears*365)],
+                                  Precip=clim$Precip[, 1:(nYears*365)],
+                                  CO2=clim$CO2[, 1:(nYears*365)],
+                                  yassoRun = 1,
+                                  mortMod = mortMod)
+      
+    }
   } else {
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                 # litterSize = litterSize,#pAWEN = parsAWEN,
