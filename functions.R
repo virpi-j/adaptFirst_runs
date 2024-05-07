@@ -364,9 +364,10 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   if(initilizeSoil){
     if(!(harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
         if(!harvScen %in% c("protect","protectNoAdH","protectTapio")){
-          if(identical(landClassX,1:3)) load(paste0("../initSoilC/station",station_id,"_LandClass1to3.rdata"))
-          if(identical(landClassX,1:2)) load(paste0("../initSoilC/station",station_id,"_LandClass1to2.rdata"))
-          if(identical(landClassX,1)) load(paste0("../initSoilC/station",station_id,"_LandClass1.rdata"))
+          pathToInitiSoilC <- "/scratch/project_2000994/PREBASruns/adaptFirst/initSoilC/"
+          if(identical(landClassX,1:3)) load(paste0(pathToInitiSoilC,"station",station_id,"_LandClass1to3.rdata"))
+          if(identical(landClassX,1:2)) load(paste0(pathToInitiSoilC,"station",station_id,"_LandClass1to2.rdata"))
+          if(identical(landClassX,1)) load(paste0(pathToInitiSoilC,"station",station_id,"_LandClass1.rdata"))
         }
     }
   }
@@ -546,7 +547,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       print("deadWood volume at steady state saved")
     }
   }else{
-    load(paste0("../initDeadWVss/station",
+    pathToInitDeadW <- "/scratch/project_2000994/PREBASruns/adaptFirst/initDeadWVss/"
+    load(paste0(pathToInitDeadW,"station",
                 station_id,"_deadWV_mortMod",mortMod,".rdata"))
     DeadWInit <- matrix(0,nrow = nYears, ncol = dim(manDeadW$ssDeadW)[2])
     DeadWInit[1:nrow(manDeadW$ssDeadW),] <- manDeadW$ssDeadW
