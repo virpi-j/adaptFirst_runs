@@ -466,7 +466,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   if(harvScen=="Base" & harvInten =="Base" & initilizeSoil & rcpfile=="CurrClim"){
     initSoilC <- stXX_GV(region, 1)
     print(paste("initSoilC:",sampleID))
-    #if(outType!="testRun" | forceSaveInitSoil){
+    #if(outType!="testRun" | forceSaveInitSoil)
       if(!outType %in% c("uncRun","uncSeg")){
         pathToInitiSoilC <- "/scratch/project_2000994/PREBASruns/adaptFirst/initSoilC/"
         if(identical(landClassX,1:3)) save(initSoilC,file=paste0(pathToInitiSoilC,"station",station_id,"_LandClass1to3.rdata"))
@@ -539,7 +539,9 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     } else {
       unmanDeadW <- data.frame()
     }
-    if(exists("station_id")){ save(unmanDeadW,manDeadW,file=paste0("../initDeadWVss/station",
+    if(exists("station_id")){ 
+      pathToInitDeadW <- "/scratch/project_2000994/PREBASruns/adaptFirst/initDeadWVss/"
+      save(unmanDeadW,manDeadW,file=paste0(pathToInitDeadW,"station",
                                          station_id,"_deadWV_mortMod",mortMod,".rdata"))
       print("deadWood volume at steady state saved")
     }
