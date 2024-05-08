@@ -658,7 +658,7 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
     #if(sampleID==sampleForPlots){testPlot(outX,varNames[varSel[ij]],areas)}
     pX <- calculatePerCols(outX = outX)
 #    pX <- calculatePerColsAllRows(outX = outX)
-    vnam <- varNames[varSel[ij]] 
+    vnam <- varOuts[ij]#varNames[varSel[ij]] 
     if(vnam=="GPPTot/1000") vnam<-"GPPTot_1000"
     assign(vnam,pX)
     save(list=vnam,
