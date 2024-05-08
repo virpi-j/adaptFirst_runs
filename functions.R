@@ -658,6 +658,7 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
     #if(sampleID==sampleForPlots){testPlot(outX,varNames[varSel[ij]],areas)}
     pX <- calculatePerCols(outX = outX)
 #    pX <- calculatePerColsAllRows(outX = outX)
+    if(varNames[varSel[ij]]=="GPPTot/1000") varNames[varSel[ij]]<-"GPPTot_1000"
     assign(varNames[varSel[ij]],pX)
     save(list=varNames[varSel[ij]],
          file=paste0(path_output,"weatherStation",station_id,"/",
