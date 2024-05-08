@@ -951,56 +951,55 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   if(!exists("tTapioParX")) tTapioParX = tTapio
   #initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM)[,6,]*HcFactorX
   initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM,pCrobasX,HcModVx)[,6,]*HcFactorX
-  if(climScen>=0){
-    set_thin_PROJ6_warnings(TRUE)
-    xy <- sampleX[,c("segID","x","y")]
-    coordinates(xy) <- c("x","y")
-    proj4string(xy) <- crsX
-    #cord = SpatialPoints(xy, proj4string=CRS("+init=EPSG:3067"))
-    location<-as.data.frame(spTransform(xy, CRS("+init=epsg:4326")))
-    lat <- location$y
-    #print(paste("check crobas:",pCrobasX[55,3]))
-    #print(pCrobasX)
-    if(exists("parsCN_new_alfar")){
-      save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
-           defaultThin,
-           ClCut, 
-           areas,
-           energyCut, 
-           ftTapioParX,
-           tTapioParX,
-           initVar,
-           clim,
-           mortMod,
-           P0currclim, fT0, file=paste0("testDataInit",restrictionSwitch,".rdata"))
-      print("data saved")
-      if(length(clim$id)!=length(P0currclim)){
-        P0currclim <- as.vector(mean(P0currclim)*array(1,c(1,length(clim$id))))
-        fT0 <- as.vector(mean(fT0)*array(1,c(1,length(clim$id))))
-      }
-      initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
-                                  latitude = lat,
-                                  pCROBAS = pCrobasX,
-                                  pCN_alfar = parsCN_new_alfar,
-                                  alpharNcalc = T,
-                                  alpharVersion = restrictionSwitch,                                
-                                  ECMmod = 1,
-                                  defaultThin = defaultThin,
-                                  ClCut = ClCut, 
-                                  areas =areas,
-                                  energyCut = energyCut, 
-                                  ftTapioPar = ftTapioParX,
-                                  tTapioPar = tTapioParX,
-                                  multiInitVar = as.array(initVar),
-                                  PAR = clim$PAR[, 1:(nYears*365)],
-                                  TAir=clim$TAir[, 1:(nYears*365)],
-                                  VPD=clim$VPD[, 1:(nYears*365)],
-                                  Precip=clim$Precip[, 1:(nYears*365)],
-                                  CO2=clim$CO2[, 1:(nYears*365)],
-                                  yassoRun = 1,
-                                  mortMod = mortMod,
-                                  p0currClim = P0currclim, fT0AvgCurrClim = fT0)
-    } else {
+  set_thin_PROJ6_warnings(TRUE)
+  xy <- sampleX[,c("segID","x","y")]
+  coordinates(xy) <- c("x","y")
+  proj4string(xy) <- crsX
+  #cord = SpatialPoints(xy, proj4string=CRS("+init=EPSG:3067"))
+  location<-as.data.frame(spTransform(xy, CRS("+init=epsg:4326")))
+  lat <- location$y
+  #print(paste("check crobas:",pCrobasX[55,3]))
+  #print(pCrobasX)
+  if(exists("parsCN_new_alfar")){
+    save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
+         defaultThin,
+         ClCut, 
+         areas,
+         energyCut, 
+         ftTapioParX,
+         tTapioParX,
+         initVar,
+         clim,
+         mortMod,
+         P0currclim, fT0, file=paste0("testDataInit",restrictionSwitch,".rdata"))
+    print("data saved")
+    if(length(clim$id)!=length(P0currclim)){
+      P0currclim <- as.vector(mean(P0currclim)*array(1,c(1,length(clim$id))))
+      fT0 <- as.vector(mean(fT0)*array(1,c(1,length(clim$id))))
+    }
+    initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
+                                latitude = lat,
+                                pCROBAS = pCrobasX,
+                                pCN_alfar = parsCN_new_alfar,
+                                alpharNcalc = T,
+                                alpharVersion = restrictionSwitch,                                
+                                ECMmod = 1,
+                                defaultThin = defaultThin,
+                                ClCut = ClCut, 
+                                areas =areas,
+                                energyCut = energyCut, 
+                                ftTapioPar = ftTapioParX,
+                                tTapioPar = tTapioParX,
+                                multiInitVar = as.array(initVar),
+                                PAR = clim$PAR[, 1:(nYears*365)],
+                                TAir=clim$TAir[, 1:(nYears*365)],
+                                VPD=clim$VPD[, 1:(nYears*365)],
+                                Precip=clim$Precip[, 1:(nYears*365)],
+                                CO2=clim$CO2[, 1:(nYears*365)],
+                                yassoRun = 1,
+                                mortMod = mortMod,
+                                p0currClim = P0currclim, fT0AvgCurrClim = fT0)
+  } else {
       initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                   latitude = lat,
                                   pCROBAS = pCrobasX,
@@ -1021,24 +1020,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                   mortMod = mortMod)
       
     }
-  } else {
-    initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
-                                # litterSize = litterSize,#pAWEN = parsAWEN,
-                                pCROBAS = pCrobasX,
-                                defaultThin=defaultThin,
-                                ClCut = ClCut, areas =areas,
-                                energyCut = energyCut, 
-                                ftTapioPar = ftTapioParX,
-                                tTapioPar = tTapioParX,
-                                multiInitVar = as.array(initVar),
-                                PAR = clim$PAR[, 1:(nYears*365)],
-                                TAir=clim$TAir[, 1:(nYears*365)],
-                                VPD=clim$VPD[, 1:(nYears*365)],
-                                Precip=clim$Precip[, 1:(nYears*365)],
-                                CO2=clim$CO2[, 1:(nYears*365)],
-                                yassoRun = 1,
-                                mortMod = mortMod)
-    
+
   }  #initPrebas
 }
 

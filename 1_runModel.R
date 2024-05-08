@@ -222,8 +222,8 @@ if(outType=="testRun"){
                                harvInten="Base")
     # Initialize N-model parameters
     if(exists("parsCN_alfar")){
-    P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
-    fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
+      P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
+      fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
                             sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
     }
   }
@@ -263,9 +263,11 @@ if(outType=="testRun"){
                                CO2fixed=CO2fixed,
                                harvScen="Base",
                                harvInten="Base")
-    P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
-    fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
-                          sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
+    if(exists("parsCN_alfar")){
+      P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
+      fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
+                            sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
+    }
   }
   # IRS runs
   outType<-"dTabs"
@@ -285,20 +287,50 @@ if(outType=="testRun"){
 #                climScen=climScen,
 #                harvScen="Base",
 #                harvInten="Base")
-  sampleXs <- mclapply(deltaIDs, function(jx) {
-    runModelAdapt(jx,
-             outType=outType,  
-             rcps = rcpsFile, #paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
-             CO2fixed=CO2fixed, climScen=climScen,
-             #harvScen="baseTapio",#"Base" or baseTapio
-             harvScen=harvscen,
-             harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
-    }, mc.cores = nCores,mc.silent=FALSE)      
+  if(exists("parsCN_alfar")){
+    sampleXs <- mclapply(deltaIDs, function(jx) {
+      runModelAdapt(jx,
+                    outType=outType,  
+                    rcps = rcpsFile, #paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
+                    CO2fixed=CO2fixed, climScen=climScen,
+                    #harvScen="baseTapio",#"Base" or baseTapio
+                    harvScen=harvscen,
+                    harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
+    }, mc.cores = nCores,mc.silent=FALSE)
+  } else {
+    sampleXs <- mclapply(deltaIDs, function(jx) {
+      runModelAdapt(jx,
+                    outType=outType,  
+                    rcps = rcpsFile, #paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
+                    CO2fixed=CO2fixed, climScen=climScen,
+                    #harvScen="baseTapio",#"Base" or baseTapio
+                    harvScen=harvscen,
+                    harvInten=harvinten)
+    }, mc.cores = nCores,mc.silent=FALSE)
+  }
   if(climScen<10){
     sampleXs <- list(sampleXs0, sampleXs)
   }
 }
 
+if(FALSE){
+  ncols <- ncol(sampleXs[[1]])
+  # GPP/1000 kgC m-2 y-1
+  GPP <- array(as.numeric(sampleXs[[1]][which(sampleXs[[1]]$var=="GPPTot/1000"),-1]),c(1,ncols-1))
+  # GPPtrees gC m-2 y-1
+  GPPtrees <- array(as.numeric(sampleXs[[1]][which(sampleXs[[1]]$var=="GPPtrees"),-1]),c(1,ncols-1))
+  # GVgpp gC m-2 y-1
+  GPPGV <- array(as.numeric(sampleXs[[1]][which(sampleXs[[1]]$var=="GVgpp"),-1]),c(1,ncols-1))
+  # w stocks kgC ha-1
+  soilC <- array(as.numeric(sampleXs[[1]][which(sampleXs[[1]]$var=="soilC"),-1]),c(1,ncols-1))
+  wTot <- array(as.numeric(sampleXs[[1]][which(sampleXs[[1]]$var=="Wtot"),-1]),c(1,ncols-1))
+  wGV <- array(as.numeric(sampleXs[[1]][which(sampleXs[[1]]$var=="GVw"),-1]),c(1,ncols-1))
+  Ctot <- (soilC+wTot+wGV)/100^2 # kgC ha-1 -> kgC m-2
+  Ctot/GPP
+  wTot*1000/100^2/GPPtrees
+  wGV*1000/100^2/GPPGV
+  
+}
 if(climScen<0){
   save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,".rdata"))
   print("Results saved as lists")
