@@ -1021,7 +1021,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
       
     }
 
-  }  #initPrebas
+#  }  #initPrebas
 }
 
 yasso.mean.climate.f = function(dat, data.sample, startingYear, nYears){
