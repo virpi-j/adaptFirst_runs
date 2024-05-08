@@ -658,15 +658,16 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
     #if(sampleID==sampleForPlots){testPlot(outX,varNames[varSel[ij]],areas)}
     pX <- calculatePerCols(outX = outX)
 #    pX <- calculatePerColsAllRows(outX = outX)
-    if(varNames[varSel[ij]]=="GPPTot/1000") varNames[varSel[ij]]<-"GPPTot_1000"
-    assign(varNames[varSel[ij]],pX)
-    save(list=varNames[varSel[ij]],
+    vnam <- varNames[varSel[ij]] 
+    if(vnam=="GPPTot/1000") vnam<-"GPPTot_1000"
+    assign(vnam,pX)
+    save(list=vnam,
          file=paste0(path_output,"weatherStation",station_id,"/",
-                     varNames[varSel[ij]],
+                     vnam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
                      rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-    rm(list=varNames[varSel[ij]]); gc()
+    rm(list=vnam); gc()
     
     ##check for NAs
     nax <- data.table(segID=unique(which(is.na(pX),arr.ind=T)[,1]))

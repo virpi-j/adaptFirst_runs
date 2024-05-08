@@ -80,6 +80,10 @@ varOuts <- c("NEP","GPPtrees","GPPTot/1000","npp", "grossGrowth",
              "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
              "Hc_base","wf_STKG","Rh")
 varSel <- match(varOuts,varNames)
+varOuts <- c("NEP","GPPtrees","GPPTot","npp", "grossGrowth", 
+             "soilC", "V", "age", "WroundWood","VroundWood",
+             "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
+             "Hc_base","wf_STKG","Rh")
 specialVars <- c("domSpecies","domAge","Vdec","VenergyWood",
                  "WenergyWood","Wtot","GVgpp","GVw")
 
