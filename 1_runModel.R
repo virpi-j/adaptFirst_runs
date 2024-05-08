@@ -221,9 +221,11 @@ if(outType=="testRun"){
                                harvScen="Base",
                                harvInten="Base")
     # Initialize N-model parameters
+    if(exists("parsCN_alfar")){
     P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
     fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
                             sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
+    }
   }
   # IRS runs
   outType<-"dTabs"

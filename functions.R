@@ -1663,7 +1663,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   #print(output)
   
   NUP <- T
-  if(NUP){
+  if(exists("parsCN_alfar")){
     #### alphar
     outX <- data.table(segID=sampleX$segID,region$multiOut[,,3,1,2])
     pX <- calculatePerCols(outX = outX)
