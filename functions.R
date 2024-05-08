@@ -1019,8 +1019,8 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                   yassoRun = 1,
                                   mortMod = mortMod)
       
-    }
-
+  }
+  
 #  }  #initPrebas
 }
 
