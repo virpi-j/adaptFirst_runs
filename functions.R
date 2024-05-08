@@ -1801,7 +1801,59 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     
   }
   
-  ####SBBbp
+  #### SBBprob
+  outX <- data.table(segID=sampleX$segID,region$multiOut[,,45,1,2])
+  pX <- calculatePerCols(outX = outX)
+  varNam <-  "SBBprob"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  #print(output)
+  
+  #### SMI
+  outX <- data.table(segID=sampleX$segID,region$multiOut[,,46,1,2])
+  pX <- calculatePerCols(outX = outX)
+  varNam <-  "SMI"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  
+  #### pFire
+  outX <- data.table(segID=sampleX$segID,region$multiOut[,,47,1,2])
+  pX <- calculatePerCols(outX = outX)
+  varNam <-  "pFire"
+  assign(varNam,pX)
+  save(list=varNam,
+       file=paste0(path_output,"weatherStation",station_id,"/",
+                   varNam,
+                   "_harscen",harvScen,
+                   "_harInten",harvInten,"_",
+                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
+  rm(list=varNam); gc()
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  
+    ####SBBbp
 #  outX <- data.table(segID=sampleX$segID,SBBbp)
 #  pX <- calculatePerCols(outX = outX)
 #  pX <- colMeans(pX)
