@@ -426,7 +426,9 @@ if(climScen<0){
   
   #####################################
   
+  print("save outputs as variables")
   save(output,file = paste0("Results/outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
+  paste("done")
   
   plotFigs <- TRUE
   if(plotFigs){
