@@ -203,8 +203,8 @@ if(outType=="testRun"){
   reStartYear=1
 }
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
-
+#source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+source("functions_IBSCarbon.R")
 
 if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
@@ -238,7 +238,8 @@ if(outType=="testRun"){
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   #source("~/adaptFirst_runs/functions.R")
-  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+#  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+  source("functions_IBSCarbon.R")
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
                   outType=outType, climScen=climScen,
@@ -279,7 +280,8 @@ if(outType=="testRun"){
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+#  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+  source("functions_IBSCarbon.R")
   #  source("~/adaptFirst_runs/functions.R")
 #  sampleXs <- runModelAdapt(1,
 #                outType=outType,  
