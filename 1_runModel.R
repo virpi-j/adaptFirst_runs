@@ -344,9 +344,7 @@ if(climScen<0){
 }
 
 if(climScen<0){
-  load(file = paste0("Results/outputs",station_id,"_",rcps,
-                            "_",harvscen,"_",harvinten,
-                            "_Nrestrct",restrictionSwitch,".rdata"))
+  load(file = paste0("Results/outputs",station_id,".rdata"))
 #  load(paste0("Results/outputs",station_id,".rdata"))
   output <- list()
   ndeltaTP <- ncol(deltaTP)
@@ -375,6 +373,18 @@ if(climScen<0){
   # GVgpp gC m-2 y-1
   GPPGV <- output$GVgpp[,c(-1,-2)]
   GPPGV <-matrix(as.numeric(as.matrix(GPPGV,dims[1],dims[2])),dims[1],dims[2])
+
+  # litters kgC ha-1 y-1
+  ltmp <- output$Litter_fr[,c(-1,-2)]
+  litter1 <-matrix(as.numeric(as.matrix(ltmp,dims[1],dims[2])),dims[1],dims[2])
+  ltmp <- output$Litter_fol[,c(-1,-2)]
+  litter2 <-matrix(as.numeric(as.matrix(ltmp,dims[1],dims[2])),dims[1],dims[2])
+  ltmp <- output$Litter_fWoody[,c(-1,-2)]
+  litter3 <-matrix(as.numeric(as.matrix(ltmp,dims[1],dims[2])),dims[1],dims[2])
+  ltmp <- output$Litter_cWoody[,c(-1,-2)]
+  litter4 <-matrix(as.numeric(as.matrix(ltmp,dims[1],dims[2])),dims[1],dims[2])
+  litter <- litter1 + litter2 + litter3 + litter4
+  
   # w stocks kgC ha-1
   soilC <- output$soilC[,c(-1,-2)]
   soilC <-matrix(as.numeric(as.matrix(soilC,dims[1],dims[2])),dims[1],dims[2])
@@ -406,6 +416,12 @@ if(climScen<0){
   output[[k+1]] <- tmp 
   names(output)[k+1] <- "CResidGV"
   
+  k <- length(output)
+  tmp <- data.table(soilC/litter)
+  tmp <- cbind(data.table(deltaT=output$V[,1], deltaP=output$V[,2]),tmp)
+  names(tmp) <- colnames(output$V)
+  output[[k+1]] <- tmp 
+  names(output)[k+1] <- "CResidSoil"
   
   #####################################
   
