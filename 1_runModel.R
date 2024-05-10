@@ -344,7 +344,10 @@ if(climScen<0){
 }
 
 if(climScen<0){
-  load(paste0("Results/outputs",station_id,".rdata"))
+  load(file = paste0("Results/outputs",station_id,"_",rcps,
+                            "_",harvscen,"_",harvinten,
+                            "_Nrestrct",restrictionSwitch,".rdata"))
+#  load(paste0("Results/outputs",station_id,".rdata"))
   output <- list()
   ndeltaTP <- ncol(deltaTP)
   m <- nrow(sampleXs[[2]][[1]])
@@ -360,16 +363,64 @@ if(climScen<0){
     names(output)[k] <- sampleXs[[2]][[1]][k,1]
     
   }
+  # carbon residence times:
+  ######################################
+  # GPP/1000 kgC m-2 y-1
+  dims <- dim(output$GPPtrees[,c(-1,-2)])
+  GPP <- output$`GPPTot/1000`[,c(-1,-2)]
+  GPP <-matrix(as.numeric(as.matrix(GPP,dims[1],dims[2])),dims[1],dims[2])
+  # GPPtrees gC m-2 y-1
+  GPPtrees <- output$GPPtrees[,c(-1,-2)]
+  GPPtrees <-matrix(as.numeric(as.matrix(GPPtrees,dims[1],dims[2])),dims[1],dims[2])
+  # GVgpp gC m-2 y-1
+  GPPGV <- output$GVgpp[,c(-1,-2)]
+  GPPGV <-matrix(as.numeric(as.matrix(GPPGV,dims[1],dims[2])),dims[1],dims[2])
+  # w stocks kgC ha-1
+  soilC <- output$soilC[,c(-1,-2)]
+  soilC <-matrix(as.numeric(as.matrix(soilC,dims[1],dims[2])),dims[1],dims[2])
+  wTot <- output$Wtot[,c(-1,-2)]
+  wTot <-matrix(as.numeric(as.matrix(wTot,dims[1],dims[2])),dims[1],dims[2])
+  wGV <- output$GVw[,c(-1,-2)]
+  wGV <-matrix(as.numeric(as.matrix(wGV,dims[1],dims[2])),dims[1],dims[2])
+
+  Ctot <- (soilC+wTot+wGV)/100^2 # kgC ha-1 -> kgC m-2
+  
+  k <- length(output)
+  tmp <- data.table(Ctot/GPP)
+  tmp <- cbind(data.table(deltaT=output$V[,1], deltaP=output$V[,2]),tmp)
+  names(tmp) <- colnames(output$V)
+  output[[k+1]] <- tmp 
+  names(output)[k+1] <- "CResidTot"
+  
+  k <- length(output)
+  tmp <- data.table(wTot*1000/100^2/GPPtrees)
+  tmp <- cbind(data.table(deltaT=output$V[,1], deltaP=output$V[,2]),tmp)
+  names(tmp) <- colnames(output$V)
+  output[[k+1]] <- tmp 
+  names(output)[k+1] <- "CResidTrees"
+  
+  k <- length(output)
+  tmp <- data.table(wGV*1000/100^2/GPPGV)
+  tmp <- cbind(data.table(deltaT=output$V[,1], deltaP=output$V[,2]),tmp)
+  names(tmp) <- colnames(output$V)
+  output[[k+1]] <- tmp 
+  names(output)[k+1] <- "CResidGV"
+  
+  
+  #####################################
+  
   save(output,file = paste0("Results/outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
   
   plotFigs <- TRUE
   if(plotFigs){
     pdf(file=paste0("Results/results_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".pdf"))
-    for(k in 1:m){
+    for(k in 1:length(output)){
       contourPlot <- TRUE
+      deltaT <- sort(unique(output[[1]]$deltaT))
+      deltaP  <- sort(unique(output[[1]]$deltaP))
       if(contourPlot){
-        zz1<-matrix(as.numeric(output[[k]][,3]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
-        zz7<-matrix(as.numeric(output[[k]][,10]),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
+        zz1<-matrix(as.numeric(output[[k]]$per1),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
+        zz7<-matrix(as.numeric(output[[k]]$per8),nrow=length(deltaT),ncol=length(deltaP),byrow = TRUE)
         par(mfrow=c(1,1))   
         nlev <- 10
         zrange <- range(cbind(zz1,zz7), finite = TRUE)
@@ -386,7 +437,7 @@ if(climScen<0){
                        col =  hcl.colors(20, "Spectral"),
                        xlab = "deltaT", ylab = "deltaP",  
                        main = paste0(names(output)[k],"/",rcpsName,"/",co2Names[Co2Col]," ",
-                                     perStarts[8],"-",perEnds[8])
+                                     perStarts[length(perStarts)],"-",perEnds[length(perEnds)])
         )
       } else {
         par(mfrow=c(1,2))   
@@ -407,7 +458,8 @@ if(climScen<0){
                   xlab = "deltaT", ylab = "deltaP", zlab = names(output)[k],  
                   #surf = list(x = x.pred, y = y.pred, z = z.pred,  
                   #            facets = NA, fit = fitpoints), 
-                  main = paste0("per7:",perStarts[8],"-",perEnds[8])
+                  main = paste0("per7:",perStarts[length(perStarts)],"-",
+                                perEnds[length(perEnds)])
         )
       }
     }

@@ -76,7 +76,9 @@ pCrobasX <- pCROB
 
 # adapt-First: Volume, growth, Deadwood; C- sequestration (NEP & NPP) 
 varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
-             "soilC", "V", "age", "WroundWood","VroundWood",
+             "soilC", 
+             "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
+             "V", "age", "WroundWood","VroundWood",
              "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
              "Hc_base","wf_STKG","Rh/SBBpob[layer_1]")
 varSel <- match(varOuts,varNames)

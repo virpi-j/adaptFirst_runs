@@ -11,7 +11,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
                      procDrPeat=F,coeffPeat1=-240,coeffPeat2=70,
                      coefCH4 = 0.34,#g m-2 y-1
                      coefN20_1 = 0.23,coefN20_2 = 0.077,#g m-2 y-1
-                     landClassUnman=NULL,compHarvX = 0,P0currclim=0, fT0=0){
+                     landClassUnman=NULL,compHarvX = 0,P0currclim=0, fT0=0,
+                     toRaster=F){
   # outType determines the type of output:
   # dTabs -> standard run, mod outputs saved as data.tables 
   # testRun-> test run reports the mod out and initPrebas as objects
@@ -202,7 +203,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   Region = nfiareas[ID==r_no, Region]
   
   ## Second, continue now starting from soil SS
-  if(exists("restrictionSwitch")){
+  if(exists("fT0")){
     initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
                                      harv=harvScen, HcFactorX=HcFactor, 
@@ -464,6 +465,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
         region <- regionPrebas(initPrebas, HarvLim = as.numeric(HarvLimX),
                                cutAreas =cutArX,compHarv=compHarvX)
       } else {
+        save(initPrebas, HarvLimX, minDharvX,cutArX,compHarvX, file="testRegionInput.rdata")
         region <- regionPrebas(initPrebas, HarvLim = as.numeric(HarvLimX),
                                minDharv = minDharvX,cutAreas =cutArX,
                                compHarv=compHarvX)
@@ -581,7 +583,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   if(outType=="dTabs"){
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,climScen, rcpfile,areas,
-              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots)
+              colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,toRaster=toRaster)
     print(output[c(1,6,nrow(output)-3),])
     print("all outs calculated")
     #print(output)
@@ -641,7 +643,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
 }
 
 runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInten,climScen,rcpfile,areas,
-                      colsOut1,colsOut2,colsOut3,varSel,sampleForPlots){#},SBBbp,PI,pSBB){
+                      colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,toRaster){#},SBBbp,PI,pSBB){
   ####create pdf for test plots 
   marginX= 1:2#(length(dim(out$annual[,,varSel,]))-1)
   nas <- data.table()
@@ -661,16 +663,17 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
     pX <- calculatePerCols(outX = outX)
 #    pX <- calculatePerColsAllRows(outX = outX)
     vnam <- varOuts[ij]#varNames[varSel[ij]] 
-    if(vnam=="GPPTot/1000") vnam<-"GPPTot_1000"
-    assign(vnam,pX)
-    save(list=vnam,
-         file=paste0(path_output,"weatherStation",station_id,"/",
-                     vnam,
-                     "_harscen",harvScen,
-                     "_harInten",harvInten,"_",
-                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-    rm(list=vnam); gc()
-    
+    if(toRaster){
+      if(vnam=="GPPTot/1000") vnam<-"GPPTot_1000"
+      assign(vnam,pX)
+      save(list=vnam,
+           file=paste0(path_output,"weatherStation",station_id,"/",
+                       vnam,
+                       "_harscen",harvScen,
+                       "_harInten",harvInten,"_",
+                       rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
+      rm(list=vnam); gc()
+    }    
     ##check for NAs
     nax <- data.table(segID=unique(which(is.na(pX),arr.ind=T)[,1]))
     if(nrow(nax)>0){
@@ -697,7 +700,7 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
   ####process and save special variales
   print(paste("start special vars",deltaID))
   output <- specialVarProcAdapt(sampleX,modOut,r_no,harvScen,harvInten,rcpfile,sampleID,
-                 areas,sampleForPlots,output)#,SBBbp,PI,pSBB)
+                 areas,sampleForPlots,output,toRaster=toRaster)#,SBBbp,PI,pSBB)
   return(output)
 }
 
@@ -1467,7 +1470,7 @@ calculatePerColsAllRows <- function(outX){ #perStarts,perEnds,startingYear,
 }
 
 specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,sampleID,
-                           areas,sampleForPlots,output){#},SBBbp,PI,pSBB){
+                           areas,sampleForPlots,output, toRaster){#},SBBbp,PI,pSBB){
   nYears <-  max(region$nYears)
   nSites <-  max(region$nSites)
   ####process and save special variables: 
@@ -1479,17 +1482,19 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <- "domSpecies"
   assign(varNam,pX)
-  save(list=varNam,
-       file=paste0(path_output,"weatherStation",station_id,"/",
-                   varNam,
-                   "_harscen",harvScen,
-                   "_harInten",harvInten,"_",
-                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  if(toRaster){
+      save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
+  rm(list=varNam); gc()
   #print(output)
   
   # rm(domSpecies); gc()
@@ -1498,17 +1503,19 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <- "domAge"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
+  rm(list=varNam); gc()
   #print(output)
 
   ### pine Volume Vpine
@@ -1517,13 +1524,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <- "Vpine"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1535,13 +1543,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "Vspruce"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1553,13 +1562,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "Vdec"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1572,13 +1582,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "Wenergywood"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1590,13 +1601,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "Venergywood"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1608,13 +1620,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "GVgpp"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1626,13 +1639,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "GVw"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1644,13 +1658,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "Wtot"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1664,13 +1679,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     pX <- calculatePerCols(outX = outX)
     varNam <-  "alphar"
     assign(varNam,pX)
-    save(list=varNam,
+    if(toRaster){
+      save(list=varNam,
          file=paste0(path_output,"weatherStation",station_id,"/",
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
                      rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-    rm(list=varNam); gc()
+    }
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
     output <- rbind(output, pX)
@@ -1684,13 +1700,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     pX <- calculatePerCols(outX = outX)
     varNam <- "Nup"
     assign(varNam,pX)
-    save(list=varNam,
+    if(toRaster){
+      save(list=varNam,
          file=paste0(path_output,"weatherStation",station_id,"/",
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
                      rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-    rm(list=varNam); gc()
+    }
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
     output <- rbind(output, pX)
@@ -1703,13 +1720,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     pX <- calculatePerCols(outX = outX)
     varNam <- "Ndem"
     assign(varNam,pX)
-    save(list=varNam,
+    if(toRaster){
+      save(list=varNam,
          file=paste0(path_output,"weatherStation",station_id,"/",
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
                      rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-    rm(list=varNam); gc()
+    }
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
     output <- rbind(output, pX)
@@ -1725,13 +1743,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     pX <- calculatePerCols(outX = outX)
     varNam <- "Umax"
     assign(varNam,pX)
-    save(list=varNam,
+    if(toRaster){
+      save(list=varNam,
          file=paste0(path_output,"weatherStation",station_id,"/",
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
                      rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-    rm(list=varNam); gc()
+    }
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
     output <- rbind(output, pX)
@@ -1745,13 +1764,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     pX <- calculatePerCols(outX = outX)
     varNam <- "Gf"
     assign(varNam,pX)
-    save(list=varNam,
+    if(toRaster){
+      save(list=varNam,
          file=paste0(path_output,"weatherStation",station_id,"/",
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
                      rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-    rm(list=varNam); gc()
+    }
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
     output <- rbind(output, pX)
@@ -1764,13 +1784,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     pX <- calculatePerCols(outX = outX)
     varNam <- "Gr"
     assign(varNam,pX)
-    save(list=varNam,
+    if(toRaster){
+      save(list=varNam,
          file=paste0(path_output,"weatherStation",station_id,"/",
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
                      rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-    rm(list=varNam); gc()
+    }
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
     output <- rbind(output, pX)
@@ -1783,13 +1804,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     pX <- calculatePerCols(outX = outX)
     varNam <- "Gw"
     assign(varNam,pX)
-    save(list=varNam,
+    if(toRaster){
+      save(list=varNam,
          file=paste0(path_output,"weatherStation",station_id,"/",
                      varNam,
                      "_harscen",harvScen,
                      "_harInten",harvInten,"_",
                      rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-    rm(list=varNam); gc()
+    }
     pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
     pX <- c(var = varNam, pX)
     output <- rbind(output, pX)
@@ -1803,13 +1825,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "SBBprob"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1821,13 +1844,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "SMI"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
@@ -1838,13 +1862,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- calculatePerCols(outX = outX)
   varNam <-  "pFire"
   assign(varNam,pX)
-  save(list=varNam,
+  if(toRaster){
+    save(list=varNam,
        file=paste0(path_output,"weatherStation",station_id,"/",
                    varNam,
                    "_harscen",harvScen,
                    "_harInten",harvInten,"_",
                    rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  rm(list=varNam); gc()
+  }
   pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
