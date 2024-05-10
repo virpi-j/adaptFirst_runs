@@ -347,7 +347,6 @@ if(climScen<0){
 
 if(climScen<0){
   load(file = paste0("Results/outputs",station_id,".rdata"))
-#  load(paste0("Results/outputs",station_id,".rdata"))
   output <- list()
   ndeltaTP <- ncol(deltaTP)
   m <- nrow(sampleXs[[2]][[1]])
