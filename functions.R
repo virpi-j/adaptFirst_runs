@@ -203,11 +203,13 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   
   ## Second, continue now starting from soil SS
   if(exists("restrictionSwitch")){
-  initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
+    initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
                                      harv=harvScen, HcFactorX=HcFactor, 
                                      climScen=climScen, sampleX=sampleX, P0currclim=P0currclim, fT0=fT0)
   } else {
+    #save(r_no, clim, data.sample, nYears,startingYear, domSPrun,
+    #     harvScen, HcFactor, climScen, sampleX, file="initdata.rdata")
     initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                              startingYear = startingYear,domSPrun=domSPrun,
                                              harv=harvScen, HcFactorX=HcFactor, 
@@ -454,7 +456,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     if(harvScen=="baseTapio"){
       region <- regionPrebas(initPrebas,compHarv=compHarvX)
     }else{
-      if(climScen>0){ save(HarvLimX, cutArX,compHarvX,file =paste0("testDataRegion",restrictionSwitch,".rdata"))
+      if(climScen>10){ save(HarvLimX, cutArX,compHarvX,file =paste0("testDataRegion",restrictionSwitch,".rdata"))
         print("region run data saved")
         }
       ##Don't pass minDharvX if NA
@@ -961,18 +963,18 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   #print(paste("check crobas:",pCrobasX[55,3]))
   #print(pCrobasX)
   if(exists("parsCN_new_alfar")){
-    save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
-         defaultThin,
-         ClCut, 
-         areas,
-         energyCut, 
-         ftTapioParX,
-         tTapioParX,
-         initVar,
-         clim,
-         mortMod,
-         P0currclim, fT0, file=paste0("testDataInit",restrictionSwitch,".rdata"))
-    print("data saved")
+   #save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
+   #      defaultThin,
+  #       ClCut, 
+  #       areas,
+  #       energyCut, 
+  #       ftTapioParX,
+  #       tTapioParX,
+  #       initVar,
+  #       clim,
+  #       mortMod,
+  #       P0currclim, fT0, file=paste0("testDataInit",restrictionSwitch,".rdata"))
+   # print("data saved")
     if(length(clim$id)!=length(P0currclim)){
       P0currclim <- as.vector(mean(P0currclim)*array(1,c(1,length(clim$id))))
       fT0 <- as.vector(mean(fT0)*array(1,c(1,length(clim$id))))
@@ -1000,7 +1002,18 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 mortMod = mortMod,
                                 p0currClim = P0currclim, fT0AvgCurrClim = fT0)
   } else {
-      initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
+    #save(nYears,nSites,siteInfo,lat,pCrobasX,                                
+    #     defaultThin,
+    #     ClCut, 
+    #     areas,
+    #     energyCut, 
+    #     ftTapioParX,
+    #     tTapioParX,
+    #     initVar,
+    #     clim,
+    #     mortMod, file=paste0("testDataInit","master",".rdata"))
+    #print("data saved")
+    initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                   latitude = lat,
                                   pCROBAS = pCrobasX,
                                   ECMmod = 1,

@@ -57,6 +57,7 @@ if(calibratedPREBAS){
 }  
 
 devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
+library(Rprebasso)
 
 if(calibratedPREBAS){
   parsCN_new_alfar <- parsCN_alfar
