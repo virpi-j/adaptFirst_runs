@@ -965,9 +965,9 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   lat <- location$y
   #print(paste("check crobas:",pCrobasX[55,3]))
   #print(pCrobasX)
-  if(!is.na(P0currclim)){
+  if(!is.na(P0currclim[1])){
     print("initialization with N module")
-    print(P0currclim)
+    #print(P0currclim)
    #save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
    #      defaultThin,
   #       ClCut, 
@@ -1007,17 +1007,8 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 mortMod = mortMod,
                                 p0currClim = P0currclim, fT0AvgCurrClim = fT0)
   } else {
-    save(nYears,nSites,siteInfo,lat,pCrobasX,                                
-         defaultThin,
-         ClCut, 
-         areas,
-         energyCut, 
-         ftTapioParX,
-         tTapioParX,
-         initVar,
-         clim,
-         mortMod, file=paste0("testDataInit","master",".rdata"))
-    print("data saved")
+#    save(nYears,nSites,siteInfo,lat,pCrobasX,defaultThin,ClCut,areas,energyCut,ftTapioParX,tTapioParX,initVar,clim,mortMod, file=paste0("testDataInit","master",".rdata"))
+#    print("data saved")
     print("run initPrebas")
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                   latitude = lat,
