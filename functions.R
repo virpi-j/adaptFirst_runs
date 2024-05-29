@@ -113,7 +113,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   #if(outType != "uncRun"){
   #if(!outType %in% c("uncRun","uncSeg")){
   print(paste("Clim:",rcpfile))
-  if(climScen>=0){
+  if(climScen>=-10){
     if(rcpfile=="CurrClim"){
       load(paste(climatepath_orig, "CurrClim",".rdata", sep=""))
       #####process data considering only current climate###
