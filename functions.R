@@ -215,7 +215,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
 #                                             harv=harvScen, HcFactorX=HcFactor, 
 #                                             climScen=climScen, sampleX=sampleX)
     
-  }
+#  }
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
