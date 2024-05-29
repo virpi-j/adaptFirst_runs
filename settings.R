@@ -75,13 +75,26 @@ pCrobasX <- pCROB
 #pCrobasX[17,1:3] <- pCROB[17,1:3]*0.7
 
 # adapt-First: Volume, growth, Deadwood; C- sequestration (NEP & NPP) 
-varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
+if(vPREBAS=="master"){
+  varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
              "soilC", 
              "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
              "V", "age", "WroundWood","VroundWood",
              "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
              "Hc_base","wf_STKG","Rh/SBBpob[layer_1]")
+} else {
+  varOuts <- c("NEP","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
+               "soilC", "V", "age", "WroundWood","VroundWood",
+               "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
+               "Hc_base","wf_STKG","Rh")
+  
+}
 varSel <- match(varOuts,varNames)
+if(length(which(is.na(varSel)))>0){
+  print(paste("variables",varOuts[which(is.na(varSel))],"not found"))
+  print("error")
+  break()
+}
 varOuts <- c("NEP","GPPtrees","GPPTot","npp", "grossGrowth", 
              "soilC", "V", "age", "WroundWood","VroundWood",
              "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
