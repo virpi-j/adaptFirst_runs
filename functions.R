@@ -202,7 +202,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   
   ## Second, continue now starting from soil SS
 #  if(!is.na(fT0)){
-    print("initialization with N-module")
+   # print("initialization with N-module")
     initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
                                      harv=harvScen, HcFactorX=HcFactor, 
@@ -967,6 +967,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   #print(pCrobasX)
   if(!is.na(P0currclim)){
     print("initialization with N module")
+    print(P0currclim)
    #save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
    #      defaultThin,
   #       ClCut, 
