@@ -11,7 +11,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
                      procDrPeat=F,coeffPeat1=-240,coeffPeat2=70,
                      coefCH4 = 0.34,#g m-2 y-1
                      coefN20_1 = 0.23,coefN20_2 = 0.077,#g m-2 y-1
-                     landClassUnman=NULL,compHarvX = 0,P0currclim=0, fT0=0,
+                     landClassUnman=NULL,compHarvX = 0,P0currclim=NA, fT0=NA,
                      toRaster=F){
   # outType determines the type of output:
   # dTabs -> standard run, mod outputs saved as data.tables 
@@ -963,7 +963,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   lat <- location$y
   #print(paste("check crobas:",pCrobasX[55,3]))
   #print(pCrobasX)
-  if(exists("P0currclim")){
+  if(!is.na(P0currclim)){
     print("initialization with N module")
    #save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
    #      defaultThin,
