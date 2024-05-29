@@ -113,33 +113,31 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   #if(outType != "uncRun"){
   #if(!outType %in% c("uncRun","uncSeg")){
   print(paste("Clim:",rcpfile))
-  if(climScen>=-10){
-    if(rcpfile=="CurrClim"){
-      load(paste(climatepath_orig, "CurrClim",".rdata", sep=""))
-      #####process data considering only current climate###
-      # dat <- dat[rday %in% 1:10958] #uncomment to select some years (10958 needs to be modified)
-      maxRday <- max(dat$rday)
-      #xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2))
-      xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2),
-                (dat$rday+maxRday*3),(dat$rday+maxRday*4),(dat$rday+maxRday*5))
-      dat = rbind(dat,dat,dat,dat,dat,dat)
-      #dat <- dat[rep(1:nrow(dat),4),]
-      dat[,rday:=xday]
-      rm(list = "xday")
-    } else {
-      climatepath = "/scratch/project_2000994/RCP/"
-      load(paste(climatepath, rcpfile,".rdata", sep=""))
-      missingIDs <- setdiff(unique(sampleX$id), unique(dat$id))
-      if(length(missingIDs)>0){
-        coords <- fread("/scratch/project_2000994/RCP/coordinates")
-        for(i in 1:length(missingIDs)){
-          idX <- order((coords$x - coords$x[missingIDs[i]])^2 + (coords$y - coords$y[missingIDs[i]])^2)
-          idX <- idX[idX%in%unique(dat$id)][1]
-          nn<-which(sampleX$id==missingIDs[i]) 
-          sampleX[nn,climID:=idX]
-          sampleX[nn,id:=idX]
-          print(paste("SampleID",sampleID,"clim ids: ",missingIDs[i], "was replaced with",idX))
-        }
+  if(rcpfile=="CurrClim"){
+    load(paste(climatepath_orig, "CurrClim",".rdata", sep=""))
+    #####process data considering only current climate###
+    # dat <- dat[rday %in% 1:10958] #uncomment to select some years (10958 needs to be modified)
+    maxRday <- max(dat$rday)
+    #xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2))
+    xday <- c(dat$rday,(dat$rday+maxRday),(dat$rday+maxRday*2),
+              (dat$rday+maxRday*3),(dat$rday+maxRday*4),(dat$rday+maxRday*5))
+    dat = rbind(dat,dat,dat,dat,dat,dat)
+    #dat <- dat[rep(1:nrow(dat),4),]
+    dat[,rday:=xday]
+    rm(list = "xday")
+  } else if(climScen>=0){
+    climatepath = "/scratch/project_2000994/RCP/"
+    load(paste(climatepath, rcpfile,".rdata", sep=""))
+    missingIDs <- setdiff(unique(sampleX$id), unique(dat$id))
+    if(length(missingIDs)>0){
+      coords <- fread("/scratch/project_2000994/RCP/coordinates")
+      for(i in 1:length(missingIDs)){
+        idX <- order((coords$x - coords$x[missingIDs[i]])^2 + (coords$y - coords$y[missingIDs[i]])^2)
+        idX <- idX[idX%in%unique(dat$id)][1]
+        nn<-which(sampleX$id==missingIDs[i]) 
+        sampleX[nn,climID:=idX]
+        sampleX[nn,id:=idX]
+        print(paste("SampleID",sampleID,"clim ids: ",missingIDs[i], "was replaced with",idX))
       }
     }
   } else {
@@ -965,7 +963,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   lat <- location$y
   #print(paste("check crobas:",pCrobasX[55,3]))
   #print(pCrobasX)
-  if(exists("parsCN_new_alfar")){
+  if(exists("P0currclim")){
    #save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
    #      defaultThin,
   #       ClCut, 
@@ -1005,17 +1003,18 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 mortMod = mortMod,
                                 p0currClim = P0currclim, fT0AvgCurrClim = fT0)
   } else {
-    #save(nYears,nSites,siteInfo,lat,pCrobasX,                                
-    #     defaultThin,
-    #     ClCut, 
-    #     areas,
-    #     energyCut, 
-    #     ftTapioParX,
-    #     tTapioParX,
-    #     initVar,
-    #     clim,
-    #     mortMod, file=paste0("testDataInit","master",".rdata"))
-    #print("data saved")
+    save(nYears,nSites,siteInfo,lat,pCrobasX,                                
+         defaultThin,
+         ClCut, 
+         areas,
+         energyCut, 
+         ftTapioParX,
+         tTapioParX,
+         initVar,
+         clim,
+         mortMod, file=paste0("testDataInit","master",".rdata"))
+    print("data saved")
+    print("run initPrebas")
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                   latitude = lat,
                                   pCROBAS = pCrobasX,
