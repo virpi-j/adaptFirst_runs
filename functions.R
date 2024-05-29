@@ -201,18 +201,19 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   Region = nfiareas[ID==r_no, Region]
   
   ## Second, continue now starting from soil SS
-  if(exists("fT0")){
+#  if(!is.na(fT0)){
+    print("initialization with N-module")
     initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                      startingYear = startingYear,domSPrun=domSPrun,
                                      harv=harvScen, HcFactorX=HcFactor, 
                                      climScen=climScen, sampleX=sampleX, P0currclim=P0currclim, fT0=fT0)
-  } else {
+#  } else {
     #save(r_no, clim, data.sample, nYears,startingYear, domSPrun,
     #     harvScen, HcFactor, climScen, sampleX, file="initdata.rdata")
-    initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
-                                             startingYear = startingYear,domSPrun=domSPrun,
-                                             harv=harvScen, HcFactorX=HcFactor, 
-                                             climScen=climScen, sampleX=sampleX)
+#    initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
+#                                             startingYear = startingYear,domSPrun=domSPrun,
+#                                             harv=harvScen, HcFactorX=HcFactor, 
+#                                             climScen=climScen, sampleX=sampleX)
     
   }
   opsna <- which(is.na(initPrebas$multiInitVar))
@@ -750,7 +751,8 @@ sample_data.f = function(data.all, nSample) {
 # StartingYear = climate data that detrermines simulation period must have year greater than this.
 create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                  startingYear=0,domSPrun=0,
-                                 harv, HcFactorX=HcFactor,climScen=climScen,sampleX=sampleX, P0currclim=0, fT0=0) { # dat = climscendataset
+                                 harv, HcFactorX=HcFactor,climScen=climScen,
+                                 sampleX=sampleX, P0currclim=NA, fT0=NA) { # dat = climscendataset
   #domSPrun=0 initialize model for mixed forests according to data inputs 
   #domSPrun=1 initialize model only for dominant species 
   nSites <- nrow(data.sample)

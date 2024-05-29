@@ -205,6 +205,8 @@ if(outType=="testRun"){
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 #source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
 source("functions_IBSCarbon.R")
+P0currclim <- NA
+fT0 <- NA
 
 if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
