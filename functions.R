@@ -964,6 +964,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   #print(paste("check crobas:",pCrobasX[55,3]))
   #print(pCrobasX)
   if(exists("P0currclim")){
+    print("initialization with N module")
    #save(nYears,nSites,siteInfo,lat,pCrobasX,parsCN_new_alfar,restrictionSwitch,                                
    #      defaultThin,
   #       ClCut, 
