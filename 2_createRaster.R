@@ -39,7 +39,8 @@ for(varX in varXs){
   #colnames(tabX)[colnames(tabX)=="y.y"]<-"y"
   rm(outX);gc()
   
-  rastX <- rasterFromXYZ(tabX[,.(x,y,age)])
+  nind <- which(names(tabX)==varX)
+  rastX <- rasterFromXYZ(cbind(tabX[,.(x,y)],tabX[,..nind]))
   crs(rastX) <- crsX
   plot(rastX)
 
