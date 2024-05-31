@@ -349,7 +349,7 @@ if(FALSE){
   
 }
 if(climScen<0){
-  save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,".rdata"))
+  save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,"_",CO2fixed,".rdata"))
   print("Results saved as lists")
 } else {
   output <- sampleXs[[2]][[1]]
@@ -360,7 +360,7 @@ if(climScen<0){
 }
 
 if(climScen<0){
-  load(file = paste0("Results/outputs",station_id,".rdata"))
+  load(file = paste0("Results/outputs",station_id,"_",CO2fixed,".rdata"))
   output <- list()
   ndeltaTP <- ncol(deltaTP)
   m <- nrow(sampleXs[[2]][[1]])
