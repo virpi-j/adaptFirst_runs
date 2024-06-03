@@ -223,10 +223,13 @@ fT0 <- NA
 if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
   sampleXs0 <- list()
-  if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
+  if(climScen>=0 | (harvscen=="Base" & harvinten=="Base")){
+    #if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
     outType<-"testRun"
     nYears<-2050-2015
     endingYear <- nYears + startingYear
+    source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+    source("functions_IBSCarbon.R")
     print(paste("Simulate soilC for",nYears,"years"))
     sampleXs0 <- runModelAdapt(1,
                                outType=outType,  
@@ -262,12 +265,12 @@ if(outType=="testRun"){
                   harvScen=harvscen,#"Base" or #BaseTapio
            harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)})
 
-  if(climScen<10) sampleXs <- list(sampleXs0, sampleXs)
+  if(climScen<0) sampleXs <- list(sampleXs0, sampleXs)
   
 } else {
   # Baseline for soil and deadWood initialization
   sampleXs0 <- list()
-  if(CO2fixed==0 & harvscen=="Base" & harvinten=="Base"){
+  if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
     outType<-"testRun"
     nYears<-2050-2015
     if(climScen > 0) nYears <- 2100-2015
@@ -304,7 +307,7 @@ if(outType=="testRun"){
 #                climScen=climScen,
 #                harvScen="Base",
 #                harvInten="Base")
-  if(exists("parsCN_alfar")){
+#  if(exists("parsCN_alfar")){
     sampleXs <- mclapply(deltaIDs, function(jx) {
       runModelAdapt(jx,
                     outType=outType,  
@@ -314,18 +317,18 @@ if(outType=="testRun"){
                     harvScen=harvscen,
                     harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
     }, mc.cores = nCores,mc.silent=FALSE)
-  } else {
-    sampleXs <- mclapply(deltaIDs, function(jx) {
-      runModelAdapt(jx,
-                    outType=outType,  
-                    rcps = rcpsFile, #paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
-                    CO2fixed=CO2fixed, climScen=climScen,
-                    #harvScen="baseTapio",#"Base" or baseTapio
-                    harvScen=harvscen,
-                    harvInten=harvinten)
-    }, mc.cores = nCores,mc.silent=FALSE)
-  }
-  if(climScen<10){
+#  } else {
+#    sampleXs <- mclapply(deltaIDs, function(jx) {
+#      runModelAdapt(jx,
+#                    outType=outType,  
+#                    rcps = rcpsFile, #paste0(stat_name,"_1991_2100_constant_change_v1.csv"),
+#                    CO2fixed=CO2fixed, climScen=climScen,
+#                    #harvScen="baseTapio",#"Base" or baseTapio
+#                    harvScen=harvscen,
+#                    harvInten=harvinten)
+#    }, mc.cores = nCores,mc.silent=FALSE)
+#  }
+  if(climScen<0){
     sampleXs <- list(sampleXs0, sampleXs)
   }
 }
