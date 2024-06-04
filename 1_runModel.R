@@ -223,7 +223,7 @@ fT0 <- NA
 if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
   sampleXs0 <- list()
-  if(climScen>=0 | (harvscen=="Base" & harvinten=="Base")){
+  #if(climScen>=0 | (harvscen=="Base" & harvinten=="Base")){
     #if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
     outType<-"testRun"
     nYears<-2050-2015
@@ -244,7 +244,7 @@ if(outType=="testRun"){
       fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
                             sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
     }
-  }
+  #}
   # IRS runs
   outType<-"dTabs"
   nYears <- 2100-1991#2015
@@ -270,7 +270,7 @@ if(outType=="testRun"){
 } else {
   # Baseline for soil and deadWood initialization
   sampleXs0 <- list()
-  if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
+  #if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
     outType<-"testRun"
     nYears<-2050-2015
     if(climScen > 0) nYears <- 2100-2015
@@ -287,7 +287,7 @@ if(outType=="testRun"){
       fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
                             sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
     }
-  }
+  #}
   # IRS runs
   outType<-"dTabs"
   nYears <- 2100-1991#2015
