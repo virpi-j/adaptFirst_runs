@@ -75,22 +75,22 @@ pCrobasX <- pCROB
 #pCrobasX[17,1:3] <- pCROB[17,1:3]*0.7
 
 # adapt-First: Volume, growth, Deadwood; C- sequestration (NEP & NPP) 
-#if(vPREBAS=="master"){
+if(vPREBAS=="master"){
   varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
              "soilC", 
              "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
              "V", "age", "WroundWood","VroundWood",
              "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
              "Hc_base","wf_STKG","Rh/SBBpob[layer_1]")
-#} else {
-#  varOuts <- c("NEP","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
-#               "soilC",
-#               "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
-#               "V", "age", "WroundWood","VroundWood",
-#               "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
-#               "Hc_base","wf_STKG","Rh")
-#  
-#}
+} else {
+  varOuts <- c("NEP","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
+               "soilC",
+               "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
+               "V", "age", "WroundWood","VroundWood",
+               "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
+               "Hc_base","wf_STKG","Rh")
+  
+}
 varSel <- match(varOuts,varNames)
 if(length(which(is.na(varSel)))>0){
   print(paste("variables",varOuts[which(is.na(varSel))],"not found"))
@@ -369,3 +369,4 @@ LongLatToUTM <- function(df){
   res <- spTransform(df, CRS(paste0("+proj=utm +zone=", zone, " +datum=WGS84")))
   return(as.data.frame(res))
 }
+
