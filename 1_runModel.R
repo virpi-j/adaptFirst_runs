@@ -232,10 +232,10 @@ if(outType=="testRun"){
     source("functions_IBSCarbon.R")
     print(paste("Simulate soilC for",nYears,"years"))
     sampleXs0 <- runModelAdapt(1,
-                               outType=outType,  
-                               climScen=0,
+                               outType="testRun",  
                                rcps = "CurrClim",
-                               CO2fixed=CO2fixed,
+                               climScen = 0,
+                               CO2fixed=0,
                                harvScen="Base",
                                harvInten="Base")
     # Initialize N-model parameters
@@ -277,9 +277,10 @@ if(outType=="testRun"){
     endingYear <- nYears + startingYear
     print(paste("Simulate soilC for",nYears,"years"))
     sampleXs0 <- runModelAdapt(1,
-                               outType=outType,  
+                               outType="testRun",  
                                rcps = "CurrClim",
-                               CO2fixed=CO2fixed,
+                               climScen = 0,
+                               CO2fixed=0,
                                harvScen="Base",
                                harvInten="Base")
     if(exists("parsCN_alfar")){
