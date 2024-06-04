@@ -445,12 +445,12 @@ if(climScen<0){
   
   print("save outputs as variables")
   
-  save(output,file = paste0("Results/outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".rdata"))
+  save(output,file = paste0("Results/outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],"_",vPREBAS,".rdata"))
   paste("done")
   
   plotFigs <- TRUE
   if(plotFigs){
-    pdf(file=paste0("Results/results_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],".pdf"))
+    pdf(file=paste0("Results/results_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],"_",vPREBAS,".pdf"))
     for(k in 1:length(output)){
       contourPlot <- TRUE
       deltaT <- sort(unique(output[[1]]$deltaT))
