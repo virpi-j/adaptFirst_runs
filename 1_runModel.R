@@ -108,24 +108,24 @@ nn.d <- order(d, decreasing=F)[1:nSitesRun]
 print(range(d))
 
 ops <- list(data.all[nn.d,])
-print(paste("meanFERT =", sum(ops[[1]]$fert*ops[[1]]$N)/sum(ops[[1]]$N)))
-print(paste("meanBA =", sum(ops[[1]]$ba*ops[[1]]$N)/sum(ops[[1]]$N)))
-print(paste("meanAGE =", sum(ops[[1]]$age*ops[[1]]$N)/sum(ops[[1]]$N)))
-print(paste("meanSPRUCE =", sum(ops[[1]]$spruce*ops[[1]]$N)/sum(ops[[1]]$N)))
-print(paste("meanPINE =", sum(ops[[1]]$pine*ops[[1]]$N)/sum(ops[[1]]$N)))
-print(paste("meanBIRCH =", sum(ops[[1]]$birch*ops[[1]]$N)/sum(ops[[1]]$N)))
-print(paste("meanDECID =", sum(ops[[1]]$decid*ops[[1]]$N)/sum(ops[[1]]$N)))
-ba <- ops[[1]]$ba
-areas <- ops[[1]]$area
-PINE <- ops[[1]]$pine*
-SPRUCE <- ops[[1]]$spruce
-DECID <- ops[[1]]$decid
-SpSuM <- PINE + SPRUCE + DECID
-shares <- data.table(PINE=PINE/SpSuM, SPRUCE=SPRUCE/SpSuM, DECID=DECID/SpSuM)
-shares[which(SpSuM==0),]<-0
-print(colMeans(shares))
-print(sum(colMeans(shares)))
-#print(summary(ops[[1]]))
+#print(paste("meanFERT =", sum(ops[[1]]$fert*ops[[1]]$N)/sum(ops[[1]]$N)))
+#print(paste("meanBA =", sum(ops[[1]]$ba*ops[[1]]$N)/sum(ops[[1]]$N)))
+#print(paste("meanAGE =", sum(ops[[1]]$age*ops[[1]]$N)/sum(ops[[1]]$N)))
+#print(paste("meanSPRUCE =", sum(ops[[1]]$spruce*ops[[1]]$N)/sum(ops[[1]]$N)))
+#print(paste("meanPINE =", sum(ops[[1]]$pine*ops[[1]]$N)/sum(ops[[1]]$N)))
+#print(paste("meanBIRCH =", sum(ops[[1]]$birch*ops[[1]]$N)/sum(ops[[1]]$N)))
+#print(paste("meanDECID =", sum(ops[[1]]$decid*ops[[1]]$N)/sum(ops[[1]]$N)))
+#ba <- ops[[1]]$ba
+#areas <- ops[[1]]$area
+#PINE <- ops[[1]]$pine
+#SPRUCE <- ops[[1]]$spruce
+#DECID <- ops[[1]]$decid
+#SpSuM <- PINE + SPRUCE + DECID
+#shares <- data.table(PINE=PINE/SpSuM, SPRUCE=SPRUCE/SpSuM, DECID=DECID/SpSuM)
+#shares[which(SpSuM==0),]<-0
+#print(colMeans(shares))
+#print(sum(colMeans(shares)))
+print(summary(ops[[1]]))
 
 if(toRaster){
   ndat <- sample(1:nrow(data.all),10000)
