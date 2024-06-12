@@ -1860,7 +1860,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   SHI = xBAspruceFract*(1-xSMI)/0.2093014
   INTENSITY <- 1/(1+exp(3.9725-2.9673*SHI))
   INTENSITY[xBAspruceFract<0.05] <- 0
-  pX <- calculatePerCols(outX = INTENSITY)
+  pX <- calculatePerCols(outX = data.table(segID=sampleX$segID,INTENSITY))
   varNam <-  "BBintensity"
   assign(varNam,pX)
   if(toRaster){
@@ -1878,10 +1878,14 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   
   ## BB damage area
   SBBprob <- region$multiOut[,,45,1,2]
-  SBBdamArea <- SBBprob*INTENSITY*sampleX$area
-  pX <- colSums(calculatePerCols(outX = SBBdamArea))
+  #rr <- array(runif(prod(dim(SBBprob))),dim(SBBprob))
+  #rrP <- array(0,dim=dim(SBBprob))
+  #rrp[rr<SBBprob]<-1
+  SBBdamArea <- SBBprob*INTENSITY#*sampleX$area
+  pX <- calculatePerCols(outX = data.table(segID=sampleX$segID,SBBdamArea))
   varNam <- "BBdamArea"
-  pX <- c(var = varNam, pX[-1])
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)*100
+  pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   
