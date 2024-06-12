@@ -165,12 +165,14 @@ if(climScen > 0){
 print(paste("Climate scenario",rcpsName))
 
 if(climScen<0){
-  deltaP <- unique(weatherData$Pchange)
-  deltaT <- unique(weatherData$deltaT)
-  if(outType=="testRun"){
-    deltaT<-deltaT[c(1,2,length(deltaT))]
-    deltaP<-deltaP[c(1,2,length(deltaP))]
+  if(!exists("deltaP")){
+    deltaP <- unique(weatherData$Pchange)
+    deltaT <- unique(weatherData$deltaT)
   }
+  #if(outType=="testRun"){
+  #  deltaT<-deltaT[c(1,2,length(deltaT))]
+  #  deltaP<-deltaP[c(1,2,length(deltaP))]
+  #}
   
   
   deltaTP <- matrix(0,2,length(deltaP)*length(deltaT))
