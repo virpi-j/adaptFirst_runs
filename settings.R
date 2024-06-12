@@ -76,7 +76,7 @@ pCrobasX <- pCROB
 #pCrobasX[17,1:3] <- pCROB[17,1:3]*0.7
 
 # adapt-First: Volume, growth, Deadwood; C- sequestration (NEP & NPP) 
-if(vPREBAS=="master"){
+if(vPREBAS%in%c("master","newVersion")){
   varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
              "soilC", 
              "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
@@ -154,7 +154,7 @@ if(!exists("nSitesRun")) nSitesRun = 20000  ###aproximative number of samples fo
 #per5=2051:2080
 #per6=2061:2090
 #per7=2071:2099
-#1991-2020,2011—2040
+#1991-2020,2011???2040
 
 if(climScen<0){
   perStarts <- c(1992,2011,2021,2031,2041,2051,2061,2071)

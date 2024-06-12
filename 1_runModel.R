@@ -115,17 +115,9 @@ print(paste("meanSPRUCE =", sum(ops[[1]]$spruce*ops[[1]]$N)/sum(ops[[1]]$N)))
 print(paste("meanPINE =", sum(ops[[1]]$pine*ops[[1]]$N)/sum(ops[[1]]$N)))
 print(paste("meanBIRCH =", sum(ops[[1]]$birch*ops[[1]]$N)/sum(ops[[1]]$N)))
 print(paste("meanDECID =", sum(ops[[1]]$decid*ops[[1]]$N)/sum(ops[[1]]$N)))
-ba <- ops[[1]]$ba
-areas <- ops[[1]]$area
-PINE <- ops[[1]]$pine
-SPRUCE <- ops[[1]]$spruce
-BIRCH <- ops[[1]]$birch
-DECID <- ops[[1]]$decid
-SpSuM <- PINE + SPRUCE + DECID+BIRCH
-shares <- data.table(PINE=PINE/SpSuM, SPRUCE=SPRUCE/SpSuM, BIRCH=BIRCH/SpSuM, DECID=DECID/SpSuM)
-shares[which(SpSuM==0),]<-0
-print(colMeans(shares))
-print(sum(colMeans(shares)))
+print(paste("meanSPRUCEshare =", 100*sum(ops[[1]]$spruce*ops[[1]]$N)/(sum(ops[[1]]$spruce*ops[[1]]$N)+sum(ops[[1]]$pine*ops[[1]]$N)+sum(ops[[1]]$decid*ops[[1]]$N))))
+print(paste("meanPINEshare =", 100*sum(ops[[1]]$pine*ops[[1]]$N)/(sum(ops[[1]]$spruce*ops[[1]]$N)+sum(ops[[1]]$pine*ops[[1]]$N)+sum(ops[[1]]$decid*ops[[1]]$N))))
+print(paste("meanDECIDshare =", 100*sum(ops[[1]]$decid*ops[[1]]$N)/(sum(ops[[1]]$spruce*ops[[1]]$N)+sum(ops[[1]]$pine*ops[[1]]$N)+sum(ops[[1]]$decid*ops[[1]]$N))))
 
 print(summary(ops[[1]]))
 
@@ -173,14 +165,12 @@ if(climScen > 0){
 print(paste("Climate scenario",rcpsName))
 
 if(climScen<0){
-  if(!exists("deltaT")){
-    deltaP <- unique(weatherData$Pchange)
-    deltaT <- unique(weatherData$deltaT)
+  deltaP <- unique(weatherData$Pchange)
+  deltaT <- unique(weatherData$deltaT)
+  if(outType=="testRun"){
+    deltaT<-deltaT[c(1,2,length(deltaT))]
+    deltaP<-deltaP[c(1,2,length(deltaP))]
   }
-  #  if(outType=="testRun"){
-  #    deltaT<-deltaT[c(1,2,length(deltaT))]
-  #    deltaP<-deltaP[c(1,2,length(deltaP))]
-  #  }
   
   
   deltaTP <- matrix(0,2,length(deltaP)*length(deltaT))
