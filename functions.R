@@ -1851,6 +1851,41 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
   
+  ## BB intensity
+  xSMI <- region$multiOut[,,46,1,2]
+  BA <- apply(region$multiOut[,,13,,1],1:2,sum)
+  #  BAspruce <- BASpFun(modOut = region,SpID = 2)[,-1]
+  xBAspruceFract <- BASpFun(modOut = region,SpID = 2)[,-1]/BA
+  xBAspruceFract[BA==0] <- 0
+  SHI = xBAspruceFract*(1-xSMI)/0.2093014
+  INTENSITY <- 1/(1+exp(3.9725-2.9673*SHI))
+  INTENSITY[xBAspruceFract<0.05] <- 0
+  pX <- calculatePerCols(outX = INTENSITY)
+  varNam <-  "BBintensity"
+  assign(varNam,pX)
+  if(toRaster){
+    save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
+  }
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  
+  ## BB damage area
+  SBBprob <- region$multiOut[,,45,1,2]
+  SBBdamArea <- SBBprob*INTENSITY*sampleX$area
+  pX <- colSums(calculatePerCols(outX = SBBdamArea))
+  varNam <- "BBdamArea"
+  pX <- c(var = varNam, pX[-1])
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  
+  
   #### pFire
   outX <- data.table(segID=sampleX$segID,region$multiOut[,,47,1,2])
   pX <- calculatePerCols(outX = outX)
@@ -1898,6 +1933,20 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   return(output)
 } 
 
+
+BASpFun <- function(modOut,SpID){
+  segID <- modOut$siteInfo[,1]
+  oo <- data.table(which(modOut$multiOut[,,4,,1]==SpID,arr.ind=T))
+  setnames(oo,c("site","year","layer"))
+  vx <-modOut$multiOut[,,13,,1][as.matrix(oo)]
+  oo$VSp <- vx
+  setkey(oo,site,year)
+  ff <- oo[,sum(VSp),by=.(site,year)]
+  VspMat <- matrix(0,modOut$nSites,modOut$maxYears)
+  VspMat[as.matrix(ff[,1:2])] <- unlist(ff[,3])
+  outX <- data.table(segID=segID,VspMat)
+  return(outX)
+}
 
 
 
