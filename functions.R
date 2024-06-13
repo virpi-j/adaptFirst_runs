@@ -80,7 +80,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   }else{
     sampleX <- ops[[sampleID]]
   }
-  
+  if(nrow(sampleX)<9000) station_id <- paste0(station_id,"s")
   if(outType %in% c("uncRun","uncSeg")){
     area_tot <- sum(data.all$area) # ha
     sampleX[,area := 16^2/10000] 

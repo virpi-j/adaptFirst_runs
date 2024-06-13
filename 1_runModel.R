@@ -359,7 +359,9 @@ if(FALSE){
   wGV*1000/100^2/GPPGV
   
 }
+st_id <- station_id
 if(climScen<0){
+  if(nrow(ops[[1]])<9000) station_id <- paste0(station_id,"s")
   save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,"_",CO2fixed,".rdata"))
   print("Results saved as lists")
 } else {
@@ -453,6 +455,7 @@ if(climScen<0){
   
   print("save outputs as variables")
   
+  if(nrow(ops[[1]])<9000) stat_name <- paste0(stat_name,"_s")
   save(output,file = paste0("Results/outputs_",stat_name,"_",harvscen,"_",harvinten,"_",rcpsName,"_",co2Names[Co2Col],"_",vPREBAS,".rdata"))
   paste("done")
   
