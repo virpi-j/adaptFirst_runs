@@ -293,8 +293,10 @@ if(outType=="testRun"){
     }
   }
   # IRS runs
-  load(file=paste0("N_pars",station_id,".rdata"))
-  
+  if(exists("parsCN_alfar")){
+    print("Load N-initial values")
+    load(file=paste0("N_pars",station_id,".rdata"))
+  }
   outType<-"dTabs"
   nYears <- 2100-1991#2015
   if(climScen > 0) nYears <- 2100-2015
