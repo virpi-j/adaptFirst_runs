@@ -271,7 +271,8 @@ if(outType=="testRun"){
 } else {
   # Baseline for soil and deadWood initialization
   sampleXs0 <- list()
-  if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
+  if(!exists("forceInitialization")) forceInitialization<-F
+  if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base") | forceInitialization){
     outType<-"testRun"
     nYears<-2050-2015
     if(climScen > 0) nYears <- 2100-2015
