@@ -220,6 +220,7 @@ source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/fun
 source("functions_IBSCarbon.R")
 P0currclim <- NA
 fT0 <- NA
+print(paste("sample size",nSitesRun))
 
 if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
