@@ -88,16 +88,16 @@ if("NEP/SMI[layer_1]"%in%varNames){#vPREBAS%in%c("master")){#},"newVersion")){
   varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
              "soilC", 
              "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
-             "V", "age", "WroundWood","VroundWood",
-             "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
-             "Hc_base","wf_STKG","Rh/SBBpob[layer_1]")
+             "V", "age", "WroundWood","VroundWood")#,
+             #"DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
+             #"Hc_base","wf_STKG","Rh/SBBpob[layer_1]")
 } else {
   varOuts <- c("NEP","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
                "soilC",
                "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
-               "V", "age", "WroundWood","VroundWood",
-               "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
-               "Hc_base","wf_STKG","Rh")
+               "V", "age", "WroundWood","VroundWood")#,
+  #             "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
+  #             "Hc_base","wf_STKG","Rh")
   
 }
 varSel <- match(varOuts,varNames)

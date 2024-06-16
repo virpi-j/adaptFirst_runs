@@ -1755,9 +1755,9 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     #print(output)
     
 
+    if(FALSE){
     ####### "Gf"
     outX <- data.table(segID=sampleX$segID,apply(region$multiOut[,,55,,1],marginX,sum))
-    #outX <- data.table(segID=sampleX$segID,region$multiOut[,,55,1,1])
     pX <- calculatePerCols(outX = outX)
     varNam <- "Gf"
     assign(varNam,pX)
@@ -1814,7 +1814,7 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
     output <- rbind(output, pX)
     colnames(output) <- names(pX)
     #print(output)
-    
+    }
   }
   
   #### SBBprob
