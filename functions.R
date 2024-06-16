@@ -20,6 +20,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   # uncRun -> reports the output table for the regional uncertainty run
   # uncSeg -> reports the list of output table for the segment uncertainty run
   # cons10run -> flag for conservation areas 10% run
+  a0 <- Sys.time()
   if(outType=="testRun_region"){
     outType <- "testRun"
     sampleID <- deltaID
@@ -586,6 +587,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     print(output[c(1,6,nrow(output)-3),])
     print("all outs calculated")
     #print(output)
+    print(paste("Time",Sys.time()-a0))
+    
     return(output)
   } 
   if(outType=="uncRun"){
