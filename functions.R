@@ -545,7 +545,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
     print(paste("dim manDeadW:",dim(manDeadW$ssDeadW)))
     print(paste("mean:",mean(manDeadW$deadWV)))
-    if(length(unmanFor)>0){
+    if(length(unmanFor)>1){
       unmanDeadW <- initDeadW(region,unmanFor,yearsDeadW)
       print(paste("dim unmanDeadW:",dim(unmanDeadW$deadWV)))
       print(paste("mean:",mean(unmanDeadW$deadWV)))
@@ -568,7 +568,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       aperm(replicate(length(manFor),DeadWInit),c(3,1:2))
 #    region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
 #      aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
-    if(length(unmanFor)>0){
+    if(length(unmanFor)>1){
       DeadWInit <- matrix(0,nrow = nYears, ncol = dim(unmanDeadW$ssDeadW)[2])
       DeadWInit[1:nrow(unmanDeadW$ssDeadW),] <- unmanDeadW$ssDeadW
       region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
