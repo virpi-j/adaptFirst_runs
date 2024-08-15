@@ -142,11 +142,22 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       }
     }
   } else {
-    dat2 <- read.csv(paste0(climatepath, rcpfile)) 
+    climatepath_adapt <- "/scratch/project_2000994/PREBASruns/adaptFirst/tempData/"
+    #read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
+    dat2 <- read.csv(paste0(climatepath_adapt, rcpfile)) 
     dat2 <- dat2[which(dat2$Year2>=startingYear & 
                          dat2$deltaT==deltaTP[1,deltaID] & 
                          dat2$Pchange==deltaTP[2,deltaID]),]
     climIDs <- unique(sampleX$climID)
+    # TminTmax array, repeat Tmin and Tmax for all climIDs
+    dat1 <- read.csv(paste0(climatepath_adapt, str_replace(rcpfile, "v1","tmin_and_tmax")))
+    dat1 <- dat1[which(dat1$Year2>=startingYear & 
+                         dat1$deltaT==deltaTP[1,deltaID] & 
+                         dat1$Pchange==deltaTP[2,deltaID]),]
+    TminTmax <- array(0,c(length(climIDs),dim(dat1)[1],2))
+    TminTmax[,,1] <- t(array(dat1$Tmin_perturbed,c(dim(dat1)[1],length(climIDs))))
+    TminTmax[,,2] <- t(array(dat1$Tmax_perturbed,c(dim(dat1)[1],length(climIDs))))
+    # CO2 array
     CO2<-as.numeric(sub(",",".",CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),(Co2Col+1)]))
     if(CO2fixed==0){
       dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
@@ -203,20 +214,21 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   
   ## Second, continue now starting from soil SS
 #  if(!is.na(fT0)){
-   # print("initialization with N-module")
-    initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
-                                     startingYear = startingYear,domSPrun=domSPrun,
-                                     harv=harvScen, HcFactorX=HcFactor, 
-                                     climScen=climScen, sampleX=sampleX, P0currclim=P0currclim, fT0=fT0)
-#  } else {
-    #save(r_no, clim, data.sample, nYears,startingYear, domSPrun,
-    #     harvScen, HcFactor, climScen, sampleX, file="initdata.rdata")
-#    initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
-#                                             startingYear = startingYear,domSPrun=domSPrun,
-#                                             harv=harvScen, HcFactorX=HcFactor, 
-#                                             climScen=climScen, sampleX=sampleX)
-    
-#  }
+  # print("initialization with N-module")
+  initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
+                                           startingYear = startingYear,domSPrun=domSPrun,
+                                           harv=harvScen, HcFactorX=HcFactor, 
+                                           climScen=climScen, sampleX=sampleX, 
+                                           P0currclim=P0currclim, fT0=fT0,TminTmax = TminTmax)
+  #  } else {
+  #save(r_no, clim, data.sample, nYears,startingYear, domSPrun,
+  #     harvScen, HcFactor, climScen, sampleX, file="initdata.rdata")
+  #    initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
+  #                                             startingYear = startingYear,domSPrun=domSPrun,
+  #                                             harv=harvScen, HcFactorX=HcFactor, 
+  #                                             climScen=climScen, sampleX=sampleX)
+  
+  #  }
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
@@ -755,7 +767,7 @@ sample_data.f = function(data.all, nSample) {
 create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                  startingYear=0,domSPrun=0,
                                  harv, HcFactorX=HcFactor,climScen=climScen,
-                                 sampleX=sampleX, P0currclim=NA, fT0=NA) { # dat = climscendataset
+                                 sampleX=sampleX, P0currclim=NA, fT0=NA, TminTmax=NA) { # dat = climscendataset
   #domSPrun=0 initialize model for mixed forests according to data inputs 
   #domSPrun=1 initialize model only for dominant species 
   nSites <- nrow(data.sample)
@@ -1008,7 +1020,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 CO2=clim$CO2[, 1:(nYears*365)],
                                 yassoRun = 1,
                                 mortMod = mortMod,
-                                p0currClim = P0currclim, fT0AvgCurrClim = fT0)
+                                p0currClim = P0currclim, fT0AvgCurrClim = fT0,TminTmax=TminTmax)
   } else {
 #    save(nYears,nSites,siteInfo,lat,pCrobasX,defaultThin,ClCut,areas,energyCut,ftTapioParX,tTapioParX,initVar,clim,mortMod, file=paste0("testDataInit","master",".rdata"))
 #    print("data saved")
@@ -1030,7 +1042,8 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                   Precip=clim$Precip[, 1:(nYears*365)],
                                   CO2=clim$CO2[, 1:(nYears*365)],
                                   yassoRun = 1,
-                                  mortMod = mortMod)
+                                  mortMod = mortMod,
+                                TminTmax = TminTmax)
       
   }
   

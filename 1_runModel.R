@@ -1,5 +1,6 @@
 #station_id <- 1 # This to localsettings! Station id 1 to 6
 set.seed(1)
+library(stringr)
 print(paste("station",station_id))
 stations <- data.frame(name=c("Vantaa_Helsinki","Jokioinen","Jyvaskyla","Kajaani",
                               "Sodankyla","Utsjoki"),
@@ -155,6 +156,7 @@ if(climScen > 0){
     Co2Col<-which(co2Names=="X2005.fixed")
     rcpsName <- "constant"
   } else {
+    #rcpsFile <- paste0(stat_name,"_1991_2100_seasonally_perturbed_tmin_and_tmax.csv")
     rcpsFile <- paste0(stat_name,"_1991_2100_seasonally_perturbed_v1.csv")
     rcpsName <- "perturbed"
     Co2Col<-CO2fixed
@@ -259,7 +261,7 @@ if(outType=="testRun"){
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   #source("~/adaptFirst_runs/functions.R")
-#  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+  #  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
   source("functions_IBSCarbon.R")
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
@@ -270,7 +272,7 @@ if(outType=="testRun"){
                   harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
   }
   )
-
+  
   if(climScen<0) sampleXs <- list(sampleXs0, sampleXs)
   
 } else {
