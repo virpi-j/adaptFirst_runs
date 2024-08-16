@@ -57,7 +57,8 @@ if(calibratedPREBAS){
   pPREL <- pPRELES <- pPREL_new
 }  
 
-devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
+source("~/adaptFirst_runs/settings.R")
+#devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
 library(Rprebasso)
 
 if(calibratedPREBAS){
@@ -217,8 +218,9 @@ if(outType=="testRun"){
   outModReStart=NULL
   reStartYear=1
 }
-source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-#source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+source("~/adaptFirst_runs/functions.R")
+#source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+###source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
 source("functions_IBSCarbon.R")
 P0currclim <- NA
 fT0 <- NA
@@ -227,7 +229,7 @@ print(paste("sample size",nSitesRun))
 if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
   sampleXs0 <- list()
-  if(!exists("forceInitialization")) forceInitialization<-F
+  if(!exists("forceInitialization")) forceInitialization<-T
   if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base") | forceInitialization){
     #if(climScen>=0 | (harvscen=="Base" & harvinten=="Base")){
     #if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
@@ -259,9 +261,8 @@ if(outType=="testRun"){
   rcps <- rcpsFile 
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
-  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  #source("~/adaptFirst_runs/functions.R")
-  #  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
+  #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  source("~/adaptFirst_runs/functions.R")
   source("functions_IBSCarbon.R")
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
@@ -278,7 +279,7 @@ if(outType=="testRun"){
 } else {
   # Baseline for soil and deadWood initialization
   sampleXs0 <- list()
-  if(!exists("forceInitialization")) forceInitialization<-F
+  if(!exists("forceInitialization")) forceInitialization<-T
   if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base") | forceInitialization){
     outType<-"testRun"
     nYears<-2050-2015
