@@ -46,7 +46,7 @@ if(!("Rprebasso"%in%installed.packages()[,1])){
  devtools::install_github("ForModLabUHel/Rprebasso", ref=vPREBAS)
 }
 library(Rprebasso)
-library(DescTools)
+#library(DescTools)
 
 # r_no = regions = 2  ### forest center ID
 nCores <- 6  ####  number of cores
