@@ -236,7 +236,8 @@ if(outType=="testRun"){
     outType<-"testRun"
     nYears<-2050-2015
     endingYear <- nYears + startingYear
-    source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+    source("~/adaptFirst_runs/functions.R")
+#    source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
     source("functions_IBSCarbon.R")
     print(paste("Simulate soilC for",nYears,"years"))
     sampleXs0 <- runModelAdapt(1,
