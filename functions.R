@@ -157,7 +157,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     TminTmax <- array(0,c(length(climIDs),dim(dat1)[1],2))
     TminTmax[,,1] <- t(array(dat1$Tmin_perturbed,c(dim(dat1)[1],length(climIDs))))
     TminTmax[,,2] <- t(array(dat1$Tmax_perturbed,c(dim(dat1)[1],length(climIDs))))
-    paste("Run with Tmin Tmax values.")
+    print("Run with Tmin Tmax values.")
     # CO2 array
     CO2<-as.numeric(sub(",",".",CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),(Co2Col+1)]))
     if(CO2fixed==0){
