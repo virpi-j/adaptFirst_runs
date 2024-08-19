@@ -201,7 +201,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     #}
     #colnames(dat)[7] = "CO2"
   }
-  #}
+  
   gc()
   ## Prepare the same initial state for all harvest scenarios that are simulated in a loop below
   data.sample = sample_data.f(sampleX, nSample)
@@ -221,15 +221,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
                                            harv=harvScen, HcFactorX=HcFactor, 
                                            climScen=climScen, sampleX=sampleX, 
                                            P0currclim=P0currclim, fT0=fT0,TminTmax = TminTmax)
-  #  } else {
-  #save(r_no, clim, data.sample, nYears,startingYear, domSPrun,
-  #     harvScen, HcFactor, climScen, sampleX, file="initdata.rdata")
-  #    initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
-  #                                             startingYear = startingYear,domSPrun=domSPrun,
-  #                                             harv=harvScen, HcFactorX=HcFactor, 
-  #                                             climScen=climScen, sampleX=sampleX)
   
-  #  }
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
@@ -468,6 +460,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     }
   }else{
     if(harvScen=="baseTapio"){
+      save(initPrebas,compHarvX,file="baseTapioInputs.rdata")
+      print("baseTapio input data saved.")
       region <- regionPrebas(initPrebas,compHarv=compHarvX)
     }else{
       if(climScen>10){ save(HarvLimX, cutArX,compHarvX,file =paste0("testDataRegion",restrictionSwitch,".rdata"))
@@ -597,7 +591,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,climScen, rcpfile,areas,
               colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,toRaster=toRaster)
-    print(output[c(1,6,nrow(output)-3),])
+    print(output[c(1,12,13,15,22,nrow(output)),])
     print("all outs calculated")
     #print(output)
     print(paste("Time",Sys.time()-a0))

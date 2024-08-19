@@ -59,7 +59,7 @@ if(calibratedPREBAS){
 
 source("~/adaptFirst_runs/settings.R")
 #devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
-library(Rprebasso)
+#library(Rprebasso)
 
 if(calibratedPREBAS){
   parsCN_new_alfar <- parsCN_alfar
@@ -217,13 +217,13 @@ if(outType=="testRun"){
   initSoilCreStart=NULL
   outModReStart=NULL
   reStartYear=1
+  TminTmax <- NA
 }
 source("~/adaptFirst_runs/functions.R")
 #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 ###source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
 source("functions_IBSCarbon.R")
-P0currclim <- NA
-fT0 <- NA
+P0currclim <- fT0 <- NA
 print(paste("sample size",nSitesRun))
 
 if(outType=="testRun"){
@@ -248,7 +248,7 @@ if(outType=="testRun"){
                                harvScen="Base",
                                harvInten="Base")
     # Initialize N-model parameters
-    if(exists("parsCN_alfar")){
+    if(vPREBAS=="newVersion"){#exists("parsCN_alfar")){
       P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
       fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
                             sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
@@ -265,6 +265,7 @@ if(outType=="testRun"){
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   source("~/adaptFirst_runs/functions.R")
   source("functions_IBSCarbon.R")
+  
   sampleXs <- lapply(deltaIDs, function(jx) { 
     runModelAdapt(jx,
                   outType=outType, climScen=climScen,

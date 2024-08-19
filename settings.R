@@ -31,6 +31,7 @@ library(readxl)
 ###choose PREBAS version
 if(!("Rprebasso"%in%installed.packages()[,1])){
   CSCrun <- T
+  if(!exists("vPREBAS")) vPREBAS <- "master" #"v1.0.0" #"master"   #### choose PREBAS version to run the model  "master" "v0.2.x"
   if(vPREBAS=="newVersion" & CSCrun){
     .libPaths(c("/scratch/project_2000994/newV", .libPaths()))
     libpath <- .libPaths()[1]
@@ -42,9 +43,9 @@ if(!("Rprebasso"%in%installed.packages()[,1])){
 #    .libPaths(c("/projappl/project_2000994/project_rpackages", .libPaths()))
 #    libpath <- .libPaths()[1]
 #  }
-  if(!exists("vPREBAS")) vPREBAS <- "master" #"v1.0.0" #"master"   #### choose PREBAS version to run the model  "master" "v0.2.x"
  devtools::install_github("ForModLabUHel/Rprebasso", ref=vPREBAS)
 }
+print(paste("Prebas version",vPREBAS,"installed"))
 library(Rprebasso)
 #library(DescTools)
 
