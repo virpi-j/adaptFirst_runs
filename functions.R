@@ -460,8 +460,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     }
   }else{
     if(harvScen=="baseTapio"){
-      save(initPrebas,compHarvX,file="baseTapioInputs.rdata")
-      print("baseTapio input data saved.")
+      #save(initPrebas,compHarvX,file="baseTapioInputs.rdata")
+      #print("baseTapio input data saved.")
       region <- regionPrebas(initPrebas,compHarv=compHarvX)
     }else{
       if(climScen>10){ save(HarvLimX, cutArX,compHarvX,file =paste0("testDataRegion",restrictionSwitch,".rdata"))
