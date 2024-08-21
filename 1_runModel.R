@@ -219,8 +219,8 @@ if(outType=="testRun"){
   reStartYear=1
   TminTmax <- NA
 }
-source("~/adaptFirst_runs/functions.R")
-#source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+#source("~/adaptFirst_runs/functions.R")
+source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 ###source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
 source("functions_IBSCarbon.R")
 P0currclim <- fT0 <- NA
@@ -264,17 +264,19 @@ if(outType=="testRun"){
   rcps <- rcpsFile 
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
-  #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  source("~/adaptFirst_runs/functions.R")
+  source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+  #source("~/adaptFirst_runs/functions.R")
   source("functions_IBSCarbon.R")
   
   sampleXs <- lapply(deltaIDs, function(jx) { 
+    timestart <- Sys.time()
     runModelAdapt(jx,
                   outType=outType, climScen=climScen,
                   rcps = rcpsFile,
                   CO2fixed=CO2fixed,
                   harvScen=harvscen,#"Base" or #BaseTapio
                   harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
+    print(Sys.time()-timestart)
   }
   )
   
