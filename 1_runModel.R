@@ -252,9 +252,11 @@ if(outType=="testRun"){
       P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
       fT0 <- rowMeans(fTfun(sampleXs0$region$weatherYasso[,,1],
                             sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
+      save(P0currclim,fT0,file=paste0("Ninfo_station",station_id,".rdata"))
     }
   }
   # IRS runs
+  if(vPREBAS=="newVersion") load(file=paste0("Ninfo_station",station_id,".rdata"))
   outType<-"dTabs"
   nYears <- 2100-1991#2015
   if(climScen > 0) nYears <- 2100-2015
@@ -468,7 +470,8 @@ if(climScen<0){
   
   print("save outputs as variables")
   
-  if(nrow(ops[[1]])<9000){ 
+  #if(nrow(ops[[1]])<9000){ 
+  if(ncol(deltaTP)<100){ 
     stat_name_in <- stat_name
     stat_name <- paste0(stat_name,"_s")
   }

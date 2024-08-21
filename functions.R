@@ -1016,7 +1016,8 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 CO2=clim$CO2[, 1:(nYears*365)],
                                 yassoRun = 1,
                                 mortMod = mortMod,
-                                p0currClim = P0currclim, fT0AvgCurrClim = fT0)#,TminTmax=TminTmax)
+                                p0currClim = P0currclim, fT0AvgCurrClim = fT0,
+                                TminTmax=TminTmax)
   } else {
     #    save(nYears,nSites,siteInfo,lat,pCrobasX,defaultThin,ClCut,areas,energyCut,ftTapioParX,tTapioParX,initVar,clim,mortMod, file=paste0("testDataInit","master",".rdata"))
     #    print("data saved")
