@@ -269,14 +269,14 @@ if(outType=="testRun"){
   source("functions_IBSCarbon.R")
   
   sampleXs <- lapply(deltaIDs, function(jx) { 
-    timestart <- Sys.time()
+    #timestart <- Sys.time()
     runModelAdapt(jx,
                   outType=outType, climScen=climScen,
                   rcps = rcpsFile,
                   CO2fixed=CO2fixed,
                   harvScen=harvscen,#"Base" or #BaseTapio
                   harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
-    print(Sys.time()-timestart)
+    #print(Sys.time()-timestart)
   }
   )
   
@@ -375,11 +375,11 @@ if(FALSE){
 }
 st_id <- station_id
 if(climScen<0){
-  if(nrow(ops[[1]])<9000){
+  if(ncol(deltaTP)<100){
     station_id_in <- station_id
     station_id <- paste0(station_id,"s")
     }
-  save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,"_",CO2fixed,".rdata"))
+  save(sampleXs,deltaTP,file = paste0("Results/outputs",station_id,"_",CO2fixed,"_",scenSettings,".rdata"))
   print("Results saved as lists")
 } else {
   output <- sampleXs[[2]][[1]]
@@ -390,7 +390,8 @@ if(climScen<0){
 }
 
 if(climScen<0){
-  load(file = paste0("Results/outputs",station_id,"_",CO2fixed,".rdata"))
+  load(file = paste0("Results/outputs",station_id,"_",CO2fixed,"_",scenSettings,".rdata"))
+  #load(file = paste0("Results/outputs",station_id,Co2Col,scenSettings,".rdata"))
   output <- list()
   ndeltaTP <- ncol(deltaTP)
   m <- nrow(sampleXs[[2]][[1]])
