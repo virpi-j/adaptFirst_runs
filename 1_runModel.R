@@ -240,7 +240,7 @@ if(outType=="testRun"){
 #    source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
     source("functions_IBSCarbon.R")
     print(paste("Simulate soilC for",nYears,"years"))
-    sampleXs0 <- runModelAdapt(1,
+    sampleXs0 <- runModelAdapt(1,sampleID = 1,
                                outType="testRun",  
                                rcps = "CurrClim",
                                climScen = 0,
@@ -268,16 +268,15 @@ if(outType=="testRun"){
   #source("~/adaptFirst_runs/functions.R")
   source("functions_IBSCarbon.R")
   
-  sampleXs <- lapply(deltaIDs, function(jx) { 
-    #timestart <- Sys.time()
-    runModelAdapt(jx,
-                  outType=outType, climScen=climScen,
-                  rcps = rcpsFile,
-                  CO2fixed=CO2fixed,
-                  harvScen=harvscen,#"Base" or #BaseTapio
-                  harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
-    #print(Sys.time()-timestart)
-  }
+  sampleXs <- lapply(deltaIDs, 
+                     function(jx) { 
+                       runModelAdapt(jx, sampleID=1,
+                                     outType=outType, climScen=climScen,
+                                     rcps = rcpsFile,
+                                     CO2fixed=CO2fixed,
+                                     harvScen=harvscen,#"Base" or #BaseTapio
+                                     harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
+                     }
   )
   
   if(climScen<0) sampleXs <- list(sampleXs0, sampleXs)
