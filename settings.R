@@ -127,7 +127,7 @@ funX[match(varNames[c(7,11:12,14)],varNames[varSel])] <- "baWmean"
 
 ####paths
 pathtoken = "/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/"
-climatepath <- climatepath_adaptFirst = "/scratch/project_2000994/PREBASruns/adaptFirst/tempData/"
+climatepath <- climatepath_adaptFirst <- "/scratch/project_2000994/PREBASruns/adaptFirst/tempData/"
 climatepath_orig = "/scratch/project_2000994/RCP/"
   
 crsX <- ("+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m
