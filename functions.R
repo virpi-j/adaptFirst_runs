@@ -464,8 +464,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
         region <- regionPrebas(initPrebas, HarvLim = as.numeric(HarvLimX),
                                cutAreas =cutArX,compHarv=compHarvX)
       } else {
-        if(vPREBAS=="newVersion") save(initPrebas, HarvLimX, minDharvX,cutArX,compHarvX, 
-                                       file=paste0("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/testRegionInput_",station_id,".rdata"))
+        #if(vPREBAS=="newVersion") save(initPrebas, HarvLimX, minDharvX,cutArX,compHarvX, 
+        #                               file=paste0("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/testRegionInput_",station_id,".rdata"))
         source("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/regionPrebasFtest.R",
                local = T)      
         print("start regionPrebas...")
