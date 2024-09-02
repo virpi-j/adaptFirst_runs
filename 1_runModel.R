@@ -199,7 +199,7 @@ if(climScen<0){
 }
 
 sampleID <- 1
-if(FALSE){
+if(TRUE){
   deltaID<-deltaIDs[1]
   easyInit=FALSE
   forceSaveInitSoil=F 
