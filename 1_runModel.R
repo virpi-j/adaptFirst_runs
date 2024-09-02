@@ -167,6 +167,7 @@ if(climScen > 0){
 }
 print(paste("Climate scenario",rcpsName))
 
+# deltaTP
 if(climScen<0){
   if(!exists("deltaP")){
     deltaP <- unique(weatherData$Pchange)
@@ -198,7 +199,7 @@ if(climScen<0){
 }
 
 sampleID <- 1
-if(outType=="testRun"){
+if(FALSE){
   deltaID<-deltaIDs[1]
   easyInit=FALSE
   forceSaveInitSoil=F 
@@ -236,6 +237,7 @@ if(outType=="testRun"){
     outType<-"testRun"
     nYears<-2050-2015
     endingYear <- nYears + startingYear
+    climatepath <- climatepath_orig 
     source("~/adaptFirst_runs/functions.R")
 #    source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
     source("functions_IBSCarbon.R")
@@ -262,6 +264,8 @@ if(outType=="testRun"){
   if(climScen > 0) nYears <- 2100-2015
   endingYear <- nYears + startingYear
   rcps <- rcpsFile 
+  climatepath <- climatepath_adaptFirst
+  
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
@@ -288,6 +292,7 @@ if(outType=="testRun"){
   if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base") | forceInitialization){
     outType<-"testRun"
     nYears<-2050-2015
+    climatepath <- climatepath_orig 
     if(climScen > 0) nYears <- 2100-2015
     endingYear <- nYears + startingYear
     print(paste("Simulate soilC for",nYears,"years"))
@@ -317,6 +322,8 @@ if(outType=="testRun"){
   rcps <- rcpsFile 
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
+  climatepath <- climatepath_adaptFirst
+  
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 #  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
   source("functions_IBSCarbon.R")

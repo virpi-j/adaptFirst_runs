@@ -280,7 +280,6 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   #  print(paste("weather data dim:",dim(initPrebas$P0y)))
   }
   
-  SBB <- F
   # Loop management scenarios ------------------------------------------------
   # for(harvScen in harvScen) { ## MaxSust fails, others worked.
   # print(date())
@@ -369,13 +368,6 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   if(harvInten == "MaxSust"){cutArX <- cutArX * 1.2}
   if(harvScen == "NoHarv"){cutArX <- cutArX * 0.}
   
-  # }else{
-  #   cutArX <- NA
-  # } 
-  # initPrebas$energyCut <- rep(0.,length(initPrebas$energyCut))
-  # HarvLim1 <- rep(0,2)
-  # save(initPrebas,HarvLim1,file=paste0("test1",harvScen,".rdata"))
-  # region <- regionPrebas(initPrebas)
   ###run PREBAS
   if(initilizeSoil){
     if(!(harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
@@ -474,6 +466,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       } else {
         if(vPREBAS=="newVersion") save(initPrebas, HarvLimX, minDharvX,cutArX,compHarvX, 
                                        file=paste0("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/testRegionInput_",station_id,".rdata"))
+        source("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/regionPrebasFtest.R")      
         region <- regionPrebas(initPrebas, HarvLim = as.numeric(HarvLimX),
                                minDharv = minDharvX,cutAreas =cutArX,
                                compHarv=compHarvX)
