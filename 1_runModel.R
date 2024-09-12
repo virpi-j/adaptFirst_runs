@@ -57,7 +57,7 @@ if(calibratedPREBAS){
   pPREL <- pPRELES <- pPREL_new
 }  
 
-source("~/adaptFirst_runs/settings.R")
+source("~/adaptFirst_runs/settings.R", local = T)
 #devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
 #library(Rprebasso)
 
@@ -223,7 +223,7 @@ if(TRUE){
 #source("~/adaptFirst_runs/functions.R")
 source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 ###source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
-source("functions_IBSCarbon.R")
+source("functions_IBSCarbon.R", local = T)
 P0currclim <- fT0 <- NA
 print(paste("sample size",nSitesRun))
 
@@ -238,9 +238,9 @@ if(outType=="testRun"){
     nYears<-2050-2015
     endingYear <- nYears + startingYear
     climatepath <- climatepath_orig 
-    source("~/adaptFirst_runs/functions.R")
+    source("~/adaptFirst_runs/functions.R", local = T)
 #    source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-    source("functions_IBSCarbon.R")
+    source("functions_IBSCarbon.R", local = T)
     print(paste("Simulate soilC for",nYears,"years"))
     sampleXs0 <- runModelAdapt(1,sampleID = 1,
                                outType="testRun",  
@@ -270,7 +270,7 @@ if(outType=="testRun"){
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   #source("~/adaptFirst_runs/functions.R")
-  source("functions_IBSCarbon.R")
+  source("functions_IBSCarbon.R", local = T)
   
   sampleXs <- lapply(deltaIDs, 
                      function(jx) { 
@@ -326,7 +326,7 @@ if(outType=="testRun"){
   
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 #  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
-  source("functions_IBSCarbon.R")
+  source("functions_IBSCarbon.R", local = T)
   #  source("~/adaptFirst_runs/functions.R")
 #  sampleXs <- runModelAdapt(1,
 #                outType=outType,  
