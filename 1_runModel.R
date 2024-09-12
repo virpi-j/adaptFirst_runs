@@ -220,8 +220,8 @@ if(TRUE){
   reStartYear=1
   TminTmax <- NA
 }
-#source("~/adaptFirst_runs/functions.R")
-source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
+source("~/adaptFirst_runs/functions.R", local = T)
+#source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 ###source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
 source("functions_IBSCarbon.R", local = T)
 P0currclim <- fT0 <- NA
@@ -269,7 +269,7 @@ if(outType=="testRun"){
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  #source("~/adaptFirst_runs/functions.R")
+  source("~/adaptFirst_runs/functions.R", local = T)
   source("functions_IBSCarbon.R", local = T)
   
   sampleXs <- lapply(deltaIDs, 
