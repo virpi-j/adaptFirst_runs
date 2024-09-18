@@ -242,6 +242,7 @@ if(outType=="testRun"){
 #    source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
     source("functions_IBSCarbon.R", local = T)
     print(paste("Simulate soilC for",nYears,"years"))
+    #save.image(paste0("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/testRegionInput.rdata"))
     sampleXs0 <- runModelAdapt(1,sampleID = 1,
                                outType="testRun",  
                                rcps = "CurrClim",

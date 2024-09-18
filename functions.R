@@ -214,13 +214,12 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   Region = nfiareas[ID==r_no, Region]
   
   ## Second, continue now starting from soil SS
-#  if(!is.na(fT0)){
-  # print("initialization with N-module")
   initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                            startingYear = startingYear,domSPrun=domSPrun,
                                            harv=harvScen, HcFactorX=HcFactor, 
                                            climScen=climScen, sampleX=sampleX, 
-                                           P0currclim=P0currclim, fT0=fT0,TminTmax = TminTmax)
+                                           P0currclim=P0currclim, fT0=fT0,
+                                           TminTmax = TminTmax)
   
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
@@ -568,14 +567,22 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     load(paste0(pathToInitDeadW,"station",
                 station_id,"_deadWV_mortMod",mortMod,".rdata"))
     DeadWInit <- matrix(0,nrow = nYears, ncol = dim(manDeadW$ssDeadW)[2])
-    DeadWInit[1:nrow(manDeadW$ssDeadW),] <- manDeadW$ssDeadW
+    if(nYears == dim(manDeadW$ssDeadW)[1]){
+      DeadWInit[1:nrow(manDeadW$ssDeadW),] <- manDeadW$ssDeadW
+    } else {
+      DeadWInit[1:nYears,] <- manDeadW$ssDeadW[1:nYears,]
+    }
     region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
       aperm(replicate(length(manFor),DeadWInit),c(3,1:2))
 #    region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
 #      aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
     if(length(unmanFor)>1){
       DeadWInit <- matrix(0,nrow = nYears, ncol = dim(unmanDeadW$ssDeadW)[2])
-      DeadWInit[1:nrow(unmanDeadW$ssDeadW),] <- unmanDeadW$ssDeadW
+      if(nYears == dim(manDeadW$ssDeadW)[1]){
+        DeadWInit[1:nrow(unmanDeadW$ssDeadW),] <- unmanDeadW$ssDeadW
+      } else {
+        DeadWInit[1:nYears,] <- unmanDeadW$ssDeadW[1:nYears,]
+      }
       region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
         aperm(replicate(length(unmanFor),DeadWInit),c(3,1:2))
 #      region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
