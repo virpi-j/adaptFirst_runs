@@ -86,7 +86,7 @@ pCrobasX <- pCROB
 
 # adapt-First: Volume, growth, Deadwood; C- sequestration (NEP & NPP) 
 if("NEP/SMI[layer_1]"%in%varNames){#vPREBAS%in%c("master")){#},"newVersion")){
-  varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
+  varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth/bb BA disturbed",#"grossGrowth", 
              "soilC", 
              "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
              "DeadWoodVolume","V", "age", "WroundWood","VroundWood")#,

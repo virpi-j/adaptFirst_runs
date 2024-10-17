@@ -257,6 +257,8 @@ if(outType=="testRun"){
                             sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
       save(P0currclim,fT0,file=paste0("Ninfo_station",station_id,".rdata"))
     }
+    if(validationPeriodCalculation) outValidation <- validationPeriodEstimates(sampleXs0)
+    
   }
   # IRS runs
   if(vPREBAS=="newVersion") load(file=paste0("Ninfo_station",station_id,".rdata"))

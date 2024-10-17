@@ -12,7 +12,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
                      coefCH4 = 0.34,#g m-2 y-1
                      coefN20_1 = 0.23,coefN20_2 = 0.077,#g m-2 y-1
                      landClassUnman=NULL,compHarvX = 0,P0currclim=NA, fT0=NA,TminTmax = NA,
-                     toRaster=F){
+                     toRaster=F, disturbanceON = "bb"){
   # outType determines the type of output:
   # dTabs -> standard run, mod outputs saved as data.tables 
   # testRun-> test run reports the mod out and initPrebas as objects
@@ -219,7 +219,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
                                            harv=harvScen, HcFactorX=HcFactor, 
                                            climScen=climScen, sampleX=sampleX, 
                                            P0currclim=P0currclim, fT0=fT0,
-                                           TminTmax = TminTmax)
+                                           TminTmax = TminTmax, disturbanceON = disturbanceON)
   
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
@@ -767,7 +767,8 @@ sample_data.f = function(data.all, nSample) {
 create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                  startingYear=0,domSPrun=0,
                                  harv, HcFactorX=HcFactor,climScen=climScen,
-                                 sampleX=sampleX, P0currclim=NA, fT0=NA, TminTmax=NA) { # dat = climscendataset
+                                 sampleX=sampleX, P0currclim=NA, fT0=NA, TminTmax=NA,
+                                 disturbanceON = F) { # dat = climscendataset
   #domSPrun=0 initialize model for mixed forests according to data inputs 
   #domSPrun=1 initialize model only for dominant species 
   nSites <- nrow(data.sample)
@@ -1022,7 +1023,8 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 yassoRun = 1,
                                 mortMod = mortMod,
                                 p0currClim = P0currclim, fT0AvgCurrClim = fT0,
-                                TminTmax=TminTmax)
+                                TminTmax=TminTmax,
+                                disturbanceON = disturbanceON)
   } else {
     #    save(nYears,nSites,siteInfo,lat,pCrobasX,defaultThin,ClCut,areas,energyCut,ftTapioParX,tTapioParX,initVar,clim,mortMod, file=paste0("testDataInit","master",".rdata"))
     #    print("data saved")
@@ -1045,7 +1047,8 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 CO2=clim$CO2[, 1:(nYears*365)],
                                 yassoRun = 1,
                                 mortMod = mortMod,
-                                TminTmax = TminTmax)
+                                TminTmax = TminTmax, 
+                                disturbanceON = disturbanceON)
       
   }
 
