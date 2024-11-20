@@ -787,11 +787,15 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   ####### Wind disturbance module from Jonathan
   sid <- NA
   if("wind"%in%disturbanceON){
+    Xy <- st_read("/scratch/project_2000994/PREBASruns/adaptFirst/rasters/segids_wdist.addvars_jyvaskyla.gpkg")
+    ni <- which(Xy$z %in%  data.sample$segID)
+    ni <- ni[match(data.sample$segID,Xy$z[ni])]
+    
     sid <- matrix(0, nSites,10) #create input matrix
     # identical demo inputs for all sites
-    sid[,1] <- 12.2 # localised 10a return max wind speed (Venäläinen et al. 2017). Average 12.2. For test purposes, this can be set to e.g. 50 to trigger disturbances more frequently...
+    sid[,1] <- Xy$wspeed[ni] # localised 10a return max wind speed (Venäläinen et al. 2017). Average 12.2. For test purposes, this can be set to e.g. 50 to trigger disturbances more frequently...
     sid[,2] <- sample(1:30, nSites, replace=T) # init for time since thinning (e.g. sampling 1:40)
-    sid[,3] <- 0 # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
+    sid[,3] <- Xy$soiltype[ni] # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
     sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
     
     # salvage logging/mgmt reaction parameters
@@ -1980,8 +1984,9 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   
   ## BB simulated damage area
   WindReactionV <-  region$outDist[,,"damvol"]
+  WindReactionSalvLog <- region$outDist[,,"salvlog"]
   areaSample <- array(areas,c(dim(WindReactionV))) # Segment areas where damage happened
-  areaSample[WindReactionV==0] <- 0
+  areaSample[WindReactionSalvLog==0] <- 0
   #pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, SBBReactionBA))
   pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, areaSample))
   varNam <- "simWinddamArea%"

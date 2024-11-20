@@ -294,6 +294,7 @@ if(outType=="testRun"){
   
   jx <- 1
   disturbanceON <- c("fire","wind","bb")
+  library(sf)
   print(disturbanceON)
   sampleXs <- lapply(deltaIDs, 
                      function(jx) { 
