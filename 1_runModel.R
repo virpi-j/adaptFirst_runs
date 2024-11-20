@@ -58,6 +58,7 @@ if(calibratedPREBAS){
 }  
 
 source("~/adaptFirst_runs/settings.R", local = T)
+
 #devtools::source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
 #library(Rprebasso)
 
@@ -257,8 +258,24 @@ if(outType=="testRun"){
                             sampleXs0$region$weatherYasso[,,2],sampleXs0$region$weatherYasso[,,3]))
       save(P0currclim,fT0,file=paste0("Ninfo_station",station_id,".rdata"))
     }
-    if(validationPeriodCalculation) outValidation <- validationPeriodEstimates(sampleXs0)
-    
+    if(validationPeriodCalculation){ 
+      nYears <<- 2100-1991#2015
+      if(climScen > 0) nYears <<- 2100-2015
+      endingYear <<- nYears + startingYear
+      rcps <<- rcpsFile 
+      climatepath <<- climatepath_adaptFirst
+      sampleXs0 <- runModelAdapt(1,sampleID = 1,
+                                 outType="testRun",  
+                                 climScen=climScen,
+                                 rcps = rcpsFile,
+                                 #rcps = "CurrClim",
+                                 #climScen = 0,
+                                 CO2fixed=0,
+                                 harvScen="NoHarv",
+                                 harvInten="NoHarv",
+                                 P0currclim=P0currclim, fT0=fT0)
+      outValidation <- validationPeriodEstimates(sampleXs0)
+    }
   }
   # IRS runs
   if(vPREBAS=="newVersion") load(file=paste0("Ninfo_station",station_id,".rdata"))
@@ -275,6 +292,9 @@ if(outType=="testRun"){
   source("~/adaptFirst_runs/functions.R", local = T)
   source("functions_IBSCarbon.R", local = T)
   
+  jx <- 1
+  disturbanceON <- c("fire","wind","bb")
+  print(disturbanceON)
   sampleXs <- lapply(deltaIDs, 
                      function(jx) { 
                        runModelAdapt(jx, sampleID=1,
@@ -282,7 +302,8 @@ if(outType=="testRun"){
                                      rcps = rcpsFile,
                                      CO2fixed=CO2fixed,
                                      harvScen=harvscen,#"Base" or #BaseTapio
-                                     harvInten=harvinten,P0currclim=P0currclim, fT0=fT0)
+                                     harvInten=harvinten,P0currclim=P0currclim, fT0=fT0,
+                                     disturbanceON = disturbanceON)
                      }
   )
   

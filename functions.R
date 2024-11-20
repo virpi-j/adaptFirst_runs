@@ -12,7 +12,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
                      coefCH4 = 0.34,#g m-2 y-1
                      coefN20_1 = 0.23,coefN20_2 = 0.077,#g m-2 y-1
                      landClassUnman=NULL,compHarvX = 0,P0currclim=NA, fT0=NA,TminTmax = NA,
-                     toRaster=F, disturbanceON = "bb"){
+                     toRaster=F, disturbanceON = NA){
   # outType determines the type of output:
   # dTabs -> standard run, mod outputs saved as data.tables 
   # testRun-> test run reports the mod out and initPrebas as objects
@@ -212,7 +212,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   if(rcpfile=="CurrClim" | climScen >0) clim = prep.climate.f(dat, data.sample, startingYear, nYears)
   
   Region = nfiareas[ID==r_no, Region]
-  
+  print(disturbanceON)
   ## Second, continue now starting from soil SS
   initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                            startingYear = startingYear,domSPrun=domSPrun,
@@ -570,7 +570,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     if(nYears == dim(manDeadW$ssDeadW)[1]){
       DeadWInit[1:nrow(manDeadW$ssDeadW),] <- manDeadW$ssDeadW
     } else {
-      DeadWInit[1:nYears,] <- manDeadW$ssDeadW[1:nYears,]
+      nnYears <- dim(manDeadW$ssDeadW)[1]
+      DeadWInit[1:nnYears,] <- manDeadW$ssDeadW[1:nnYears,]
     }
     region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
       aperm(replicate(length(manFor),DeadWInit),c(3,1:2))
@@ -581,7 +582,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       if(nYears == dim(manDeadW$ssDeadW)[1]){
         DeadWInit[1:nrow(unmanDeadW$ssDeadW),] <- unmanDeadW$ssDeadW
       } else {
-        DeadWInit[1:nYears,] <- unmanDeadW$ssDeadW[1:nYears,]
+        nnYears <- dim(unmanDeadW$ssDeadW)[1]
+        DeadWInit[1:nnYears,] <- unmanDeadW$ssDeadW[1:nnYears,]
       }
       region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
         aperm(replicate(length(unmanFor),DeadWInit),c(3,1:2))
@@ -596,7 +598,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,climScen, rcpfile,areas,
               colsOut1,colsOut2,colsOut3,varSel,sampleForPlots,toRaster=toRaster)
-    print(output[c(1,12,13,15,22,nrow(output)),])
+    print(output[c(1,12,13,15,26:nrow(output)),c(1,2,6,ncol(output))])
     print("all outs calculated")
     #print(output)
     print(paste("Time",Sys.time()-a0))
@@ -782,6 +784,25 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   siteInfo[,2] <- as.numeric(data.sample[,id])
   siteInfo[,3] <- data.sample[,fert]
   
+  ####### Wind disturbance module from Jonathan
+  sid <- NA
+  if("wind"%in%disturbanceON){
+    sid <- matrix(0, nSites,10) #create input matrix
+    # identical demo inputs for all sites
+    sid[,1] <- 12.2 # localised 10a return max wind speed (Venäläinen et al. 2017). Average 12.2. For test purposes, this can be set to e.g. 50 to trigger disturbances more frequently...
+    sid[,2] <- sample(1:30, nSites, replace=T) # init for time since thinning (e.g. sampling 1:40)
+    sid[,3] <- 0 # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
+    sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
+    
+    # salvage logging/mgmt reaction parameters
+    sid[,5] <- 10 # salvlog threshhold, m3/ha; if total damaged volume exceeds this, site is considered for salvage logging (removal of directly damaged timber)
+    sid[,6] <- 1 # salvlog share, 0-1; share of sites over salvlog threshold where salvage logging is applied
+    sid[,7] <- 1 # pharvtrees for salvage logging (share of directly damaged vol to be collected) !!NOTE: 0.1 still going to harvest residues after this, i.e. 'harvest as in regular thin' = 1!)
+    sid[,8] <- 20 # mgmtreact threshold, m3/ha: if total damaged volume exceeds this, site is considered for prioritisation in randomised Tapio mgmt
+    sid[,9] <- 1 # mgmtreact share, 0-1; share of sites over mgmtreact threshold where prioritisation is applied. Note: if mgmt react/prioritisation is applied, salvage logging is conducted as well.
+    sid[,10] <- 1 # sevdistccshare: share of sites with reldamvol>0.5 or sevclass 3 where force clearcut is applied
+  }
+  ##
   # litterSize <- matrix(0,3,3)
   # litterSize[1,1:2] <- 30
   # litterSize[1,3] <- 10
@@ -1030,6 +1051,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
     #    print("data saved")
     print("run initPrebas")
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
+                                siteInfoDist = sid,
                                 latitude = lat,
                                 pCROBAS = pCrobasX,
                                 ECMmod = 1,
@@ -1872,43 +1894,53 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   colnames(output) <- names(pX)
   
   ## BB intensity
-  xSMI <- region$multiOut[,,46,1,2]
-  BA <- apply(region$multiOut[,,13,,1],1:2,sum)
-  #  BAspruce <- BASpFun(modOut = region,SpID = 2)[,-1]
-  xBAspruceFract <- BASpFun(modOut = region,SpID = 2)[,-1]/BA
-  xBAspruceFract[BA==0] <- 0
-  SHI = xBAspruceFract*(1-xSMI)/0.2093014
-  INTENSITY <- 1/(1+exp(3.9725-2.9673*SHI))
-  INTENSITY[xBAspruceFract<0.05] <- 0
-  pX <- calculatePerCols(outX = data.table(segID=sampleX$segID,INTENSITY))
-  varNam <-  "BBintensity"
-  assign(varNam,pX)
-  if(toRaster){
-    save(list=varNam,
-         file=paste0(path_output,"weatherStation",station_id,"/",
-                     varNam,
-                     "_harscen",harvScen,
-                     "_harInten",harvInten,"_",
-                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
-  }
-  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  #xSMI <- region$multiOut[,,46,1,2]
+  #BA <- apply(region$multiOut[,,13,,1],1:2,sum)
+  ##  BAspruce <- BASpFun(modOut = region,SpID = 2)[,-1]
+  #xBAspruceFract <- BASpFun(modOut = region,SpID = 2)[,-1]/BA
+  #xBAspruceFract[BA==0] <- 0
+  #SHI = xBAspruceFract*(1-xSMI)/0.2093014
+  #INTENSITY <- 1/(1+exp(3.9725-2.9673*SHI))
+  #INTENSITY[xBAspruceFract<0.05] <- 0
+  #pX <- calculatePerCols(outX = data.table(segID=sampleX$segID,INTENSITY))
+  #varNam <-  "BBintensity"
+  #assign(varNam,pX)
+  #if(toRaster){
+  #  save(list=varNam,
+  #       file=paste0(path_output,"weatherStation",station_id,"/",
+  #                   varNam,
+  #                   "_harscen",harvScen,
+  #                   "_harInten",harvInten,"_",
+  #                   rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
+  #}
+  #pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  #pX <- c(var = varNam, pX)
+  #output <- rbind(output, pX)
+  #colnames(output) <- names(pX)
+  
+  ## BB expected damage area
+  #SBBprob <- region$multiOut[,,45,1,2]
+  #SBBdamArea <- SBBprob*INTENSITY#*sampleX$area
+  #pX <- calculatePerCols(outX = data.table(segID=sampleX$segID,SBBdamArea))
+  #varNam <- "ExpectedBBdamAreaFraction"
+  #pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)*100
+  #pX <- c(var = varNam, pX)
+  #output <- rbind(output, pX)
+  #colnames(output) <- names(pX)
+  
+  ## BB simulated damage area
+  SBBReactionBA <-  apply(region$multiOut[,,"grossGrowth/bb BA disturbed",,2],1:2,sum)
+  areaSample <- array(areas,c(dim(SBBReactionBA))) # Segment areas where damage happened
+  areaSample[SBBReactionBA==0] <- 0
+  #pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, SBBReactionBA))
+  pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, areaSample))
+  varNam <- "simBBdamArea%"
+  pX <- colSums(pX[,-1])/sum(sampleX$area)*100
+  #pX <- colSums(pX[,-1])
+  #pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)*100
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
-  
-  ## BB damage area
-  SBBprob <- region$multiOut[,,45,1,2]
-  #rr <- array(runif(prod(dim(SBBprob))),dim(SBBprob))
-  #rrP <- array(0,dim=dim(SBBprob))
-  #rrp[rr<SBBprob]<-1
-  SBBdamArea <- SBBprob*INTENSITY#*sampleX$area
-  pX <- calculatePerCols(outX = data.table(segID=sampleX$segID,SBBdamArea))
-  varNam <- "BBdamArea"
-  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)*100
-  pX <- c(var = varNam, pX)
-  output <- rbind(output, pX)
-  colnames(output) <- names(pX)
-  
   
   #### pFire
   outX <- data.table(segID=sampleX$segID,region$multiOut[,,47,1,2])
@@ -1927,6 +1959,39 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   pX <- c(var = varNam, pX)
   output <- rbind(output, pX)
   colnames(output) <- names(pX)
+  
+  # pWind
+  outX <- data.table(segID=sampleX$segID,region$outDist[,,"wrisk"])
+  pX <- calculatePerCols(outX = outX)
+  varNam <-  "pWind"
+  assign(varNam,pX)
+  if(toRaster){
+    save(list=varNam,
+         file=paste0(path_output,"weatherStation",station_id,"/",
+                     varNam,
+                     "_harscen",harvScen,
+                     "_harInten",harvInten,"_",
+                     rcpfile,"_Nswitch",restrictionSwitch,".rdata"))
+  }
+  pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)
+  pX <- c(var = varNam, pX)
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  
+  ## BB simulated damage area
+  WindReactionV <-  region$outDist[,,"damvol"]
+  areaSample <- array(areas,c(dim(WindReactionV))) # Segment areas where damage happened
+  areaSample[WindReactionV==0] <- 0
+  #pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, SBBReactionBA))
+  pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, areaSample))
+  varNam <- "simWinddamArea%"
+  pX <- colSums(pX[,-1])/sum(sampleX$area)*100
+  #pX <- colSums(pX[,-1])
+  #pX <- colSums(pX[,-1]*matrix(sampleX$area,nrow(pX),ncol(pX)-1))/sum(sampleX$area)*100
+  pX <- c(var = varNam, pX)
+  output <- rbind(output, pX)
+  colnames(output) <- names(pX)
+  
   
     ####SBBbp
 #  outX <- data.table(segID=sampleX$segID,SBBbp)
@@ -2517,5 +2582,110 @@ SBB_damage_prob <- function(PI,SBBbp,clim_ids){
   x2 <- 1.65
   pBByr <- 1 - exp(x1*PI^x2)^GEN[clim_ids,]
   return(pBByr)
+}
+
+
+
+validationPeriodEstimates <- function(sampleXs0){ # Calculate yearly statistics for validation period
+  valPeriod <- 2016:2023
+  if(dev.interactive()) dev.off()
+  figdim <- c(floor(sqrt(length(valPeriod)))+1,ceiling(sqrt(length(valPeriod))))
+  
+  # Vspruce
+  colsi <- c(1:length(valPeriod)+1)
+  outXi <- vSpFun(sampleXs0$region,SpID = 2)[,..colsi]
+  outXi <- array(unlist(outXi), c(dim(outXi)))
+  par(mfrow = figdim)
+  drawRaster(outXi=outXi, varNams = paste0("Vspruce_",valPeriod),r_nos = r_nos_stations[[station_id]])
+  
+  # pSBB
+  par(mfrow = figdim)
+  outXi <- sampleXs0$region$multiOut[,valPeriod-2015,"Rh/SBBpob[layer_1]",1,2]
+  Ep_SBBarea <- colSums(ops[[1]]$area*outXi)
+  drawRaster(outXi=outXi, varNams = paste0("pSBB_",valPeriod),r_nos = r_nos_stations[[station_id]])
+  
+  # SBB intensity
+  par(mfrow = figdim)
+  outXi <- sampleXs0$region$multiOut[,valPeriod-2015,48,1,2]
+  E_SBBIntensity <- colSums(ops[[1]]$area*outXi)
+  drawRaster(outXi=outXi, varNams = paste0("SBBintensity_",valPeriod),r_nos = r_nos_stations[[station_id]])
+  
+  # BA disturbed
+  par(mfrow = figdim)
+  outXi <- sampleXs0$region$multiOut[,valPeriod-2015,"grossGrowth/bb BA disturbed",1,2]
+  E_BAdisturbed <- colSums(ops[[1]]$area*outXi)
+  drawRaster(outXi=outXi, varNams = paste0("BAdisturbed_",valPeriod),r_nos = r_nos_stations[[station_id]])
+  
+  # 1-SMI
+  par(mfrow = figdim)
+  outXi <- 1-sampleXs0$region$multiOut[,valPeriod-2015,"NEP/SMI[layer_1]",1,2]
+  Ep_SBBBAdisturbed <- colSums(ops[[1]]$area*outXi)
+  drawRaster(outXi=outXi, varNams = paste0("(1-SMI)_",valPeriod),r_nos = r_nos_stations[[station_id]])
+  
+  lopeta <- tahan
+}
+
+
+drawRaster <- function(outXi, varNams, r_nos){
+  data.IDs_rnos <- data.frame()
+  for(r_noi in r_nos){  
+    load(paste0("/scratch/project_2000994/PREBASruns/finRuns/input/maakunta/maakunta_",r_noi,"_IDsTab.rdata"))
+    #data.IDs$segID <- data.IDs$maakuntaID
+    data.IDs_rnos <- rbind(data.IDs_rnos, data.IDs)
+  }
+  data.IDs<-data.IDs_rnos
+  rm("data.IDs_rnos")
+  gc()
+  
+  data.IDs <- data.IDs[segID!=0]
+  setkey(data.IDs,segID)
+  
+  outX <- cbind(outXi,ops[[1]])
+  colnames(outX)[1:ncol(outXi)] <- varNams
+  setkey(outX,segID)
+  setkey(data.IDs,segID)
+  
+  tabX <- merge(data.IDs,outX)
+  colnames(tabX)[colnames(tabX)=="x.x"]<-"x"
+  colnames(tabX)[colnames(tabX)=="y.x"]<-"y"
+  #dev.off()
+  ndat <- sample(1:nrow(tabX),1000)
+  #plot(tabX$x[ndat],tabX$y[ndat],col="blue")
+  
+  tabX$x <- tabX$x - stations[station_id,"x_UTM"]
+  tabX$y <- tabX$y - stations[station_id,"y_UTM"]
+  #tabX <- merge(outX,data.IDs)
+  #colnames(tabX)[colnames(tabX)=="x.y"]<-"x"
+  #colnames(tabX)[colnames(tabX)=="y.y"]<-"y"
+  rm(outX);gc()
+  
+  #filee <- paste0("../rasters/",stations$name[station_id],"_",varX,"_harscen",harvScen,"_harInten",harvInten,"_",rcps,"_Nswitch",restrictionSwitch)
+  
+  xi <- which(colnames(tabX) == "x")
+  yi <- which(colnames(tabX) == "y")
+  
+  h <- hist(outXi, 5, plot=F)
+  library(RColorBrewer)
+  colorsi <- cols <- brewer.pal(length(h$breaks),"YlOrRd")
+  #colorsi <- c(terrain.colors(length(h$breaks)))
+  if(min(outXi)<1e-5) colorsi <- c("gray",colorsi[-1])
+  
+  legendi <- F
+  for(ij in 1:length(varNams)){
+    j <- which(colnames(tabX) == varNams[ij])
+    colsi <- c(xi,yi,j)
+    rastX <- rasterFromXYZ(tabX[,..colsi])
+    crs(rastX) <- crsX
+    if(ij == length(varNams)) legendi <- T
+    plot(rastX, breaks = h$breaks, 
+         col = colorsi, 
+         #xlab="m", ylab="m",
+         main = varNams[ij], yaxt="n", xaxt="n",
+         legend = legendi, axes = FALSE, box = F)
+    #box(col = "white")
+    #writeRaster(rastX,filename = paste0(filee,"_per1.tiff"),overwrite=T)
+  }  
+  rm(tabX);
+  rm(rastX);gc()
 }
 
