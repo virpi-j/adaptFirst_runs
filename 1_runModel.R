@@ -566,7 +566,10 @@ if(climScen<0){
     }
     dev.off()
   }
-  if(nrow(ops[[1]])<9000){
+  if(ncol(deltaTP)<100){
+  #  station_id_in <- station_id
+  #  station_id <- paste0(station_id,"s")
+  #}  if(nrow(ops[[1]])<9000){
     station_id <- station_id_in
     stat_name <- stat_name_in
   }
