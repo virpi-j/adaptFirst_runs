@@ -295,7 +295,7 @@ if(outType=="testRun"){
   jx <- 1
   disturbanceON <- c("fire","wind","bb")
   print(disturbanceON)
-  if(FALSE){
+  if(verySparse){
     sampleXs <- runModelAdapt(1, sampleID=1,
                               outType="testRun",climScen=climScen,
                               rcps = rcpsFile,
@@ -303,7 +303,7 @@ if(outType=="testRun"){
                               harvScen=harvscen,#"Base" or #BaseTapio
                               harvInten=harvinten,P0currclim=P0currclim, fT0=fT0,
                               disturbanceON = disturbanceON, ingrowth = T)
-    HOO <- italea
+    break()
   }
   sampleXs <- lapply(deltaIDs, 
                      function(jx) { 
