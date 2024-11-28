@@ -295,14 +295,16 @@ if(outType=="testRun"){
   jx <- 1
   disturbanceON <- c("fire","wind","bb")
   print(disturbanceON)
-  sampleXs <- runModelAdapt(1, sampleID=1,
-                            outType="testRun",climScen=climScen,
-                            rcps = rcpsFile,
-                            CO2fixed=CO2fixed,
-                            harvScen=harvscen,#"Base" or #BaseTapio
-                            harvInten=harvinten,P0currclim=P0currclim, fT0=fT0,
-                            disturbanceON = disturbanceON, ingrowth = T)
-  HOO <- italea
+  if(FALSE){
+    sampleXs <- runModelAdapt(1, sampleID=1,
+                              outType="testRun",climScen=climScen,
+                              rcps = rcpsFile,
+                              CO2fixed=CO2fixed,
+                              harvScen=harvscen,#"Base" or #BaseTapio
+                              harvInten=harvinten,P0currclim=P0currclim, fT0=fT0,
+                              disturbanceON = disturbanceON, ingrowth = T)
+    HOO <- italea
+  }
   sampleXs <- lapply(deltaIDs, 
                      function(jx) { 
                        runModelAdapt(jx, sampleID=1,
