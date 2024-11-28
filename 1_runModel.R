@@ -1,6 +1,7 @@
 #station_id <- 1 # This to localsettings! Station id 1 to 6
 set.seed(1)
 library(stringr)
+library(sf)
 print(paste("station",station_id))
 stations <- data.frame(name=c("Vantaa_Helsinki","Jokioinen","Jyvaskyla","Kajaani",
                               "Sodankyla","Utsjoki"),
@@ -250,7 +251,7 @@ if(outType=="testRun"){
                                climScen = 0,
                                CO2fixed=0,
                                harvScen="Base",
-                               harvInten="Base")
+                               harvInten="Base", ingrowth = T)
     # Initialize N-model parameters
     if(vPREBAS=="newVersion"){#exists("parsCN_alfar")){
       P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
@@ -273,7 +274,7 @@ if(outType=="testRun"){
                                  CO2fixed=0,
                                  harvScen="NoHarv",
                                  harvInten="NoHarv",
-                                 P0currclim=P0currclim, fT0=fT0)
+                                 P0currclim=P0currclim, fT0=fT0, ingrowth = T)
       outValidation <- validationPeriodEstimates(sampleXs0)
     }
   }
@@ -291,11 +292,17 @@ if(outType=="testRun"){
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
   source("~/adaptFirst_runs/functions.R", local = T)
   source("functions_IBSCarbon.R", local = T)
-  
   jx <- 1
   disturbanceON <- c("fire","wind","bb")
-  library(sf)
   print(disturbanceON)
+  sampleXs <- runModelAdapt(1, sampleID=1,
+                            outType="testRun",climScen=climScen,
+                            rcps = rcpsFile,
+                            CO2fixed=CO2fixed,
+                            harvScen=harvscen,#"Base" or #BaseTapio
+                            harvInten=harvinten,P0currclim=P0currclim, fT0=fT0,
+                            disturbanceON = disturbanceON, ingrowth = T)
+  HOO <- italea
   sampleXs <- lapply(deltaIDs, 
                      function(jx) { 
                        runModelAdapt(jx, sampleID=1,

@@ -12,7 +12,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
                      coefCH4 = 0.34,#g m-2 y-1
                      coefN20_1 = 0.23,coefN20_2 = 0.077,#g m-2 y-1
                      landClassUnman=NULL,compHarvX = 0,P0currclim=NA, fT0=NA,TminTmax = NA,
-                     toRaster=F, disturbanceON = NA){
+                     toRaster=F, disturbanceON = NA, ingrowth = F){
   # outType determines the type of output:
   # dTabs -> standard run, mod outputs saved as data.tables 
   # testRun-> test run reports the mod out and initPrebas as objects
@@ -212,13 +212,13 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   if(rcpfile=="CurrClim" | climScen >0) clim = prep.climate.f(dat, data.sample, startingYear, nYears)
   
   Region = nfiareas[ID==r_no, Region]
-  print(disturbanceON)
+  if(!is.na(disturbanceON[1])) ingrowth <- T # in disturbances ingrowth is always T
   ## Second, continue now starting from soil SS
   initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
                                            startingYear = startingYear,domSPrun=domSPrun,
                                            harv=harvScen, HcFactorX=HcFactor, 
                                            climScen=climScen, sampleX=sampleX, 
-                                           P0currclim=P0currclim, fT0=fT0,
+                                           P0currclim=P0currclim, fT0=fT0, ingrowth=ingrowth,
                                            TminTmax = TminTmax, disturbanceON = disturbanceON)
   
   opsna <- which(is.na(initPrebas$multiInitVar))
@@ -291,7 +291,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   if(regSets!="maakunta"){
     Region = nfiareas[ID==r_no, Region]
     if(harvScen=="NoHarv"){
-      initPrebas$ClCut = initPrebas$defaultThin = rep(0,nSample)
+      if(!exists("clcut")) clcut <- 0
+      initPrebas$ClCut = initPrebas$defaultThin = rep(clcut,nSample)
       HarvLim1 = 0
       harvInten = "NoHarv"
     }else if(harvScen=="Tapio"){
@@ -326,7 +327,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       if(harvInten == "MaxSust"){HarvLim1 <- HarvLimX * 1.2}
       if(harvScen == "NoHarv"){
         HarvLim1 <- HarvLimX * 0.
-        initPrebas$ClCut = initPrebas$defaultThin = rep(0,nSample)
+        initPrebas$ClCut = initPrebas$defaultThin = rep(clcut,nSample)
         harvInten = harvScen
       }
     }else{
@@ -344,7 +345,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     if(harvInten == "MaxSust"){HarvLim1 <- HarvLim1 * 1.2}
     if(harvScen == "NoHarv"){
       HarvLim1 <- HarvLim1 * 0.
-      initPrebas$ClCut = initPrebas$defaultThin = rep(0,nSample)
+      initPrebas$ClCut = initPrebas$defaultThin = rep(clcut,nSample)
       harvInten = harvScen
     }
   }          
@@ -379,7 +380,15 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     }
   }
   initPrebas$yassoRun <- rep(1,initPrebas$nSites)
-  if(exists("initSoilC")) initPrebas$soilC[,1,,,] <- initSoilC
+  if(exists("initSoilC")){ 
+    nl_initPrebasSoilC <- dim(initPrebas$soilC[,1,,,])[4]
+    nl_initSoilC <- dim(initSoilC)[4]
+    #if(dim(initPrebas$soilC[,1,,,])[4]!=dim(initSoilC)[4]){
+    #  initPrebas$soilC[,1,,,] <- initSoilC
+    #} else {
+      initPrebas$soilC[,1,,,1:nl_initSoilC] <- initSoilC
+    #}
+  }
   
   print(paste0("harvest scenario ", harvScen))
   print(paste0("harvest intensity ", harvInten))
@@ -573,19 +582,24 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       nnYears <- dim(manDeadW$ssDeadW)[1]
       DeadWInit[1:nnYears,] <- manDeadW$ssDeadW[1:nnYears,]
     }
-    region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
+    nl_deadWInit <- dim(DeadWInit)[2]
+    nl_multiOut <- dim(region$multiOut)[4]
+    region$multiOut[manFor,,8,1:min(nl_deadWInit,nl_multiOut),1] <- 
+      region$multiOut[manFor,,8,1:min(nl_deadWInit,nl_multiOut),1] + 
       aperm(replicate(length(manFor),DeadWInit),c(3,1:2))
 #    region$multiOut[manFor,,8,1:3,1] <- region$multiOut[manFor,,8,1:3,1] + 
 #      aperm(replicate(length(manFor),(manDeadW$ssDeadW[1:nYears,])),c(3,1:2))
     if(length(unmanFor)>1){
       DeadWInit <- matrix(0,nrow = nYears, ncol = dim(unmanDeadW$ssDeadW)[2])
+      nl_deadWInit <- dim(DeadWInit)[2]
       if(nYears == dim(manDeadW$ssDeadW)[1]){
         DeadWInit[1:nrow(unmanDeadW$ssDeadW),] <- unmanDeadW$ssDeadW
       } else {
         nnYears <- dim(unmanDeadW$ssDeadW)[1]
         DeadWInit[1:nnYears,] <- unmanDeadW$ssDeadW[1:nnYears,]
       }
-      region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
+      region$multiOut[unmanFor,,8,1:min(nl_deadWInit,nl_multiOut),1] <- 
+        region$multiOut[unmanFor,,8,1:min(nl_deadWInit,nl_multiOut),1] + 
         aperm(replicate(length(unmanFor),DeadWInit),c(3,1:2))
 #      region$multiOut[unmanFor,,8,1:3,1] <- region$multiOut[unmanFor,,8,1:3,1] + 
 #        aperm(replicate(length(unmanFor),(unmanDeadW$ssDeadW[1:nYears,])),c(3,1:2))
@@ -767,8 +781,8 @@ sample_data.f = function(data.all, nSample) {
 
 # StartingYear = climate data that detrermines simulation period must have year greater than this.
 create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
-                                 startingYear=0,domSPrun=0,
-                                 harv, HcFactorX=HcFactor,climScen=climScen,
+                                 startingYear=0, domSPrun=0,
+                                 harv, HcFactorX=HcFactor, climScen=climScen, ingrowth=F,
                                  sampleX=sampleX, P0currclim=NA, fT0=NA, TminTmax=NA,
                                  disturbanceON = F) { # dat = climscendataset
   #domSPrun=0 initialize model for mixed forests according to data inputs 
@@ -1031,6 +1045,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 pCROBAS = pCrobasX,
                                 pCN_alfar = parsCN_new_alfar,
                                 alpharNcalc = T,
+                                ingrowth = ingrowth,
                                 alpharVersion = restrictionSwitch,                                
                                 ECMmod = 1,
                                 defaultThin = defaultThin,
@@ -1061,6 +1076,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 ECMmod = 1,
                                 defaultThin = defaultThin,
                                 ClCut = ClCut, 
+                                ingrowth = ingrowth,
                                 areas =areas,
                                 energyCut = energyCut, 
                                 ftTapioPar = ftTapioParX,
@@ -1934,8 +1950,16 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   
   ## BB simulated damage area
   SBBReactionBA <-  apply(region$multiOut[,,"grossGrowth/bb BA disturbed",,2],1:2,sum)
+  BA <- apply(region$multiOut[,,"grossGrowth/bb BA disturbed",,1],1:2,sum)
+  Vrw <- apply(region$multiOut[,,"VroundWood",,1],1:2,sum)[,-1]
+  Vrw <- cbind(Vrw,Vrw[,ncol(Vrw)])
   areaSample <- array(areas,c(dim(SBBReactionBA))) # Segment areas where damage happened
   areaSample[SBBReactionBA==0] <- 0
+  #if(clcut==-1){ # if no clearcut, calculate only the 
+  areaSample[SBBReactionBA>0 & Vrw==0] <- areaSample[SBBReactionBA>0 & Vrw==0]*
+    SBBReactionBA[SBBReactionBA>0 & Vrw==0]/BA[SBBReactionBA>0 & Vrw==0]
+  areaSample[BA==0] <- 0
+  #}
   #pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, SBBReactionBA))
   pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, areaSample))
   varNam <- "simBBdamArea%"
@@ -1984,9 +2008,15 @@ specialVarProcAdapt <- function(sampleX,region,r_no,harvScen,harvInten,rcpfile,s
   
   ## BB simulated damage area
   WindReactionV <-  region$outDist[,,"damvol"]
+  V <- apply(region$multiOut[,,"V",,1],1:2,sum)
   WindReactionSalvLog <- region$outDist[,,"salvlog"]
   areaSample <- array(areas,c(dim(WindReactionV))) # Segment areas where damage happened
-  areaSample[WindReactionSalvLog==0] <- 0
+#  areaSample[WindReactionSalvLog==0] <- 0 # if no wind damage, set to zero
+  areaSample[WindReactionV==0 & WindReactionSalvLog==0] <- 0 # if no wind damage, set to zero
+  # if no salvage logging but damage, Vdamage/V*area
+  areaSample[WindReactionV>0 & WindReactionSalvLog==0] <- areaSample[WindReactionV>0 & WindReactionSalvLog==0]*
+    WindReactionV[WindReactionV>0 & WindReactionSalvLog==0]/V[WindReactionV>0 & WindReactionSalvLog==0]
+  areaSample[V==0] <-0
   #pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, SBBReactionBA))
   pX <- calculatePerCols(outX = data.table(segID=sampleX$segID, areaSample))
   varNam <- "simWinddamArea%"
