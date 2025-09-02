@@ -231,7 +231,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   totAreaSample <- sum(data.sample$area)
   #print(sum(areas))
   
-  if(rcpfile%in%c("CurrClim","CurrClim_fmi") | climScen >0) clim <-prep.climate.f(dat, data.sample, startingYear, nYears, rcps = rcpfile)
+  if(rcpfile%in%c("CurrClim","CurrClim_fmi") | climScen >0) clim <-prep.climate.f_adapt(dat, data.sample, startingYear, nYears, rcps = rcpfile)
   rm("dat")
   gc()
   
@@ -241,12 +241,18 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   print(paste("Ingrowth = ",ingrowth))
   print(disturbanceON)
   print("Start initializing...")
-  initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,harv=harvScen,
-                                           startingYear = startingYear,domSPrun=domSPrun,
-                                            HcFactorX=HcFactor, 
-                                           climScen=climScen, sampleX=sampleX, #clcut = clcut, 
-                                           P0currclim=P0currclim, fT0=fT0, ingrowth = ingrowth,
-                                           TminTmax = TminTmax, disturbanceON = disturbanceON)
+  initPrebas = create_prebas_input_tmp.f(r_no, clim, data.sample, 
+                                         nYears = nYears,harv=harvScen,
+                                         startingYear = startingYear,
+                                         domSPrun=domSPrun,
+                                         HcFactorX=HcFactor, 
+                                         climScen=climScen, 
+                                         sampleX=sampleX, #clcut = clcut, 
+                                         P0currclim=P0currclim, 
+                                         fT0=fT0, 
+                                         ingrowth = ingrowth,
+                                         TminTmax = TminTmax, 
+                                         disturbanceON = disturbanceON)
   print("...done.")
   rm(list=c("data.sample"))
   gc()
@@ -254,8 +260,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
   
-  initPrebas$pPRELES <- pPREL
-  initPrebas$pCROBAS <- pCROB
+  #initPrebas$pPRELES <- pPREL
+  #initPrebas$pCROBAS <- pCROB
   
   ##### if the mortality model flag is 13 uses 
   ##### mortMod=1 (reineke) for managed forests
@@ -344,7 +350,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       if(harvInten == "MaxSust"){HarvLim1 <- HarvLimX * 1.2}
       if(harvScen == "NoHarv"){
         HarvLim1 <- HarvLimX * 0.
-        initPrebas$ClCut = initPrebas$defaultThin = rep(clcut,nSample)
+        #initPrebas$ClCut = initPrebas$defaultThin = rep(clcut,nSample)
         harvInten = harvScen
       }
     }else{
@@ -370,21 +376,25 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   ###calculate clearcutting area for the sample
   #if(!is.na(cutArX)){
   print("calculating clearcutting areas")
-  clcutArX <- clcutAr * sum(areas)/area_tot
-  if(length(clcutArX)<nYears) clcutArX<-c(clcutArX,clcutArX[rep(length(clcutArX),nYears-length(clcutArX))])
-  clcutArX <- cbind(clcutArX[1:nYears],0.)
-  tendX <- tendingAr * sum(areas)/area_tot
-  if(length(tendX)<nYears) tendX<-c(tendX,tendX[rep(length(tendX),nYears-length(tendX))])
-  tendX <- cbind(tendX[1:nYears],0.)
-  fThinX <- firstThinAr * sum(areas)/area_tot
-  if(length(fThinX)<nYears) fThinX<-c(fThinX,fThinX[rep(length(fThinX),nYears-length(fThinX))])
-  fThinX <- cbind(fThinX[1:nYears],0.)
-  cutArX <- cbind(clcutArX,tendX)
-  cutArX <- cbind(cutArX,fThinX)
-  if(harvInten == "Low"){ cutArX <- cutArX * 0.6}
-  if(harvInten == "MaxSust"){cutArX <- cutArX * 1.2}
-  if(harvScen == "NoHarv"){cutArX <- cutArX * 0.}
-  
+  if(TRUE){
+    clcutArX <- clcutAr * sum(areas)/area_tot
+    if(length(clcutArX)<nYears) clcutArX<-c(clcutArX,clcutArX[rep(length(clcutArX),nYears-length(clcutArX))])
+    clcutArX <- cbind(clcutArX[1:nYears],0.)
+    
+    tendX <- tendingAr * sum(areas)/area_tot
+    if(length(tendX)<nYears) tendX<-c(tendX,tendX[rep(length(tendX),nYears-length(tendX))])
+    tendX <- cbind(tendX[1:nYears],0.)
+    
+    fThinX <- firstThinAr * sum(areas)/area_tot
+    if(length(fThinX)<nYears) fThinX<-c(fThinX,fThinX[rep(length(fThinX),nYears-length(fThinX))])
+    fThinX <- cbind(fThinX[1:nYears],0.)
+    
+    cutArX <- cbind(clcutArX,tendX)
+    cutArX <- cbind(cutArX,fThinX)
+    if(harvInten == "Low"){ cutArX <- cutArX * 0.6}
+    if(harvInten == "MaxSust"){cutArX <- cutArX * 1.2}
+    if(harvScen == "NoHarv"){cutArX <- cutArX * 0.}
+  }
   ###run PREBAS
   if(initilizeSoil){
     if(!(harvScen =="Base" & harvInten == "Base" & rcpfile%in%c("CurrClim","CurrClim_fmi"))){
@@ -893,11 +903,7 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears, harv,
     sid[,10] <- 1 # sevdistccshare: share of sites with reldamvol>0.5 or sevclass 3 where force clearcut is applied
   }
   ##
-  # litterSize <- matrix(0,3,3)
-  # litterSize[1,1:2] <- 30
-  # litterSize[1,3] <- 10
-  # litterSize[2,] <- 2
-  
+
   ###Initialise model
   # initVardension nSites,variables, nLayers
   # variables: 1 = species; 2 = Age; 3 = H; 4=dbh; 5 = ba; 6 = Hc
@@ -1057,18 +1063,21 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears, harv,
   
   defaultThin=as.numeric(1-data.sample[, cons])
   energyCut <- ClCut <- as.numeric(1-data.sample[, cons])
+
   ## Set to match climate data years
   if(!exists("ftTapioParX")) ftTapioParX = ftTapio
   if(!exists("tTapioParX")) tTapioParX = tTapio
   #initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM)[,6,]*HcFactorX
   initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM,pCrobasX,HcModVx)[,6,]*HcFactorX
-  set_thin_PROJ6_warnings(TRUE)
+  #set_thin_PROJ6_warnings(TRUE)
+  
   xy <- sampleX[,c("segID","x","y")]
   coordinates(xy) <- c("x","y")
   proj4string(xy) <- crsX
   #cord = SpatialPoints(xy, proj4string=CRS("+init=EPSG:3067"))
   location<-as.data.frame(spTransform(xy, CRS("+init=epsg:4326")))
-  lat <- location$y
+  lat <- location$coords.x2
+  
   #print(paste("check crobas:",pCrobasX[55,3]))
   #print(pCrobasX)
   if((nYears*365)>ncol(clim$PAR)){
@@ -1166,6 +1175,318 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears, harv,
 
 }
 
+
+create_prebas_input_tmp.f = function(r_no, clim, data.sample, nYears, harv,
+                                     startingYear=0, domSPrun=0,# ClCut=1,
+                                     outModReStart=NULL, initSoilC=NULL,
+                                     reStartYear=1,
+                                     HcFactorX=HcFactor, climScen=climScen, 
+                                     ingrowth=F,
+                                     rcps = "CurrClim",
+                                     sampleX=sampleX, 
+                                     P0currclim=NA, fT0=NA, 
+                                     TminTmax=NA, disturbanceON = NA){
+  nSites <- nrow(data.sample)
+  areas <- data.sample$area
+  print(paste("HcFactor =",HcFactorX))
+  
+  siteInfo <- matrix(c(NA,NA,NA,160,0,0,20,3,3,413,0.45,0.118),nSites,12,byrow = T)
+  siteInfo[,1] <- data.sample$segID
+  siteInfo[,2] <- as.numeric(data.sample[,id])
+  siteInfo[,3] <- data.sample[,fert]
+  
+  
+  ####### Wind disturbance module from Jonathan
+  sid <- NA
+  if("wind"%in%disturbanceON){# & !rcps%in%c("CurrClim","CurrClim_fmi")){
+    ###
+    # EXTRACT WIND SPEEDS 
+    # for prebas wind disturbance module
+    print("EXTRACT WIND SPEEDS")
+    library(sf)
+    library(mapview)
+    library(stars)
+    
+    #load("/scratch/project_2000994/PREBASruns/adaptFirst/rasters/ops_Jyvaskyla.rdata") # load ops object / sampled segments
+    #idcoord<-  ops[[1]][,c("segID", "x", "y")] # unlist, reduce to coordinates (likely centroids)
+    idcoord <-  data.sample[,c("segID", "x", "y")] # unlist, reduce to coordinates (likely centroids)
+    #names(idcoord) <- c("segID", "x", "y")
+    
+    segids <- st_as_sf(idcoord, coords = c("x","y")) # as sf (vector format)
+    st_crs(segids) <- "EPSG:3067"
+    
+    #mapview(segids) # check visually 
+    #length(unique(segids$segID)) #check number of unique ids/samples
+    
+    
+    #### WIND SPEED ####
+    
+    # read wind speed dataset
+    ws_full <- read_stars("/appl/data/geo/ilmatiede/wind_speed/Wind_10y_return_level.tif") # directly available in puhti!
+    
+    # extract wspeed at plot/centroid locations
+    wspeed = st_extract(ws_full, segids) 
+    
+    segids$wspeed <- wspeed$Wind_10y_return_level.tif 
+    
+    #mapview(segids, zcol="wspeed")
+    
+    #st_write(segids, dsn="/scratch/project_2000994/PREBASruns/adaptFirst/rasters/segids_wspeed_jyvaskyla.gpkg", delete_dsn = TRUE)
+    
+    segids_dt<- data.frame(segids)
+    
+    segids_dt[2] <- NULL
+    #write.csv(segids_dt, dsn="/scratch/project_2000994/PREBASruns/adaptFirst/rasters/segids_wspeed_jyvaskyla.csv")
+    ###
+    #Xy <- st_read("/scratch/project_2000994/PREBASruns/adaptFirst/rasters/segids_wdist.addvars_jyvaskyla.gpkg")
+    #ni <- which(Xy$z %in%  data.sample$segID)
+    ni <- which(segids_dt$segID %in%  data.sample$segID)
+    ni <- ni[match(data.sample$segID,segids_dt$segID[ni])]
+    
+    sid <- matrix(0, nSites,10) #create input matrix
+    # identical demo inputs for all sites
+    sid[,1] <- segids_dt$wspeed[ni] # localised 10a return max wind speed (Ven??l??inen et al. 2017). Average 12.2. For test purposes, this can be set to e.g. 50 to trigger disturbances more frequently...
+    sid[,2] <- sample(1:30, nSites, replace=T) # init for time since thinning (e.g. sampling 1:40)
+    sid[,3] <- 1 #Xy$soiltype[ni] # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
+    sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
+    
+    # salvage logging/mgmt reaction parameters
+    sid[,5] <- 10 # salvlog threshhold, m3/ha; if total damaged volume exceeds this, site is considered for salvage logging (removal of directly damaged timber)
+    sid[,6] <- 1 # salvlog share, 0-1; share of sites over salvlog threshold where salvage logging is applied
+    sid[,7] <- 1 # pharvtrees for salvage logging (share of directly damaged vol to be collected) !!NOTE: 0.1 still going to harvest residues after this, i.e. 'harvest as in regular thin' = 1!)
+    sid[,8] <- 20 # mgmtreact threshold, m3/ha: if total damaged volume exceeds this, site is considered for prioritisation in randomised Tapio mgmt
+    sid[,9] <- 1 # mgmtreact share, 0-1; share of sites over mgmtreact threshold where prioritisation is applied. Note: if mgmt react/prioritisation is applied, salvage logging is conducted as well.
+    sid[,10] <- 1 # sevdistccshare: share of sites with reldamvol>0.5 or sevclass 3 where force clearcut is applied
+  }
+  ##
+  
+  ###Initialise model
+  # initVardension nSites,variables, nLayers
+  # variables: 1 = species; 2 = Age; 3 = H; 4=dbh; 5 = ba; 6 = Hc
+  initVar <- array(NA, dim=c(nSites,7,3))
+  data.sample[,baP:= (ba * pine/(pine+spruce+decid))]
+  data.sample[,baSP:= (ba * spruce/(pine+spruce+decid))]
+  data.sample[,baB:= (ba * decid/(pine+spruce+decid))]
+  data.sample[,dbhP:= dbh]
+  data.sample[,dbhSP:= dbh]
+  data.sample[,h:= h/10]
+  data.sample[,hP:= h]
+  data.sample[,hSP:= h]
+  
+  data.sample[,N:=ba/(pi*(dbh/2)^2/10000)]
+  
+  initVar[,1,] <- as.numeric(rep(1:3,each=nSites))
+  initVar[,2,] <- round(as.numeric(data.sample[,age]))
+  initVar[,3,] <- as.numeric(data.sample[,h])
+  initVar[,4,] <- as.numeric(data.sample[,dbh])
+  
+  if(domSPrun==1){
+    ##initialize model only for dominant species##
+    initVar[,5,] = 0.
+    ix = unlist(data.sample[, which.max(c(pine, spruce, decid)), by=1:nrow(data.sample)] [, 2])
+    for(jx in 1:nSites) initVar[jx,5,ix[jx]] = as.numeric(data.sample[, ba])[jx]
+  }else{
+    ###initialize model for mixed forest runs
+    initVar[,5,1] <- as.numeric(data.sample[,(ba * pine/(pine+spruce+decid))])
+    initVar[,5,2] <- as.numeric(data.sample[,(ba * spruce/(pine+spruce+decid))])
+    initVar[,5,3] <- as.numeric(data.sample[,(ba * decid/(pine+spruce+decid))])
+    
+    if(TRUE){ #### if true will vary H and D of pine and spruce using siteType
+      
+      ###increase spruceP dbh 10% for spruceP sitetype 1:2
+      minDelta <- 0.75
+      data.sample[pine>0. & spruce >0. & fert<2.5,X:=pmax(minDelta,(ba-1.1*baSP-baB)/baP)]
+      data.sample[pine>0. & spruce >0. & fert<2.5,dbhSP:=1.1*dbh]
+      data.sample[pine>0. & spruce >0. & fert<2.5 & X==minDelta,dbhSP:=dbh*(ba-minDelta* baP-baB)/baSP]
+      data.sample[pine>0. & spruce >0. & fert<2.5,dbhP:=X*dbh]
+      data.sample[pine>0. & spruce >0. & fert<2.5 & dbhP<0.5,dbhSP:=pmax(0.5,((ba-(0.5/dbh)*baP-baB)/baSP))]
+      data.sample[pine>0. & spruce >0. & fert<2.5 & dbhP<0.5,dbhP:=0.5]
+      
+      # data.sample[pine>0. & spruce >0. & fert<2.5 & baSP <= baP,dbhSP:=dbh * (ba - 0.9*baP - baB)/baSP]
+      # data.sample[pine>0. & spruce >0. & fert<2.5 & baSP <= baP,dbhP:=pmax(0.9*dbh,0.3)]
+      
+      ####increase spruce h 10% for spruce sitetype 1:2
+      data.sample[pine>0. & spruce >0. & fert<2.5, X:=pmax(minDelta,(ba-1.1*baSP-baB)/baP)]
+      data.sample[pine>0. & spruce >0. & fert<2.5,hSP:=1.1*h]
+      data.sample[pine>0. & spruce >0. & fert<2.5 & X==minDelta,hSP:=h*(ba-minDelta* baP-baB)/baSP]
+      data.sample[pine>0. & spruce >0. & fert<2.5, hP:=X*h]
+      data.sample[pine>0. & spruce >0. & fert<2.5 & hSP<1.5,hSP:=1.5]
+      data.sample[pine>0. & spruce >0. & fert<2.5 & hP<1.5,hP:=1.5]
+      
+      # data.sample[pine>0. & spruce >0. & fert<2.5 & baSP <= baP,hSP:=h * (ba - 0.9*baP - baB)/baSP]
+      # data.sample[pine>0. & spruce >0. & fert<2.5 & baSP <= baP,hP:=pmax(0.9*h,1.3)]
+      #  
+      ####increase spruce dbh 5% for spruce sitetype 3
+      data.sample[pine>0. & spruce >0. & fert==3, X:=pmax(minDelta,(ba-1.05*baSP-baB)/baP)]
+      data.sample[pine>0. & spruce >0. & fert==3, dbhP:=X*dbh]   
+      data.sample[pine>0. & spruce >0. & fert==3, dbhSP:=1.05*dbh]
+      data.sample[pine>0. & spruce >0. & fert==3 & X==minDelta,dbhSP:=dbh*(ba-minDelta* baP-baB)/baSP]
+      data.sample[pine>0. & spruce >0. & fert==3 & dbhP<0.5,dbhSP:=pmax(1.5,((ba-(0.5/dbh)*baP-baB)/baSP)*dbh)]
+      data.sample[pine>0. & spruce >0. & fert==3 & dbhP<0.5,dbhP:=0.5]
+      
+      # data.sample[pine>0. & spruce >0. & fert==3 & baSP <= baP,dbhSP:=pmin(25,(dbh * (ba - 0.95*baP - baB)/baSP))]
+      # data.sample[pine>0. & spruce >0. & fert==3 & baSP <= baP,dbhP:=pmax(0.95*dbh,0.3)]
+      
+      ####increase spruce h 5% for spruce sitetype 3
+      data.sample[pine>0. & spruce >0. & fert==3, X:=pmax(minDelta,(ba-1.05*baSP-baB)/baP)]
+      data.sample[pine>0. & spruce >0. & fert==3, hP:=X*h]
+      data.sample[pine>0. & spruce >0. & fert==3, hSP:=1.05*h]
+      data.sample[pine>0. & spruce >0. & fert==3 & X==minDelta,hSP:=h*(ba-minDelta* baP-baB)/baSP]
+      data.sample[pine>0. & spruce >0. & fert==3 & hSP<1.5, hSP:=1.5]
+      data.sample[pine>0. & spruce >0. & fert==3 & hP<1.5, hP:=1.5]
+      
+      # data.sample[pine>0. & spruce >0. & fert==3 & baSP <= baP,hSP:=pmin(30.,(h * (ba - 0.95*baP - baB)/baSP))]
+      # data.sample[pine>0. & spruce >0. & fert==3 & baSP <= baP,hP:=pmax(0.95*h,1.3)]
+      
+      ####increase pine dbh 10% for sitetype >= 4
+      data.sample[pine>0. & spruce >0. & fert>3.5, X:=pmax(minDelta,(ba-1.1*baP-baB)/baSP)]
+      data.sample[pine>0. & spruce >0. & fert>3.5, dbhSP:=X*dbh]
+      data.sample[pine>0. & spruce >0. & fert>3.5, dbhP:=1.1*dbh]
+      data.sample[pine>0. & spruce >0. & fert>3.5 & X==minDelta,dbhP:=dbh*(ba-minDelta*baSP-baB)/baP]
+      data.sample[pine>0. & spruce >0. & fert>3.5 & dbhSP<0.5,dbhP:=pmax(1.5,((ba-(0.5/dbh)*baSP-baB)/baP)*dbh)]
+      data.sample[pine>0. & spruce >0. & fert>3.5 & dbhSP<0.5,dbhSP:=0.5]
+      # data.sample[pine>0. & spruce >0. & fert>3.5 & baP <= baSP,dbhP:=dbh * (ba - 0.9*baSP - baB)/baP]
+      # data.sample[pine>0. & spruce >0. & fert>3.5 & baP <= baSP,dbhSP:=pmax(0.9*dbh,0.3)]
+      ####increase pine h 10% for sitetype >= 4
+      data.sample[pine>0. & spruce >0. & fert>3.5, X:=pmax(minDelta,(ba-1.1*baP-baB)/baSP)]
+      data.sample[pine>0. & spruce >0. & fert>3.5,hSP:=X*h]
+      data.sample[pine>0. & spruce >0. & fert>3.5,hP:=1.1*h]
+      data.sample[pine>0. & spruce >0. & fert>3.5 & X==minDelta,hP:=h*(ba-minDelta*baSP-baB)/baP]
+      data.sample[pine>0. & spruce >0. & fert>3.5 & hP<1.5,hP:=1.5]
+      data.sample[pine>0. & spruce >0. & fert>3.5 & hSP<1.5,hSP:=1.5]
+      # data.sample[pine>0. & spruce >0. & fert>3.5 & baP <= baSP,hP:=h * (ba - 0.9*baSP - baB)/baP]
+      # data.sample[pine>0. & spruce >0. & fert>3.5 & baP <= baSP,hSP:=pmax(0.9*h,1.3)]
+      
+      initVar[,3,1] <- as.numeric(data.sample[,hP])
+      initVar[,3,2] <- as.numeric(data.sample[,hSP])
+      initVar[,4,1] <- as.numeric(data.sample[,dbhP])
+      initVar[,4,2] <- as.numeric(data.sample[,dbhSP])
+    }
+  }
+  
+  NoPine <- which(initVar[,5,1]==0.)
+  NoSpruce <- which(initVar[,5,2]==0.)
+  NoDecid <- which(initVar[,5,3]==0.)
+  
+  siteInfo[NoPine,8] <- siteInfo[NoPine,8] - 1
+  siteInfo[NoSpruce,8] <- siteInfo[NoSpruce,8] - 1
+  siteInfo[NoDecid,8] <- siteInfo[NoDecid,8] - 1
+  
+  initVar[NoPine,3:6,1] <- 0.
+  initVar[NoSpruce,3:6,2] <- 0.
+  initVar[NoDecid,3:6,3] <- 0.
+  initVar[NoSpruce,,2] <- initVar[NoSpruce,,3]
+  initVar[NoPine,,1:2] <- initVar[NoPine,,2:3]
+  
+  nLay1 <- which(siteInfo[,8]==1)
+  nLay2 <- which(siteInfo[,8]==2)
+  initVar[nLay1,3:6,2:3] <- 0
+  initVar[nLay2,3:6,3] <- 0
+  
+  #siteInfo[, 2]  = match(as.numeric(siteInfo[, 2]), clim$id)#as.numeric(rownames(clim[[1]])))
+  siteInfo[, 2]  = match(as.numeric(siteInfo[, 2]), as.numeric(rownames(clim[[1]])))
+  
+  #defaultThin <- energyCut <- rep(0,nSites)
+  #defaultThin[data.sample[,cons]==1] = 0 #as.numeric(1-data.sample[, cons])
+  #energyCut[data.sample[,cons]==1] <- 0# as.numeric(1-data.sample[, cons])
+  energyCut <- ClCuts <- defaultThin <- as.numeric(1-data.sample[, cons])
+  if(harv == "NoHarv" & !rcps%in%c("CurrClim_fmis")) defaultThin <- energyCut <- rep(0,nSites)
+  #if(harv == "NoHarv" & !rcps%in%c("CurrClim_fmi")) defaultThin <- energyCut <- rep(0,nSites) 
+  
+  ## Set to match climate data years
+  if(!exists("ftTapioParX")) ftTapioParX = ftTapio
+  if(!exists("tTapioParX")) tTapioParX = tTapio
+  initVar[,6,] <- aaply(initVar,1,findHcNAs,pHcM,pCrobasX,HcModVx)[,6,]*HcFactorX
+  
+  xy <- sampleX[,c("segID","x","y")]
+  coordinates(xy) <- c("x","y")
+  proj4string(xy) <- crsX
+  #cord = SpatialPoints(xy, proj4string=CRS("+init=EPSG:3067"))
+  location<-as.data.frame(spTransform(xy, CRS("+init=epsg:4326")))
+  lat <- location$coords.x2
+  
+  if((nYears*365)>ncol(clim$PAR)){
+    clim$PAR <- cbind(clim$PAR,clim$PAR,clim$PAR,clim$PAR)
+    clim$TAir <- cbind(clim$TAir,clim$TAir,clim$TAir,clim$PAR)
+    clim$VPD <- cbind(clim$VPD,clim$VPD,clim$VPD,clim$PAR)
+    clim$Precip <- cbind(clim$Precip,clim$Precip,clim$Precip,clim$PAR)
+    clim$CO2 <- cbind(clim$CO2,clim$CO2,clim$CO2,clim$PAR)
+    if(rcps=="CurrClim_fmi"){
+      Tmm <- array(0,c(dim(TminTmax)[1],dim(TminTmax)[2]*4,2))
+      Tmm[,,1] <- cbind(TminTmax[,,1],TminTmax[,,1],TminTmax[,,1],TminTmax[,,1])
+      Tmm[,,2] <- cbind(TminTmax[,,2],TminTmax[,,2],TminTmax[,,2],TminTmax[,,2])
+      assign("TminTmax", Tmm)  
+      rm(list="Tmm")
+      gc()
+    }
+    print(paste("length of clim:",ncol(clim$PAR),"versus dimension",nYears*365))
+  }
+  
+  # NEW: ba weighted ages:
+  #ages <- initVar[,2,1]
+  #nn <- which(apply(initVar[,2,],1,sum)>0)
+  #initVar[nn,2,] <- initVar[nn,4,]/apply(initVar[nn,4,],1,mean)*initVar[nn,2,]
+  #initVar[nn,2,] <- initVar[nn,2,]*ages[nn]/apply(initVar[nn,5,]*initVar[nn,2,]/apply(initVar[nn,5,],1,sum),1,sum)
+  print("latitudes...")
+  print(lat[1:5])
+  
+  if(harv == "NoHarv"  & !rcps%in%c("CurrClim_fmis")) ClCuts <- -1+0*ClCuts
+  #print(paste("ClCuts",ClCuts))  
+  initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),
+                              siteInfo=siteInfo,
+                              siteInfoDist = sid,
+                              # litterSize = litterSize,#pAWEN = parsAWEN,
+                              latitude = lat,#data.sample$lat,
+                              pCROBAS = pCrobasX,
+                              defaultThin=defaultThin,
+                              ClCut = ClCuts, 
+                              areas =areas,
+                              energyCut = energyCut, 
+                              ftTapioPar = ftTapioParX,
+                              tTapioPar = tTapioParX,
+                              ingrowth = ingrowth,
+                              multiInitVar = as.array(initVar),
+                              PAR = clim$PAR[, 1:(nYears*365)],
+                              TAir=clim$TAir[, 1:(nYears*365)],
+                              VPD=clim$VPD[, 1:(nYears*365)],
+                              Precip=clim$Precip[, 1:(nYears*365)],
+                              CO2=clim$CO2[, 1:(nYears*365)],
+                              yassoRun = 1,
+                              mortMod = mortMod, TminTmax = TminTmax, 
+                              disturbanceON = disturbanceON)
+  
+  if(harv == "NoHarv" & !rcps%in%c("CurrClim_fmis")){
+    #if(harv == "NoHarv" & !rcps%in%c("CurrClim_fmi")){
+    initPrebas$ClCut = rep(-1, nSites) 
+  }
+  print(initPrebas$ClCut[1:20])
+  
+  if(!is.null(outModReStart)){
+    
+    ####set the mortality model
+    ###reineke for managed forests
+    ### reineke + empirical mod for conservation areas
+    if(mortMod==13){
+      initPrebas$mortMod = c(1,3)#rep(1,nrow(data.sample))
+      # initPrebas$mortMod[data.sample$cons==1] <- 3 
+    }
+    if(!is.null(outModReStart$multiOut)){
+      initPrebas$multiOut[,1:reStartYear,,1:3,] <- outModReStart$multiOut
+      initPrebas$multiOut[,1:reStartYear,8,,] = 0
+      initPrebas$GVout[,1:reStartYear,] <- outModReStart$GVout
+    } 
+    if(!is.null(outModReStart$siteInfo)) initPrebas$siteInfo <- outModReStart$siteInfo
+    if(!is.null(outModReStart$initClearcut)) initPrebas$initClearcut <- outModReStart$initClearcut
+  }
+  if(!is.null(initSoilC)) initPrebas$soilC[,1:reStartYear,,,1:3] <- initSoilC[1:nrow(sampleX),,,,]
+  
+  return(initPrebas)
+  
+  
+}
+
+
+
 yasso.mean.climate.f = function(dat, data.sample, startingYear, nYears){
   dat = dat[id %in% data.sample[, unique(id)]]
   dat[, DOY:=rep(1:365, len=dim(dat)[1])]
@@ -1190,7 +1511,7 @@ yasso.mean.climate.f = function(dat, data.sample, startingYear, nYears){
 }
 
 
-prep.climate.f = function(dat, data.sample, startingYear, nYears, rcps){
+prep.climate.f_adapt = function(dat, data.sample, startingYear, nYears, rcps){
   print("Formulate climate data...")
   dat = dat[id %in% data.sample[, unique(id)]]
  # print(colnames(dat))

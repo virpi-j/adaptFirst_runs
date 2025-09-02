@@ -103,9 +103,11 @@ coordinates(xy) <- c("x","y")
 proj4string(xy) <- CRS("+proj=longlat +datum=WGS84") 
 res <- spTransform(xy, crsX)#CRS(paste("+proj=utm +zone=",35," ellps=WGS84",sep='')))
 station_coords<-as.data.frame(res)[2:3]
+colnames(station_coords) <- c("x","y")
 #station_coords <- LongLatToUTM(xy) # dd to UTM
 print(station_coords)
 
+totArea <- sum(data.all$area)
 d<- sqrt((data.all$x - station_coords$x)^2+(data.all$y - station_coords$y)^2)
 nn.d <- order(d, decreasing=F)[1:nSitesRun]
 
@@ -222,17 +224,18 @@ if(TRUE){
   reStartYear=1
   TminTmax <- NA
 }
-source("~/adaptFirst_runs/functions.R", local = T)
+source("~/finruns_to_update//functions.R")
+#source("~/adaptFirst_runs/functions.R", local = T)
 #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 ###source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
-source("functions_IBSCarbon.R", local = T)
+#source("functions_IBSCarbon.R", local = T)
 P0currclim <- fT0 <- NA
 print(paste("sample size",nSitesRun))
 
 if(outType=="testRun"){
   # CurrClim scenario using the IBC-carbon settings to get soilC initialization
   sampleXs0 <- list()
-  if(!exists("forceInitialization")) forceInitialization<-T
+  if(!exists("forceInitialization") | vPREBAS=="newVersion") forceInitialization<-T
   if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base") | forceInitialization){
     #if(climScen>=0 | (harvscen=="Base" & harvinten=="Base")){
     #if(climScen>=0 | (CO2fixed==0 & harvscen=="Base" & harvinten=="Base")){
@@ -240,18 +243,28 @@ if(outType=="testRun"){
     nYears<-2050-2015
     endingYear <- nYears + startingYear
     climatepath <- climatepath_orig 
-    source("~/adaptFirst_runs/functions.R", local = T)
+    
+    disturbanceON = NA; ingrowth = F; clcut = 1
+    
+    #source("~/adaptFirst_runs/functions.R", local = T)
+    source("~/finruns_to_update//functions.R")
 #    source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-    source("functions_IBSCarbon.R", local = T)
+    #source("functions_IBSCarbon.R", local = T)
     print(paste("Simulate soilC for",nYears,"years"))
-    #save.image(paste0("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/testRegionInput.rdata"))
-    sampleXs0 <- runModelAdapt(1,sampleID = 1,
+
+    sampleXs0 <- runModel(1,sampleID = 1,
                                outType="testRun",  
                                rcps = "CurrClim",
                                climScen = 0,
                                CO2fixed=0,
+                               sampleX = ops[[1]],
                                harvScen="Base",
-                               harvInten="Base", ingrowth = T)
+                               harvInten="Base", ingrowth = F)
+    
+    # check outputs
+    print(apply(sampleXs0$region$multiOut[1:4,1:6,"V",,1],1:2,sum))
+    print(apply(sampleXs0$region$multiOut[1:4,1:6,"grossGrowth",,1],1:2,sum))
+    
     # Initialize N-model parameters
     if(vPREBAS=="newVersion"){#exists("parsCN_alfar")){
       P0currclim <- rowMeans(sampleXs0$region$P0y[,,1])
@@ -265,7 +278,7 @@ if(outType=="testRun"){
       endingYear <<- nYears + startingYear
       rcps <<- rcpsFile 
       climatepath <<- climatepath_adaptFirst
-      sampleXs0 <- runModelAdapt(1,sampleID = 1,
+      sampleXs0 <- runModel(1,sampleID = 1,
                                  outType="testRun",  
                                  climScen=climScen,
                                  rcps = rcpsFile,
@@ -280,34 +293,38 @@ if(outType=="testRun"){
   }
   # IRS runs
   if(vPREBAS=="newVersion") load(file=paste0("Ninfo_station",station_id,".rdata"))
-  outType<-"dTabs"
+  outType<-"IRSruns"
   nYears <- 2100-1991#2015
   if(climScen > 0) nYears <- 2100-2015
   endingYear <- nYears + startingYear
   rcps <- rcpsFile 
-  climatepath <- climatepath_adaptFirst
+#  climatepath <- climatepath_adaptFirst
   
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/settings.R")
   print(paste("Simulate for",nYears,"years"))
   #source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
-  source("~/adaptFirst_runs/functions.R", local = T)
-  source("functions_IBSCarbon.R", local = T)
+  #source("~/adaptFirst_runs/functions.R", local = T)
+  #source("functions_IBSCarbon.R", local = T)
+  source("~/finruns_to_update/functions.R")
   jx <- 1
   disturbanceON <- c("fire","wind","bb")
   print(disturbanceON)
   if(verySparse){
-    sampleXs <- runModelAdapt(1, sampleID=1,
+    sampleXs <- runModel(1, sampleID=1,
                               outType="testRun",climScen=climScen,
                               rcps = rcpsFile,
                               CO2fixed=CO2fixed,
                               harvScen=harvscen,#"Base" or #BaseTapio
                               harvInten=harvinten,P0currclim=P0currclim, fT0=fT0,
                               disturbanceON = disturbanceON, ingrowth = T)
+    # check outputs
+    print(apply(sampleXs$region$multiOut[1:4,1:6,"V",,1],1:2,sum))
+    print(apply(sampleXs$region$multiOut[1:4,1:6,"grossGrowth",,1],1:2,sum))
     break()
   }
   sampleXs <- lapply(deltaIDs, 
                      function(jx) { 
-                       runModelAdapt(jx, sampleID=1,
+                       runModel(jx, sampleID=1,
                                      outType=outType, climScen=climScen,
                                      rcps = rcpsFile,
                                      CO2fixed=CO2fixed,
@@ -360,7 +377,7 @@ if(outType=="testRun"){
   
   source_url("https://raw.githubusercontent.com/virpi-j/adaptFirst_runs/master/functions.R")
 #  source_url("https://raw.githubusercontent.com/ForModLabUHel/IBCcarbon_runs/master/general/functions.r")
-  source("functions_IBSCarbon.R", local = T)
+  #source("functions_IBSCarbon.R", local = T)
   #  source("~/adaptFirst_runs/functions.R")
 #  sampleXs <- runModelAdapt(1,
 #                outType=outType,  
