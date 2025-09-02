@@ -16,7 +16,7 @@ sampleID <- 1
 #
 library(sp)
 library(raster)
-library(rgdal)
+#library(rgdal)
 library(data.table)
 library(devtools)
 library(plyr)
@@ -27,28 +27,29 @@ library(abind)
 require(sm)
 library(readxl)
 
+if(!exists("vPREBAS")) vPREBAS = "newVersion"  #### choose PREBAS version to run the model "master" "v0.2.x"
 ###load packages in CSC project folder
-###choose PREBAS version
-if(!exists("forceInstall")) forceInstall<-F
-if(!("Rprebasso"%in%installed.packages()[,1])){
-  CSCrun <- T
-  if(!exists("vPREBAS")) vPREBAS <- "master" #"v1.0.0" #"master"   #### choose PREBAS version to run the model  "master" "v0.2.x"
-  if(vPREBAS=="newVersion" & CSCrun){
-    .libPaths(c("/scratch/project_2000994/newV", .libPaths()))
-    libpath <- .libPaths()[1]
-  } else if(CSCrun){
-    .libPaths(c("/scratch/project_2000994/project_rpackages", .libPaths()))
-    libpath <- .libPaths()[1]
-  }
-  #  if(CSCrun){
-#    .libPaths(c("/projappl/project_2000994/project_rpackages", .libPaths()))
-#    libpath <- .libPaths()[1]
-#  }
- devtools::install_github("ForModLabUHel/Rprebasso", ref=vPREBAS, force = forceInstall)
+# if(CSCrun){
+if(vPREBAS=="newVersion"){
+  #.libPaths(c("/scratch/project_2000994/newV", .libPaths()))
+  .libPaths(c("/scratch/project_2000994/tmpV", .libPaths()))
+  libpath <- .libPaths()[1]
+} else {
+  .libPaths(c("/scratch/project_2000994/project_rpackages", .libPaths()))
+  libpath <- .libPaths()[1]
 }
-print(paste("Prebas version",vPREBAS,"installed"))
-library(Rprebasso)
-#library(DescTools)
+require(devtools)
+require(data.table)
+require(plyr)
+require(dplyr)
+require(abind)
+require(sm)
+# ###choose PREBAS version
+print("Install Prebas")
+install_github("ForModLabUHel/Rprebasso", ref=vPREBAS, force = F)
+print(paste("PREBAS version",vPREBAS))
+require(Rprebasso)
+
 
 # r_no = regions = 2  ### forest center ID
 nCores <- 6  ####  number of cores
@@ -59,7 +60,7 @@ if(!exists("harvInten")) harvInten = "Base"#c("NoHarv","Base")
 
 # Missing from varOuts: 
 # MinPeat-index, NEPdrPeat
-if(!exists("mortMod")) mortMod=13
+if(!exists("mortMod")) mortMod=1 #13
 if(!exists("siteTypes")) siteTypes=1:20
 if(!exists("landClassX")) landClassX=1:2
 ###flag for settings the regions to consider
@@ -86,20 +87,20 @@ pCrobasX <- pCROB
 #pCrobasX[17,1:3] <- pCROB[17,1:3]*0.7
 
 # adapt-First: Volume, growth, Deadwood; C- sequestration (NEP & NPP) 
-if("NEP/SMI[layer_1]"%in%varNames){#vPREBAS%in%c("master")){#},"newVersion")){
-  varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth/bb BA disturbed",#"grossGrowth", 
+if(vPREBAS%in%c("master","newVersion")){
+  varOuts <- c("NEP/SMI[layer_1]","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
              "soilC", 
              "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
-             "DeadWoodVolume","V", "age", "WroundWood","VroundWood")#,
-             #"DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
-             #"Hc_base","wf_STKG","Rh/SBBpob[layer_1]")
+             "V", "age", "WroundWood","VroundWood",
+             "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
+             "Hc_base","wf_STKG","Rh/SBBpob[layer_1]")
 } else {
   varOuts <- c("NEP","GPPtrees","GPPTot/1000","npp", "grossGrowth", 
                "soilC",
                "Litter_fol","Litter_fr","Litter_fWoody", "Litter_cWoody",
-               "DeadWoodVolume","V", "age", "WroundWood","VroundWood")#,
-  #             "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
-  #             "Hc_base","wf_STKG","Rh")
+               "V", "age", "WroundWood","VroundWood",
+               "DeadWoodVolume", "D", "BA", "H", "Vmort","Wdb",
+               "Hc_base","wf_STKG","Rh")
   
 }
 varSel <- match(varOuts,varNames)
@@ -128,7 +129,7 @@ funX[match(varNames[c(7,11:12,14)],varNames[varSel])] <- "baWmean"
 
 ####paths
 pathtoken = "/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/"
-climatepath <- climatepath_adaptFirst <- "/scratch/project_2000994/PREBASruns/adaptFirst/tempData/"
+climatepath = "/scratch/project_2000994/PREBASruns/adaptFirst/tempData/"
 climatepath_orig = "/scratch/project_2000994/RCP/"
   
 crsX <- ("+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m

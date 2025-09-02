@@ -11,8 +11,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
                      procDrPeat=F,coeffPeat1=-240,coeffPeat2=70,
                      coefCH4 = 0.34,#g m-2 y-1
                      coefN20_1 = 0.23,coefN20_2 = 0.077,#g m-2 y-1
-                     landClassUnman=NULL,compHarvX = 0,P0currclim=NA, fT0=NA,TminTmax = NA,
-                     toRaster=F, disturbanceON = NA, ingrowth = F){
+                     landClassUnman=NULL,compHarvX = 0, P0currclim=NA, fT0=NA,TminTmax = NA,
+                     toRaster=F, disturbanceON = NA, ingrowth = F, clcut = 1){
   # outType determines the type of output:
   # dTabs -> standard run, mod outputs saved as data.tables 
   # testRun-> test run reports the mod out and initPrebas as objects
@@ -20,6 +20,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   # uncRun -> reports the output table for the regional uncertainty run
   # uncSeg -> reports the list of output table for the segment uncertainty run
   # cons10run -> flag for conservation areas 10% run
+  print(paste("Prebas version", vPREBAS))
   a0 <- Sys.time()
   if(outType=="testRun_region"){
     outType <- "testRun"
@@ -27,8 +28,9 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   }
   set.seed(1)  
   # print(date())
+  nSegs <- dim(ops[[sampleID]])[1]
   path_to_inputs <- "/scratch/project_2000994/PREBASruns/finRuns/"
-  print(paste("start sample ID",sampleID))
+  print(paste("start sample ID",sampleID,"dim =",dim(ops[[sampleID]])[1]))
   if(rcps!="CurrClim" & climScen<0)  print(paste("start delta ID",deltaID,": deltaT=", deltaTP[1,deltaID]," deltaP=", deltaTP[2,deltaID]))
   
   initilizeSoil=T ###flag for soil initialization 
@@ -81,9 +83,9 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   }else{
     sampleX <- ops[[sampleID]]
   }
-  if(nrow(sampleX)<9000) station_id <- paste0(station_id,"s")
+  if(nrow(sampleX)<9000 & climScen < 0) station_id <- paste0(station_id,"s")
   if(outType %in% c("uncRun","uncSeg")){
-    area_tot <- sum(data.all$area) # ha
+    if(!exists("area_tot")) area_tot <- sum(data.all$area) # ha
     sampleX[,area := 16^2/10000] 
     cA <- 1/nrow(sampleX) #area_tot/nrow(sampleX) 
     harvestLims <- as.numeric(harvestLimsr[sampleID,])
@@ -98,11 +100,13 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     print(paste0("Climate model deltaID=",deltaID,": ",rcps))
     #print(paste("sampleID",sampleID,"harvestLims ="))
     #print(HarvLimMaak[1,] * sum(sampleX$area)/sum(data.all$area))
-  } else {
+  } else if(!"area"%in%colnames(sampleX)){
     sampleX[,area := N*16^2/10000] 
   }
+  #print(sum(sampleX$area))
+  if(!exists("area_tot")) area_tot <- sum(data.all$area)
   sampleX[,id:=climID]
-  HarvLimX <- harvestLims * sum(sampleX$area)/sum(data.all$area)
+  HarvLimX <- harvestLims * sum(sampleX$area)/area_tot
   nSample = nrow(sampleX)#200#nrow(data.all)
   
   # leave unmaned land classes in landClassUnman
@@ -111,8 +115,6 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   ## ---------------------------------------------------------
   i = 0
   rcpfile = rcps
-  #if(outType != "uncRun"){
-  #if(!outType %in% c("uncRun","uncSeg")){
   print(paste("Clim:",rcpfile))
   if(rcpfile=="CurrClim"){
     load(paste(climatepath_orig, "CurrClim",".rdata", sep=""))
@@ -126,100 +128,128 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     #dat <- dat[rep(1:nrow(dat),4),]
     dat[,rday:=xday]
     rm(list = "xday")
-  } else if(climScen>=0){
-    climatepath = "/scratch/project_2000994/RCP/"
-    load(paste(climatepath, rcpfile,".rdata", sep=""))
-    missingIDs <- setdiff(unique(sampleX$id), unique(dat$id))
-    if(length(missingIDs)>0){
-      coords <- fread("/scratch/project_2000994/RCP/coordinates")
-      for(i in 1:length(missingIDs)){
-        idX <- order((coords$x - coords$x[missingIDs[i]])^2 + (coords$y - coords$y[missingIDs[i]])^2)
-        idX <- idX[idX%in%unique(dat$id)][1]
-        nn<-which(sampleX$id==missingIDs[i]) 
-        sampleX[nn,climID:=idX]
-        sampleX[nn,id:=idX]
-        print(paste("SampleID",sampleID,"clim ids: ",missingIDs[i], "was replaced with",idX))
+  } else if(rcpfile=="CurrClim_fmi"){
+      datname <- load(paste0(workdir, "fmi_vars_PREBAS.rdata"))
+      assign("dat",get(datname))
+      lookupname <- load(paste0(workdir, "climID_lookup.rdata"))
+      assign("lookup",get(lookupname))
+      rm(list=c("datname","lookupname"))
+      gc()
+      #####process data considering only current climate###
+      dat[,rday := as.numeric(dat$time)-min(as.numeric(dat$time))+1]
+      # dat <- dat[rday %in% 1:10958] #uncomment to select some years (10958 needs to be modified)
+      maxRday <- max(dat$rday)
+      colnames(dat)[which(colnames(dat)=="precip")] <- "Precip"
+      colnames(dat)[which(colnames(dat)=="tair")] <- "TAir"
+      colnames(dat)[which(colnames(dat)=="par")] <- "PAR"
+      colnames(dat)[which(colnames(dat)=="vpd")] <- "VPD"
+      colnames(dat)[which(colnames(dat)=="co2")] <- "CO2"
+      dat$CO2[which(is.na(dat$CO2))] <- max(na.omit(dat$CO2))
+      
+      # TminTmax array, repeat Tmin and Tmax for all climIDs
+      print("Setup Tmin Tmax values...")
+      
+      tmp <-  t( dcast(dat[, list(id, rday, tmin)], rday ~ id,
+                       value.var="tmin")[, -1])
+      TminTmax <- array(0,c(length(unique(dat$id)),ncol(tmp),2))
+      TminTmax[,,1] <- t( dcast(dat[, list(id, rday, tmin)], rday ~ id,
+                         value.var="tmin")[, -1])
+      TminTmax[,,2] <- t( dcast(dat[, list(id, rday, tmax)], rday ~ id,
+                                   value.var="tmax")[, -1])
+      print("done.")
+    } else if(climScen>=0){
+      climatepath = "/scratch/project_2000994/RCP/"
+      load(paste(climatepath, rcpfile,".rdata", sep=""))
+      missingIDs <- setdiff(unique(sampleX$id), unique(dat$id))
+      if(length(missingIDs)>0){
+        coords <- fread("/scratch/project_2000994/RCP/coordinates")
+        for(i in 1:length(missingIDs)){
+          idX <- order((coords$x - coords$x[missingIDs[i]])^2 + (coords$y - coords$y[missingIDs[i]])^2)
+          idX <- idX[idX%in%unique(dat$id)][1]
+          nn<-which(sampleX$id==missingIDs[i]) 
+          sampleX[nn,climID:=idX]
+          sampleX[nn,id:=idX]
+          print(paste("SampleID",sampleID,"clim ids: ",missingIDs[i], "was replaced with",idX))
+        }
       }
-    }
-  } else {
-    climatepath_adapt <- "/scratch/project_2000994/PREBASruns/adaptFirst/tempData/"
-    #read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
-    dat2 <- read.csv(paste0(climatepath_adapt, rcpfile)) 
-    dat2 <- dat2[which(dat2$Year2>=startingYear & 
-                         dat2$deltaT==deltaTP[1,deltaID] & 
-                         dat2$Pchange==deltaTP[2,deltaID]),]
-    climIDs <- unique(sampleX$climID)
-    # TminTmax array, repeat Tmin and Tmax for all climIDs
-    dat1 <- read.csv(paste0(climatepath_adapt, str_replace(rcpfile, "v1","tmin_and_tmax")))
-    dat1 <- dat1[which(dat1$Year2>=startingYear & 
-                         dat1$deltaT==deltaTP[1,deltaID] & 
-                         dat1$Pchange==deltaTP[2,deltaID]),]
-    TminTmax <- array(0,c(length(climIDs),dim(dat1)[1],2))
-    TminTmax[,,1] <- t(array(dat1$Tmin_perturbed,c(dim(dat1)[1],length(climIDs))))
-    TminTmax[,,2] <- t(array(dat1$Tmax_perturbed,c(dim(dat1)[1],length(climIDs))))
-    print("Run with Tmin Tmax values.")
-    # CO2 array
-    CO2<-as.numeric(sub(",",".",CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),(Co2Col+1)]))
-    if(CO2fixed==0){
-      dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
-                         #PAR=-0.894+1.8*dat2$GLOB,
-                         PAR=1.8*dat2$GLOB/1000,
-                         TAir=dat2$Tmean_constant,#detrended,
-                         VPD=dat2$VPdef_constant,#detrended,
-                         Precip=dat2$Pre_constant,
-                         CO2=CO2)
     } else {
-      dat2 <- data.table(id=sampleX$climID[1],
-                         rday=1:nrow(dat2),
-                         #PAR=-0.894+1.8*dat2$GLOB,
-                         PAR=1.8*dat2$GLOB/1000,
-                         TAir=dat2$Tmean_seasonal,#detrended,
-                         VPD=dat2$VPdef_seasonal,#detrended,
-                         Precip=dat2$Pre_seasonal,
-                         CO2=CO2)
-    }
-    nr <- length(climIDs)
-    clim <- list(PAR = t(replicate(nr,dat2$PAR)),
-                 TAir = t(replicate(nr,dat2$TAir)),
+      climatepath_adapt <- "/scratch/project_2000994/PREBASruns/adaptFirst/tempData/"
+      #read.csv2(file=paste0(climatepath,rcpsFile),sep = ",")
+      dat2 <- read.csv(paste0(climatepath_adapt, rcpfile)) 
+      dat2 <- dat2[which(dat2$Year2>=startingYear & 
+                           dat2$deltaT==deltaTP[1,deltaID] & 
+                           dat2$Pchange==deltaTP[2,deltaID]),]
+      climIDs <- unique(sampleX$climID)
+      # TminTmax array, repeat Tmin and Tmax for all climIDs
+      dat1 <- read.csv(paste0(climatepath_adapt, str_replace(rcpfile, "v1","tmin_and_tmax")))
+      dat1 <- dat1[which(dat1$Year2>=startingYear & 
+                           dat1$deltaT==deltaTP[1,deltaID] & 
+                           dat1$Pchange==deltaTP[2,deltaID]),]
+      TminTmax <- array(0,c(length(climIDs),dim(dat1)[1],2))
+      TminTmax[,,1] <- t(array(dat1$Tmin_perturbed,c(dim(dat1)[1],length(climIDs))))
+      TminTmax[,,2] <- t(array(dat1$Tmax_perturbed,c(dim(dat1)[1],length(climIDs))))
+      print("Run with Tmin Tmax values.")
+      # CO2 array
+      CO2<-as.numeric(sub(",",".",CO2_RCPyears[match(dat2$Year2,CO2_RCPyears$year),(Co2Col+1)]))
+      if(CO2fixed==0){
+        dat2 <- data.table(id=sampleX$climID[1],rday=1:nrow(dat2),
+                           #PAR=-0.894+1.8*dat2$GLOB,
+                           PAR=1.8*dat2$GLOB/1000,
+                           TAir=dat2$Tmean_constant,#detrended,
+                           VPD=dat2$VPdef_constant,#detrended,
+                           Precip=dat2$Pre_constant,
+                           CO2=CO2)
+      } else {
+        dat2 <- data.table(id=sampleX$climID[1],
+                           rday=1:nrow(dat2),
+                           #PAR=-0.894+1.8*dat2$GLOB,
+                           PAR=1.8*dat2$GLOB/1000,
+                           TAir=dat2$Tmean_seasonal,#detrended,
+                           VPD=dat2$VPdef_seasonal,#detrended,
+                           Precip=dat2$Pre_seasonal,
+                           CO2=CO2)
+      }
+      nr <- length(climIDs)
+      clim <- list(PAR = t(replicate(nr,dat2$PAR)),
+                   TAir = t(replicate(nr,dat2$TAir)),
                  VPD = t(replicate(nr,dat2$VPD)),
                  Precip = t(replicate(nr,dat2$Precip)),
                  CO2 = t(replicate(nr,dat2$CO2)),
                  id = climIDs)
-    #clim <- list(PAR = matrix(dat2$PAR,length(climIDs),nrow(dat2),byrow = TRUE),
-    #     TAir = matrix(dat2$TAir,length(climIDs),nrow(dat2),byrow = TRUE),
-    #     VPD = matrix(dat2$VPD,length(climIDs),nrow(dat2),byrow = TRUE),
-    #     Precip = matrix(dat2$Precip,length(climIDs),nrow(dat2),byrow = TRUE),
-    #     CO2 = matrix(dat2$CO2,length(climIDs),nrow(dat2),byrow = TRUE),
-    #     id = climIDs)
     rownames(clim$PAR)<-climIDs     
     colnames(clim$PAR)<-1:ncol(clim$PAR)    
     rm(list="dat2")
-    #if(length(climIDs)>1){
-    #  for(ij in 2:length(climIDs)){
-    #  dat <- rbind(dat, dat[,id:=climIDs[ij]])
-    #  }
-    #}
-    #colnames(dat)[7] = "CO2"
   }
   
   gc()
   ## Prepare the same initial state for all harvest scenarios that are simulated in a loop below
   data.sample = sample_data.f(sampleX, nSample)
-  if(rcpfile=="CurrClim") data.sample$id <- data.sample$CurrClimID
+  if(rcpfile%in%c("CurrClim")) data.sample$id <- data.sample$CurrClimID
+  if(rcpfile%in%c("CurrClim_fmi")) data.sample$id <- data.sample$climID <- data.sample$CurrClimID <- lookup$climID[((sampleID-1)*nSample+1):(sampleID*nSample)] # dat-tiedostossa uudet clim-coordinaatit
+  
   areas <- data.sample$area
   totAreaSample <- sum(data.sample$area)
+  #print(sum(areas))
   
-  if(rcpfile=="CurrClim" | climScen >0) clim = prep.climate.f(dat, data.sample, startingYear, nYears)
+  if(rcpfile%in%c("CurrClim","CurrClim_fmi") | climScen >0) clim <-prep.climate.f(dat, data.sample, startingYear, nYears, rcps = rcpfile)
+  rm("dat")
+  gc()
   
   Region = nfiareas[ID==r_no, Region]
-  if(!is.na(disturbanceON[1])) ingrowth <- T # in disturbances ingrowth is always T
+  if(!is.na(disturbanceON[1]) & !rcpfile%in%c("CurrClim","CurrClim_fmi")) ingrowth <- T # in disturbances ingrowth is always T
   ## Second, continue now starting from soil SS
-  initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,
+  print(paste("Ingrowth = ",ingrowth))
+  print(disturbanceON)
+  print("Start initializing...")
+  initPrebas = create_prebas_input_adapt.f(r_no, clim, data.sample, nYears = nYears,harv=harvScen,
                                            startingYear = startingYear,domSPrun=domSPrun,
-                                           harv=harvScen, HcFactorX=HcFactor, 
-                                           climScen=climScen, sampleX=sampleX, 
-                                           P0currclim=P0currclim, fT0=fT0, ingrowth=ingrowth,
+                                            HcFactorX=HcFactor, 
+                                           climScen=climScen, sampleX=sampleX, #clcut = clcut, 
+                                           P0currclim=P0currclim, fT0=fT0, ingrowth = ingrowth,
                                            TminTmax = TminTmax, disturbanceON = disturbanceON)
+  print("...done.")
+  rm(list=c("data.sample"))
+  gc()
   
   opsna <- which(is.na(initPrebas$multiInitVar))
   initPrebas$multiInitVar[opsna] <- 0.
@@ -232,9 +262,18 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   ##### mortMod=3 (reineke + empirical model) for unmanaged forests
   if(mortMod==13){
     initPrebas$mortMod <- c(1,3)#rep(1,dim(initPrebas$multiOut)[1])
-    # initPrebas$mortMod[initPrebas$ClCut==0] <- 3
   }
   
+  ##here mix years for weather inputs for Curr Climate
+  if(rcpfile%in%c("CurrClim","CurrClim_fmi") & nYears>9){
+    set.seed(10)
+    resampleYear <- sample(1:nYears,nYears)
+    resampleYear[(2015:2024)-2015+1] <- (2015:2024)-2015+1
+    initPrebas$ETSy <- initPrebas$ETSy[,resampleYear]
+    initPrebas$P0y <- initPrebas$P0y[,resampleYear,]
+    initPrebas$weather <- initPrebas$weather[,resampleYear,,]
+    initPrebas$weatherYasso <- initPrebas$weatherYasso[,resampleYear,]
+  }
   
   ### for adapt and protect scenario Replanting schemes 
   ### do not replant pine in sitetypes 1 and 2
@@ -262,36 +301,14 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     initPrebas$initCLcutRatio[jj,3] <- 0.2
   }
   
-  ##here mix years for weather inputs for Curr Climate
-  if(rcpfile=="CurrClim"){
-    #if(outType=="uncRun"){
-    #if(outType %in% c("uncRun","uncSeg")){
-    #  resampleYear <- resampleYears[sampleID,] 
-    #  #sample(1:nYears,nYears,replace=T)
-    #}else{
-      set.seed(10)
-      resampleYear <- sample(1:nYears,nYears)
-    #} 
-    initPrebas$ETSy <- initPrebas$ETSy[,resampleYear]
-    initPrebas$P0y <- initPrebas$P0y[,resampleYear,]
-    initPrebas$weather <- initPrebas$weather[,resampleYear,,]
-    initPrebas$weatherYasso <- initPrebas$weatherYasso[,resampleYear,]
-  #  print(paste("weather data dim:",dim(initPrebas$P0y)))
-  }
   
-  # Loop management scenarios ------------------------------------------------
-  # for(harvScen in harvScen) { ## MaxSust fails, others worked.
-  # print(date())
-  # print(harvScen)
-  i = i + 1
-  # print(paste(i, (length(harvScen)*length(rcps)*length(regions)), sep="/"))
-  # harvScen ="Base"
-  
+  #i = i + 1
+
   ## Assign harvesting quota for the region based on volume (in NFI startingYear) and MELA
   if(regSets!="maakunta"){
     Region = nfiareas[ID==r_no, Region]
     if(harvScen=="NoHarv"){
-      if(!exists("clcut")) clcut <- 0
+      if(!exists("clcut") & !is.na(disturbanceON[1])) clcut <- -1
       initPrebas$ClCut = initPrebas$defaultThin = rep(clcut,nSample)
       HarvLim1 = 0
       harvInten = "NoHarv"
@@ -336,7 +353,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       HarvLim1 <- cbind(roundWood,enWood)
     }
   }else{
-    HarvLim1 <- HarvLimMaak*1000*sum(areas)/sum(data.all$area)
+    HarvLim1 <- HarvLimMaak*1000*sum(areas)/area_tot
     
     # If simulation time period is longer than harvest limit data, add lines
     if(nrow(HarvLimMaak)<nYears) HarvLim1<-rbind(HarvLim1,HarvLim1[rep(nrow(HarvLim1),nYears-nrow(HarvLim1)),])
@@ -345,7 +362,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     if(harvInten == "MaxSust"){HarvLim1 <- HarvLim1 * 1.2}
     if(harvScen == "NoHarv"){
       HarvLim1 <- HarvLim1 * 0.
-      initPrebas$ClCut = initPrebas$defaultThin = rep(clcut,nSample)
+      initPrebas$ClCut = initPrebas$defaultThin = rep(0,nSample)
       harvInten = harvScen
     }
   }          
@@ -353,13 +370,13 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   ###calculate clearcutting area for the sample
   #if(!is.na(cutArX)){
   print("calculating clearcutting areas")
-  clcutArX <- clcutAr * sum(areas)/sum(data.all$area)
+  clcutArX <- clcutAr * sum(areas)/area_tot
   if(length(clcutArX)<nYears) clcutArX<-c(clcutArX,clcutArX[rep(length(clcutArX),nYears-length(clcutArX))])
   clcutArX <- cbind(clcutArX[1:nYears],0.)
-  tendX <- tendingAr * sum(areas)/sum(data.all$area)
+  tendX <- tendingAr * sum(areas)/area_tot
   if(length(tendX)<nYears) tendX<-c(tendX,tendX[rep(length(tendX),nYears-length(tendX))])
   tendX <- cbind(tendX[1:nYears],0.)
-  fThinX <- firstThinAr * sum(areas)/sum(data.all$area)
+  fThinX <- firstThinAr * sum(areas)/area_tot
   if(length(fThinX)<nYears) fThinX<-c(fThinX,fThinX[rep(length(fThinX),nYears-length(fThinX))])
   fThinX <- cbind(fThinX[1:nYears],0.)
   cutArX <- cbind(clcutArX,tendX)
@@ -370,7 +387,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   
   ###run PREBAS
   if(initilizeSoil){
-    if(!(harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
+    if(!(harvScen =="Base" & harvInten == "Base" & rcpfile%in%c("CurrClim","CurrClim_fmi"))){
         if(!harvScen %in% c("protect","protectNoAdH","protectTapio")){
           pathToInitiSoilC <- "/scratch/project_2000994/PREBASruns/adaptFirst/initSoilC/"
           if(identical(landClassX,1:3)) load(paste0(pathToInitiSoilC,"station",station_id,"_LandClass1to3.rdata"))
@@ -472,10 +489,9 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
         region <- regionPrebas(initPrebas, HarvLim = as.numeric(HarvLimX),
                                cutAreas =cutArX,compHarv=compHarvX)
       } else {
-        #if(vPREBAS=="newVersion") save(initPrebas, HarvLimX, minDharvX,cutArX,compHarvX, 
-        #                               file=paste0("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/testRegionInput_",station_id,".rdata"))
-        #source("/scratch/project_2000994/PREBASruns/adaptFirst/Rsrc/regionPrebasFtest.R",
-        #       local = F)      
+        print("save regionPrebas input")
+        save(initPrebas, HarvLimX, minDharvX,cutArX,compHarvX,
+             file=paste0("/scratch/project_2000994/PREBASruns/PREBAStesting/testRun",rcps,".rdata"))
         print("start regionPrebas...")
         region <- regionPrebas(initPrebas, HarvLim = as.numeric(HarvLimX),
                                minDharv = minDharvX,cutAreas =cutArX,
@@ -486,10 +502,11 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       
     }
   }
+  print(paste("runModel",deltaID,"completed")) ##################################################
+  ###############################################################################################
   
-  print(paste("runModel",deltaID,"completed"))
   ##calculate steady state carbon from prebas litter 
-  if(harvScen=="Base" & harvInten =="Base" & initilizeSoil & rcpfile=="CurrClim"){
+  if(harvScen=="Base" & harvInten =="Base" & initilizeSoil & rcpfile%in%c("CurrClim","CurrClim_fmi")){
     initSoilC <- stXX_GV(region, 1)
     print(paste("initSoilC:",sampleID))
     #if(outType!="testRun" | forceSaveInitSoil)
@@ -527,10 +544,16 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     coefCH4 = coefCH4/1000*10000 #g m-2 y-1 -> kg ha-1
     coefN20_1 = coefN20_1/1000*10000 #g m-2 y-1 -> kg ha-1
     coefN20_2 = coefN20_2/1000*10000 #g m-2 y-1 -> kg ha-1
-    region$CH4emisDrPeat_kgyear = coefCH4*region$areas[siteDrPeat1] +
-      coefCH4*region$areas[siteDrPeat2]
-    region$N2OemisDrPeat_kgyear = coefN20_1*region$areas[siteDrPeat1] +
-      coefN20_2*region$areas[siteDrPeat2]
+    region$CH4emisDrPeat_kgyear[1:nSegs] <- 0
+    region$CH4emisDrPeat_kgyear[siteDrPeat1] = coefCH4
+    region$CH4emisDrPeat_kgyear[siteDrPeat2] = coefCH4
+    #region$CH4emisDrPeat_kgyear = coefCH4*region$areas[siteDrPeat1] +
+    #  coefCH4*region$areas[siteDrPeat2]
+    region$N2OemisDrPeat_kgyear[1:nSegs] <- 0
+    region$N2OemisDrPeat_kgyear[siteDrPeat1] = coefN20_1
+    region$N2OemisDrPeat_kgyear[siteDrPeat2] = coefN20_2
+    #region$N2OemisDrPeat_kgyear = coefN20_1*region$areas[siteDrPeat1] +
+    #  coefN20_2*region$areas[siteDrPeat2]
     
     region$multiOut[siteDrPeat1,,46,,1] = 0.
     region$multiOut[siteDrPeat1,,46,,1] = region$multiOut[siteDrPeat1,,18,,1] - 
@@ -553,7 +576,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
   ## identify managed and unmanaged forests
   manFor <-  which(sampleX$cons==0)
   unmanFor <- which(sampleX$cons==1)
-  if(outType=="ststDeadW" | (harvScen =="Base" & harvInten == "Base" & rcpfile=="CurrClim")){
+  if(outType=="ststDeadW" | (harvScen =="Base" & harvInten == "Base" & rcpfile%in%c("CurrClim","CurrClim_fmi"))){
     yearsDeadW <- 1:nYears
     manDeadW <- initDeadW(region,manFor,yearsDeadW)
     print(paste("dim manDeadW:",dim(manDeadW$ssDeadW)))
@@ -565,12 +588,12 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     } else {
       unmanDeadW <- data.frame()
     }
-    if(exists("station_id")){ 
+    #if(exists("station_id")){ 
       pathToInitDeadW <- "/scratch/project_2000994/PREBASruns/adaptFirst/initDeadWVss/"
       save(unmanDeadW,manDeadW,file=paste0(pathToInitDeadW,"station",
                                          station_id,"_deadWV_mortMod",mortMod,".rdata"))
       print("deadWood volume at steady state saved")
-    }
+    #}
   }else{
     pathToInitDeadW <- "/scratch/project_2000994/PREBASruns/adaptFirst/initDeadWVss/"
     load(paste0(pathToInitDeadW,"station",
@@ -579,7 +602,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     if(nYears == dim(manDeadW$ssDeadW)[1]){
       DeadWInit[1:nrow(manDeadW$ssDeadW),] <- manDeadW$ssDeadW
     } else {
-      nnYears <- dim(manDeadW$ssDeadW)[1]
+      nnYears <- min(nYears,dim(manDeadW$ssDeadW)[1])
       DeadWInit[1:nnYears,] <- manDeadW$ssDeadW[1:nnYears,]
     }
     nl_deadWInit <- dim(DeadWInit)[2]
@@ -595,7 +618,7 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
       if(nYears == dim(manDeadW$ssDeadW)[1]){
         DeadWInit[1:nrow(unmanDeadW$ssDeadW),] <- unmanDeadW$ssDeadW
       } else {
-        nnYears <- dim(unmanDeadW$ssDeadW)[1]
+        nnYears <- min(nYears,dim(unmanDeadW$ssDeadW)[1])
         DeadWInit[1:nnYears,] <- unmanDeadW$ssDeadW[1:nnYears,]
       }
       region$multiOut[unmanFor,,8,1:min(nl_deadWInit,nl_multiOut),1] <- 
@@ -607,7 +630,8 @@ runModelAdapt <- function(deltaID,sampleID=1, climScen=0, outType="dTabs",rcps =
     print("deadWood volume update processed.")
   }
   ####end initialize deadWood Volume
-  if(outType=="testRun") return(list(region = region,initPrebas=initPrebas, clim=clim)) 
+  # Return outputs
+  if(outType=="testRun") return(list(region = region,initPrebas=initPrebas, clim=clim, TminTmax=TminTmax)) 
   if(outType=="dTabs"){
     print("Calculate outputs...")
     output <- runModOutAdapt(sampleID,deltaID,sampleX,region,r_no,harvScen,harvInten,climScen, rcpfile,areas,
@@ -736,26 +760,34 @@ runModOutAdapt <- function(sampleID,deltaID,sampleX,modOut,r_no,harvScen,harvInt
 
 
 
-sample_data.f = function(data.all, nSample) {
-  cloudpixels = data.all[, sum(ba==32766)]
-  nonforest = data.all[, sum(ba==32767)]
-  forest = data.all[, sum(ba< 32766)]
+#sample_data.f = function(data.all, nSample) {
+sample_data.f = function(sampleX, nSample) {
+  cloudpixels = sampleX[, sum(ba==32766)]
+  nonforest = sampleX[, sum(ba==32767)]
+  forest = sampleX[, sum(ba< 32766)]
   AREA = (forest + cloudpixels) * 16 * 16 * 1000 #m2
   AREA_1000ha = AREA / 10000 / 1000
   
   ## REMOVE CLOUD COVERED, AND WHERE cons = NA (...? why)
-  data.all = data.all[ba < 32766]
-  data.all = data.all[!is.na(cons)]
-  
+  sampleX = sampleX[ba < 32766]
+  sampleX = sampleX[!is.na(cons)]
+  gc()
   ## REDUCE SAMPLE FOR TESTING ---------------------------------------
-  smp = floor(seq(1, dim(data.all)[1], len=nSample))
-  data.sample = data.all[smp]
+  smp = floor(seq(1, dim(sampleX)[1], len=nSample))
+  data.sample = sampleX[smp,]
   
   # summary(data.sample[, 3:11])
+  colnams <- c("regID",  "N",      "ba",     "age",    "dbh",    "pine",   "spruce", "birch" )
+  #for (col in colnames(data.sample)[c(3, 5:11)]){ 
+  for (col in colnames(data.sample)[match(colnams, colnames(sampleX))]){ 
+    #print(col)
+    set(data.sample, j=col, value=as.double(data.sample[[col]]))
+  }  
+  #if("y"%in%colnames(data.sample))set(data.sample, j="y", value=as.double(data.sample[[col]]))
+  #if("x"%in%colnames(data.sample))set(data.sample, j="x", value=as.double(data.sample[[col]]))
+  #if("lat"%in%colnames(data.sample))set(data.sample, j="lat", value=as.double(data.sample[[col]]))
   
-  for (col in colnames(data.sample)[c(3, 5:11)]) set(data.sample, j=col,
-                                                     value=as.double(data.sample[[col]]))
-  
+    
   ## -----------------------------------------------------------------
   
   
@@ -780,9 +812,9 @@ sample_data.f = function(data.all, nSample) {
 
 
 # StartingYear = climate data that detrermines simulation period must have year greater than this.
-create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
-                                 startingYear=0, domSPrun=0,
-                                 harv, HcFactorX=HcFactor, climScen=climScen, ingrowth=F,
+create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears, harv,
+                                 startingYear=0, domSPrun=0, clcut=1,
+                                 HcFactorX=HcFactor, climScen=climScen, ingrowth=F,
                                  sampleX=sampleX, P0currclim=NA, fT0=NA, TminTmax=NA,
                                  disturbanceON = F) { # dat = climscendataset
   #domSPrun=0 initialize model for mixed forests according to data inputs 
@@ -800,16 +832,56 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   
   ####### Wind disturbance module from Jonathan
   sid <- NA
-  if("wind"%in%disturbanceON){
-    Xy <- st_read("/scratch/project_2000994/PREBASruns/adaptFirst/rasters/segids_wdist.addvars_jyvaskyla.gpkg")
-    ni <- which(Xy$z %in%  data.sample$segID)
-    ni <- ni[match(data.sample$segID,Xy$z[ni])]
+  if("wind"%in%disturbanceON){# & !rcps%in%c("CurrClim","CurrClim_fmi")){
+    ###
+    # EXTRACT WIND SPEEDS 
+    # for prebas wind disturbance module
+    print("EXTRACT WIND SPEEDS")
+    library(sf)
+    library(mapview)
+    library(stars)
+    
+    #load("/scratch/project_2000994/PREBASruns/adaptFirst/rasters/ops_Jyvaskyla.rdata") # load ops object / sampled segments
+    #idcoord<-  ops[[1]][,c("segID", "x", "y")] # unlist, reduce to coordinates (likely centroids)
+    idcoord <-  data.sample[,c("segID", "x", "y")] # unlist, reduce to coordinates (likely centroids)
+    #names(idcoord) <- c("segID", "x", "y")
+    
+    segids <- st_as_sf(idcoord, coords = c("x","y")) # as sf (vector format)
+    st_crs(segids) <- "EPSG:3067"
+    
+    #mapview(segids) # check visually 
+    #length(unique(segids$segID)) #check number of unique ids/samples
+    
+    
+    #### WIND SPEED ####
+    
+    # read wind speed dataset
+    ws_full <- read_stars("/appl/data/geo/ilmatiede/wind_speed/Wind_10y_return_level.tif") # directly available in puhti!
+    
+    # extract wspeed at plot/centroid locations
+    wspeed = st_extract(ws_full, segids) 
+    
+    segids$wspeed <- wspeed$Wind_10y_return_level.tif 
+    
+    #mapview(segids, zcol="wspeed")
+    
+    #st_write(segids, dsn="/scratch/project_2000994/PREBASruns/adaptFirst/rasters/segids_wspeed_jyvaskyla.gpkg", delete_dsn = TRUE)
+    
+    segids_dt<- data.frame(segids)
+    
+    segids_dt[2] <- NULL
+    #write.csv(segids_dt, dsn="/scratch/project_2000994/PREBASruns/adaptFirst/rasters/segids_wspeed_jyvaskyla.csv")
+    ###
+    #Xy <- st_read("/scratch/project_2000994/PREBASruns/adaptFirst/rasters/segids_wdist.addvars_jyvaskyla.gpkg")
+    #ni <- which(Xy$z %in%  data.sample$segID)
+    ni <- which(segids_dt$segID %in%  data.sample$segID)
+    ni <- ni[match(data.sample$segID,segids_dt$segID[ni])]
     
     sid <- matrix(0, nSites,10) #create input matrix
     # identical demo inputs for all sites
-    sid[,1] <- Xy$wspeed[ni] # localised 10a return max wind speed (Venäläinen et al. 2017). Average 12.2. For test purposes, this can be set to e.g. 50 to trigger disturbances more frequently...
+    sid[,1] <- segids_dt$wspeed[ni] # localised 10a return max wind speed (Ven??l??inen et al. 2017). Average 12.2. For test purposes, this can be set to e.g. 50 to trigger disturbances more frequently...
     sid[,2] <- sample(1:30, nSites, replace=T) # init for time since thinning (e.g. sampling 1:40)
-    sid[,3] <- Xy$soiltype[ni] # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
+    sid[,3] <- 1 #Xy$soiltype[ni] # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
     sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
     
     # salvage logging/mgmt reaction parameters
@@ -980,27 +1052,6 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
     initVar[nLay2,3:6,3] <- 0
   }
   
-  if (FALSE) {
-    dat = dat[id %in% data.sample[, unique(id)]]
-    
-    if(rcps!= "CurrClim.rdata"){
-      # dat[, pvm:= as.Date('1980-01-01') - 1 + rday ]
-      # dat[, DOY:= as.numeric(format(pvm, "%j"))]
-      dat[, Year:= as.numeric(floor(rday/366)+1971)]
-      dat = dat[Year >= startingYear]
-      dat[DOY==366, DOY:=365]
-    }
-    PARtran = t( dcast(dat[, list(id, rday, PAR)], rday ~ id,
-                       value.var="PAR")[, -1])
-    TAirtran = t( dcast(dat[, list(id, rday, TAir)], rday ~ id,
-                        value.var="TAir")[, -1])
-    VPDtran = t( dcast(dat[, list(id, rday, VPD)], rday ~ id,
-                       value.var="VPD")[, -1])
-    Preciptran = t( dcast(dat[, list(id, rday, Precip)], rday ~ id,
-                          value.var="Precip")[, -1])
-    CO2tran = t( dcast(dat[, list(id, rday, CO2)], rday ~ id,
-                       value.var="CO2")[, -1])
-  }
   siteInfo[, 2]  = match(as.numeric(siteInfo[, 2]), as.numeric(rownames(clim[[1]])))
   # siteInfo[, 2]  = match(siteInfo[,2], unique(dat$id))
   
@@ -1020,6 +1071,23 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
   lat <- location$y
   #print(paste("check crobas:",pCrobasX[55,3]))
   #print(pCrobasX)
+  if((nYears*365)>ncol(clim$PAR)){
+    clim$PAR <- cbind(clim$PAR,clim$PAR,clim$PAR,clim$PAR)
+    clim$TAir <- cbind(clim$TAir,clim$TAir,clim$TAir,clim$PAR)
+    clim$VPD <- cbind(clim$VPD,clim$VPD,clim$VPD,clim$PAR)
+    clim$Precip <- cbind(clim$Precip,clim$Precip,clim$Precip,clim$PAR)
+    clim$CO2 <- cbind(clim$CO2,clim$CO2,clim$CO2,clim$PAR)
+    if(rcps=="CurrClim_fmi"){
+      Tmm <- array(0,c(dim(TminTmax)[1],dim(TminTmax)[2]*4,2))
+      Tmm[,,1] <- cbind(TminTmax[,,1],TminTmax[,,1],TminTmax[,,1],TminTmax[,,1])
+      Tmm[,,2] <- cbind(TminTmax[,,2],TminTmax[,,2],TminTmax[,,2],TminTmax[,,2])
+      assign("TminTmax", Tmm)  
+      rm(list="Tmm")
+      gc()
+    }
+    print(paste("length of clim:",ncol(clim$PAR),"versus dimension",nYears*365))
+  }
+  
   if(!is.na(P0currclim[1])){
     print("initialization with N module")
     #print(P0currclim)
@@ -1063,11 +1131,13 @@ create_prebas_input_adapt.f = function(r_no, clim, data.sample, nYears,
                                 yassoRun = 1,
                                 mortMod = mortMod,
                                 p0currClim = P0currclim, fT0AvgCurrClim = fT0,
-                                TminTmax=TminTmax,
+                                TminTmax=TminTmax[,1:(nYears*365),],
                                 disturbanceON = disturbanceON)
   } else {
-    #    save(nYears,nSites,siteInfo,lat,pCrobasX,defaultThin,ClCut,areas,energyCut,ftTapioParX,tTapioParX,initVar,clim,mortMod, file=paste0("testDataInit","master",".rdata"))
-    #    print("data saved")
+    if(FALSE){save(nYears,nSites,siteInfo,sid,lat,pCrobasX,defaultThin,ClCut,areas,ingrowth,energyCut,
+         ftTapioParX,tTapioParX,initVar,clim,mortMod,TminTmax,disturbanceON, 
+         file=paste0("/scratch/project_2000994/PREBASruns/PREBAStesting/testDataInit_master.rdata"))
+        print("data saved")}
     print("run initPrebas")
     initPrebas <- InitMultiSite(nYearsMS = rep(nYears,nSites),siteInfo=siteInfo,
                                 siteInfoDist = sid,
@@ -1120,15 +1190,16 @@ yasso.mean.climate.f = function(dat, data.sample, startingYear, nYears){
 }
 
 
-prep.climate.f = function(dat, data.sample, startingYear, nYears){
-  #if(rcps== "CurrClim.rdata"){
-    dat = dat[id %in% data.sample[, unique(id)]]
-  #}
-  ##   dat[, Year:= as.numeric(floor(rday/366)+1971)]
-  ##   dat = dat[Year >= startingYear]
-  ##   
-  ## }else{
-  dat[, pvm:= as.Date('1991-01-01') - 1 + rday ]
+prep.climate.f = function(dat, data.sample, startingYear, nYears, rcps){
+  print("Formulate climate data...")
+  dat = dat[id %in% data.sample[, unique(id)]]
+ # print(colnames(dat))
+  
+  if(rcps == "CurrClim_fmi"){
+    colnames(dat)[which(colnames(dat)=="time")] <- "pvm"
+  } else {
+    dat[, pvm:= as.Date('1991-01-01') - 1 + rday ]
+  }
   dat[, DOY:= as.numeric(format(pvm, "%j"))]
   dat[, Year:= as.numeric(format(pvm, "%Y"))]
   dat = dat[Year >= startingYear]
@@ -1145,6 +1216,8 @@ prep.climate.f = function(dat, data.sample, startingYear, nYears){
                         value.var="Precip")[, -1])
   CO2tran = t( dcast(dat[, list(id, rday, CO2)], rday ~ id,
                      value.var="CO2")[, -1])
+  print("...done.")
+  
   list(PAR=PARtran, TAir=TAirtran, VPD=VPDtran, 
        Precip=Preciptran, CO2=CO2tran,id=id)
 }
@@ -2127,7 +2200,7 @@ processPeat <- function(peatXf, fertf, npp_lit, nepf, peatval, fertval) {
 
 
 #####functions to calculate Mortality related metrics as in 
-###15Silva Fennica vol. 54 no. 5 article id 10414 · Siipilehto et al. · Stand-level mortality models for Nordic boreal ...
+###15Silva Fennica vol. 54 no. 5 article id 10414 ?? Siipilehto et al. ?? Stand-level mortality models for Nordic boreal ...
 pMort <- function(modOut,ageClass, rangeYear=5){
   endX <- rangeYear:dim(modOut)[2]
   startX <- endX-(rangeYear-1)
